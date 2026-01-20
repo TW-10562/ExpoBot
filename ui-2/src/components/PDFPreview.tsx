@@ -136,7 +136,7 @@ export default function PDFPreview({
         style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top left' }}
       >
         {/* PDF Preview - using iframe or object for actual PDF */}
-        <div className="bg-white rounded-lg shadow-lg min-h-full">
+        <div className="bg-white dark:bg-dark-surface rounded-lg shadow-lg min-h-full transition-colors">
           {fileUrl ? (
             <iframe
               src={`${previewUrl}#page=${currentPage}`}
@@ -145,9 +145,9 @@ export default function PDFPreview({
             />
           ) : (
             /* Fallback preview for when URL is not available */
-            <div className="p-8 text-center">
-              <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <h4 className="text-lg font-medium text-slate-700 mb-2">{filename}</h4>
+            <div className="p-8 text-center dark:bg-dark-surface transition-colors">
+              <FileText className="w-16 h-16 text-slate-300 dark:text-dark-text-muted mx-auto mb-4 transition-colors" />
+              <h4 className="text-lg font-medium text-slate-700 dark:text-dark-text mb-2 transition-colors">{filename}</h4>
               <p className="text-sm text-slate-500 mb-4">
                 Page {currentPage}
               </p>

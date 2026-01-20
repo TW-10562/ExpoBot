@@ -59,7 +59,7 @@ export default function Popup({
       />
 
       <div
-        className={`relative w-full ${maxWidth} h-[85vh] bg-white rounded-2xl shadow-2xl border border-[#E8E8E8] flex flex-col overflow-hidden transition-all duration-300 ${
+        className={`relative w-full ${maxWidth} h-[85vh] bg-white dark:bg-dark-surface rounded-2xl shadow-2xl border border-[#E8E8E8] dark:border-dark-border flex flex-col overflow-hidden transition-all duration-300 ${
           isAnimating
             ? 'scale-100 translate-y-0 opacity-100'
             : 'scale-90 translate-y-8 opacity-0'
@@ -69,19 +69,19 @@ export default function Popup({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E8E8] bg-[#F6F6F6]">
-          <h2 className="text-2xl font-semibold text-[#232333]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
+          <h2 className="text-2xl font-semibold text-[#232333] dark:text-dark-text transition-colors">
   {t('common.profile')}
 </h2>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-[#E8E8E8] rounded-xl transition-colors group"
+            className="p-2 hover:bg-[#E8E8E8] dark:hover:bg-dark-surface rounded-xl transition-colors group"
           >
-            <X className="w-6 h-6 text-[#6E7680] group-hover:text-[#232333] transition-colors" />
+            <X className="w-6 h-6 text-[#6E7680] dark:text-dark-text-muted group-hover:text-[#232333] dark:group-hover:text-dark-text transition-colors" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-hidden bg-white">{children}</div>
+        <div className="flex-1 overflow-hidden bg-white dark:bg-dark-surface transition-colors">{children}</div>
       </div>
 
       <style>{`

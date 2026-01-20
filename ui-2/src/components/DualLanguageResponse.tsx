@@ -54,7 +54,7 @@ export const DualLanguageResponse: React.FC<DualLanguageResponseProps> = ({
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           {metadata?.processingPath && (
-            <span className="text-xs px-2 py-1 rounded-full bg-[#F6F6F6] border border-[#E8E8E8] text-[#6E7680]">
+            <span className="text-xs px-2 py-1 rounded-full bg-[#F6F6F6] dark:bg-dark-border border border-[#E8E8E8] dark:border-dark-border text-[#6E7680] dark:text-dark-text-muted transition-colors">
               {metadata.processingPath === 'COMPANY' ? (
                 <>
                   <span className="inline-block mr-1">🏢</span>
@@ -78,13 +78,13 @@ export const DualLanguageResponse: React.FC<DualLanguageResponseProps> = ({
         </div>
 
         {/* Language tabs */}
-        <div className="flex gap-1 p-1 bg-[#F6F6F6] border border-[#E8E8E8] rounded-lg">
+        <div className="flex gap-1 p-1 bg-[#F6F6F6] dark:bg-dark-border border border-[#E8E8E8] dark:border-dark-border rounded-lg transition-colors">
           <button
             onClick={() => setActiveTab('both')}
             className={`px-3 py-1 text-xs rounded-md transition-colors ${
               activeTab === 'both'
-                ? 'bg-[#1d2089] text-white'
-                : 'text-[#6E7680] hover:text-[#232333] hover:bg-[#E8E8E8]'
+                ? 'bg-[#1d2089] dark:bg-gradient-to-r dark:from-[#60a5fa] dark:to-[#a78bfa] text-white'
+                : 'text-[#6E7680] dark:text-dark-text-muted hover:text-[#232333] dark:hover:text-dark-text hover:bg-[#E8E8E8] dark:hover:bg-dark-surface'
             }`}
             title="Show both languages"
           >
@@ -158,7 +158,7 @@ export const DualLanguageResponse: React.FC<DualLanguageResponseProps> = ({
               </div>
               <button
                 onClick={() => handleCopy(secondaryText, 'secondary')}
-                className="p-1.5 rounded-md text-[#6E7680] hover:text-[#232333] hover:bg-[#F6F6F6] transition-colors"
+                className="p-1.5 rounded-md text-[#6E7680] dark:text-dark-text-muted hover:text-[#232333] dark:hover:text-dark-text hover:bg-[#F6F6F6] dark:hover:bg-dark-surface transition-colors"
                 title="Copy this language"
               >
                 {copied === 'secondary' ? (
@@ -168,20 +168,20 @@ export const DualLanguageResponse: React.FC<DualLanguageResponseProps> = ({
                 )}
               </button>
             </div>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#232333]">
+            <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#232333] dark:text-dark-text transition-colors">
               {secondaryText}
             </p>
           </div>
         </div>
       ) : (
-        <div className="p-4 rounded-xl bg-white border border-[#E8E8E8]">
+        <div className="p-4 rounded-xl bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border transition-colors">
           {activeTab === 'primary' ? (
             <>
-              <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E8E8E8]">
-                <span className="text-sm font-semibold text-[#232333]">{primaryLang}</span>
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E8E8E8] dark:border-dark-border">
+                <span className="text-sm font-semibold text-[#232333] dark:text-dark-text transition-colors">{primaryLang}</span>
                 <button
                   onClick={() => handleCopy(primaryText, 'primary')}
-                  className="p-1.5 rounded-md text-[#6E7680] hover:text-[#232333] hover:bg-[#F6F6F6] transition-colors"
+                  className="p-1.5 rounded-md text-[#6E7680] dark:text-dark-text-muted hover:text-[#232333] dark:hover:text-dark-text hover:bg-[#F6F6F6] dark:hover:bg-dark-surface transition-colors"
                 >
                   {copied === 'primary' ? (
                     <Check className="w-4 h-4 text-green-600" />
@@ -190,17 +190,17 @@ export const DualLanguageResponse: React.FC<DualLanguageResponseProps> = ({
                   )}
                 </button>
               </div>
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#232333]">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#232333] dark:text-dark-text transition-colors">
                 {primaryText}
               </p>
             </>
           ) : (
             <>
-              <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E8E8E8]">
-                <span className="text-sm font-semibold text-[#232333]">{secondaryLang}</span>
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E8E8E8] dark:border-dark-border">
+                <span className="text-sm font-semibold text-[#232333] dark:text-dark-text transition-colors">{secondaryLang}</span>
                 <button
                   onClick={() => handleCopy(secondaryText, 'secondary')}
-                  className="p-1.5 rounded-md text-[#6E7680] hover:text-[#232333] hover:bg-[#F6F6F6] transition-colors"
+                  className="p-1.5 rounded-md text-[#6E7680] dark:text-dark-text-muted hover:text-[#232333] dark:hover:text-dark-text hover:bg-[#F6F6F6] dark:hover:bg-dark-surface transition-colors"
                 >
                   {copied === 'secondary' ? (
                     <Check className="w-4 h-4 text-green-600" />

@@ -90,11 +90,11 @@ export default function HomePage({
       />
 
       {/* Main */}
-      <main className="flex-1 pt-4 px-3 lg:pl-6 lg:pr-6 pb-4 overflow-hidden bg-[#F6F6F6]">
+      <main className="mac-glass-page flex-1 pt-4 px-3 lg:pl-6 lg:pr-6 pb-4 overflow-hidden bg-[#F6F6F6] dark:bg-dark-gradient transition-colors">
         <div className={`h-full gap-4 overflow-hidden flex flex-col lg:grid ${showNotificationPanel ? 'lg:grid-cols-[72px_1fr_320px]' : 'lg:grid-cols-[72px_1fr]'}`}>
           {/* Sidebar */}
           <aside className="hidden lg:block h-full">
-            <div className="h-full rounded-xl mac-glass mac-glass-translucent mac-border-highlight overflow-hidden">
+            <div className="left-sidebar h-full rounded-xl overflow-hidden">
               <div className="sidebar-inner h-full overflow-y-auto flex flex-col items-center gap-3 pt-4">
                 {sidebarButtons(
                   user.role,

@@ -70,8 +70,8 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="p-6 border-b border-[#E8E8E8] bg-[#F6F6F6]">
-        <h2 className="text-lg font-semibold text-[#232333]">{t('inlineContactAdmin.title')}</h2>
+      <div className="p-6 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
+        <h2 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">{t('inlineContactAdmin.title')}</h2>
         <p className="text-sm text-[#6E7680] mt-1">{t('inlineContactAdmin.description')}</p>
       </div>
 
@@ -84,7 +84,7 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
         )}
 
         {justSent && (
-          <div className="p-4 bg-[#F6F6F6] border border-[#E8E8E8] rounded-xl text-[#232333] text-sm">
+          <div className="p-4 bg-[#F6F6F6] dark:bg-dark-border border border-[#E8E8E8] dark:border-dark-border rounded-xl text-[#232333] dark:text-dark-text text-sm transition-colors">
             <div className="flex items-center justify-between">
               <span className="text-[#232333] font-semibold">{t('inlineContactAdmin.yourMessage')}</span>
               <span className="text-xs text-[#9CA3AF]">{new Date(justSent.timestamp).toLocaleString()}</span>
@@ -99,26 +99,26 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
         )}
 
         <div>
-          <label className="block text-sm font-medium text-[#232333] mb-2">{t('inlineContactAdmin.subjectLabel')}</label>
+          <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">{t('inlineContactAdmin.subjectLabel')}</label>
           <input
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder={t('inlineContactAdmin.subjectPlaceholder')}
-            className="w-full bg-white border border-[#E8E8E8] rounded-xl px-4 py-3 text-[#232333] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1d2089] focus:border-transparent transition-all"
+            className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent transition-all"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#232333] mb-2">{t('inlineContactAdmin.contentLabel')}</label>
+          <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">{t('inlineContactAdmin.contentLabel')}</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={t('inlineContactAdmin.contentPlaceholder')}
             rows={8}
-            className="w-full bg-white border border-[#E8E8E8] rounded-xl px-4 py-3 text-[#232333] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1d2089] focus:border-transparent transition-all resize-vertical"
+            className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent transition-all resize-vertical"
           />
-          <p className="mt-2 text-xs text-[#9CA3AF]">
+          <p className="mt-2 text-xs text-[#9CA3AF] dark:text-dark-text-muted transition-colors">
             {content.length > 0
               ? t('inlineContactAdmin.charactersCount', { count: content.length })
               : t('inlineContactAdmin.minCharacters')}

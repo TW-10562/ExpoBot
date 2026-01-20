@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ToastProvider } from './context/ToastContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { ThemeProvider } from './context/ThemeContext';
 import LoginPage from './components/LoginPage';
 import HomePage from './components/HomePage';
 import Popup from './components/Popup';
@@ -679,9 +680,11 @@ function AppContent() {
  
 function App() {
   return (
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }
  

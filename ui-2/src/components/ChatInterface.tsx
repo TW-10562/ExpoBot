@@ -391,11 +391,11 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
     {showShareModal && (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowShareModal(false)} />
-        <div className="relative bg-white border border-[#E8E8E8] rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="relative bg-white dark:bg-dark-bg-secondary border border-[#E8E8E8] dark:border-dark-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden transition-colors">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E8E8] bg-[#F6F6F6]">
-            <h2 className="text-lg font-semibold text-[#232333]">{t('chatActions.shareTitle')}</h2>
-            <button onClick={() => setShowShareModal(false)} className="text-[#6E7680] hover:text-[#232333]">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-tertiary transition-colors">
+            <h2 className="text-lg font-semibold text-[#232333] dark:text-dark-text">{t('chatActions.shareTitle')}</h2>
+            <button onClick={() => setShowShareModal(false)} className="text-[#6E7680] dark:text-dark-text-secondary hover:text-[#232333] dark:hover:text-dark-text transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -625,15 +625,15 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
           </button>
         ) : (
           <>
-            <div className="mt-3 p-4 rounded-xl bg-white border border-[#E8E8E8] shadow-sm">
-              <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#E8E8E8]">
-                <Globe className="w-4 h-4 text-[#1d2089]" />
-                <span className="text-xs font-semibold text-[#232333]">
+            <div className="mt-3 p-4 rounded-xl bg-white dark:bg-dark-bg-secondary border border-[#E8E8E8] dark:border-dark-border shadow-sm transition-colors">
+              <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#E8E8E8] dark:border-dark-border">
+                <Globe className="w-4 h-4 text-[#1d2089] dark:text-blue-400" />
+                <span className="text-xs font-semibold text-[#232333] dark:text-dark-text">
                   {targetLanguageName}
                 </span>
               </div>
 
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#232333]">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#232333] dark:text-dark-text">
                 {translation}
               </p>
             </div>

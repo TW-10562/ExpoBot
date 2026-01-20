@@ -73,25 +73,25 @@ export default function AnalyticsDashboard() {
   if (!data) return null;
 
   return (
-    <div className="space-y-6 p-6 min-h-screen bg-[#F6F6F6] mac-tab-animate">
+    <div className="space-y-6 p-6 min-h-screen bg-[#F6F6F6] dark:bg-dark-gradient mac-tab-animate">
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-[#1d2089] rounded-xl">
+          <div className="p-2 bg-[#1d2089] dark:bg-gradient-to-r dark:from-[#60a5fa] dark:to-[#a78bfa] rounded-xl transition-colors">
             <BarChart3 className="w-6 h-6 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-[#232333]">{t('analytics.title')}</h2>
+          <h2 className="text-2xl font-bold text-[#232333] dark:text-white transition-colors">{t('analytics.title')}</h2>
         </div>
 
-        <div className="flex gap-1 bg-white border border-[#E8E8E8] rounded-xl p-1 shadow-sm">
+        <div className="flex gap-1 bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl p-1 shadow-sm transition-colors">
           {(['7d', '30d', '90d'] as const).map(r => (
             <button
               key={r}
               onClick={() => setTimeRange(r)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 timeRange === r
-                  ? 'bg-[#1d2089] text-white'
-                  : 'text-[#6E7680] hover:bg-[#F6F6F6] hover:text-[#232333]'
+                  ? 'bg-[#1d2089] dark:bg-gradient-to-r dark:from-[#60a5fa] dark:to-[#a78bfa] text-white'
+                  : 'text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-surface hover:text-[#232333] dark:hover:text-dark-text'
               }`}
             >
               {r.toUpperCase()}
@@ -125,9 +125,9 @@ export default function AnalyticsDashboard() {
       {/* GRAPHS / METRICS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* FEEDBACK DISTRIBUTION */}
-        <div className="bg-white border border-[#E8E8E8] rounded-2xl p-6 shadow-sm">
-          <h3 className="text-[#232333] font-semibold mb-4 flex items-center gap-2">
-            <PieChart className="w-5 h-5 text-[#1d2089]" />{t('analytics.feedbackQuality')}
+        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm transition-colors">
+          <h3 className="text-[#232333] dark:text-dark-text font-semibold mb-4 flex items-center gap-2 transition-colors">
+            <PieChart className="w-5 h-5 text-[#1d2089] dark:text-[#60a5fa] transition-colors" />{t('analytics.feedbackQuality')}
           </h3>
 
           <div className="space-y-4">
@@ -140,7 +140,7 @@ export default function AnalyticsDashboard() {
                     <span className="text-[#6E7680]">{label}</span>
                     <span className="text-[#232333] font-medium">{f.value}%</span>
                   </div>
-                  <div className="h-2.5 bg-[#F6F6F6] rounded-full">
+                  <div className="h-2.5 bg-[#F6F6F6] dark:bg-dark-border rounded-full transition-colors">
                     <div
                       className={`h-2.5 rounded-full ${isPositive ? 'bg-[#059669]' : 'bg-[#DC2626]'}`}
                       style={{ width: `${f.value}%` }}
@@ -153,23 +153,23 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* ERROR / FAILURE METRIC */}
-        <div className="bg-white border border-[#E8E8E8] rounded-2xl p-6 shadow-sm">
-          <h3 className="text-[#232333] font-semibold mb-4 flex items-center gap-2">
+        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm transition-colors">
+          <h3 className="text-[#232333] dark:text-dark-text font-semibold mb-4 flex items-center gap-2 transition-colors">
             <AlertTriangle className="w-5 h-5 text-amber-500" />{t('analytics.errorFailureRate')}
           </h3>
 
           <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-[#F6F6F6] rounded-xl">
-              <span className="text-[#6E7680]">{t('analytics.failedRequests')}</span>
-              <span className="text-[#232333] font-semibold text-lg">{data.failedRequests}</span>
+            <div className="flex justify-between items-center p-3 bg-[#F6F6F6] dark:bg-dark-border rounded-xl transition-colors">
+              <span className="text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('analytics.failedRequests')}</span>
+              <span className="text-[#232333] dark:text-dark-text font-semibold text-lg transition-colors">{data.failedRequests}</span>
             </div>
 
-            <div className="flex justify-between items-center p-3 bg-[#F6F6F6] rounded-xl">
-              <span className="text-[#6E7680]">{t('analytics.errorRate')}</span>
-              <span className="text-[#232333] font-semibold text-lg">{data.errorRate}%</span>
+            <div className="flex justify-between items-center p-3 bg-[#F6F6F6] dark:bg-dark-border rounded-xl transition-colors">
+              <span className="text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('analytics.errorRate')}</span>
+              <span className="text-[#232333] dark:text-dark-text font-semibold text-lg transition-colors">{data.errorRate}%</span>
             </div>
 
-            <div className="h-3 bg-[#F6F6F6] rounded-full">
+            <div className="h-3 bg-[#F6F6F6] dark:bg-dark-border rounded-full transition-colors">
               <div
                 className="h-3 bg-amber-500 rounded-full"
                 style={{ width: `${Math.min(data.errorRate * 5, 100)}%` }}
@@ -184,14 +184,14 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* SYSTEM HEALTH */}
-      <div className="bg-white border border-[#E8E8E8] rounded-2xl p-6 shadow-sm">
-        <h3 className="text-[#232333] font-semibold mb-2 flex items-center gap-2">
-          <div className="p-1.5 bg-green-100 rounded-lg">
+      <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm transition-colors">
+        <h3 className="text-[#232333] dark:text-dark-text font-semibold mb-2 flex items-center gap-2 transition-colors">
+          <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg transition-colors">
             <Activity className="w-4 h-4 text-green-600" />
           </div>
           {t('analytics.systemHealth')}
         </h3>
-        <p className="text-[#6E7680] text-sm">
+        <p className="text-[#6E7680] dark:text-dark-text-muted text-sm transition-colorsxt-dark-text-muted text-sm transition-colors">
           {t('analytics.systemStatus')}
         </p>
       </div>
@@ -224,11 +224,11 @@ function Metric({
   };
 
   return (
-    <div className="bg-white border border-[#E8E8E8] rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-[#6E7680] text-sm mb-1">{title}</p>
-          <p className="text-3xl font-bold text-[#232333]">{value}</p>
+          <p className="text-[#6E7680] dark:text-dark-text-muted text-sm mb-1 transition-colors">{title}</p>
+          <p className="text-3xl font-bold text-[#232333] dark:text-dark-text transition-colors">{value}</p>
         </div>
         <div className={`p-3 rounded-xl ${iconBg[color]}`}>
           <Icon className={`w-6 h-6 ${iconColor[color]}`} />

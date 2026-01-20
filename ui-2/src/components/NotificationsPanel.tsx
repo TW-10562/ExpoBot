@@ -136,16 +136,16 @@ export default function NotificationsPanel({
 
   return (
     <aside
-      className={`h-full w-full bg-white flex flex-col overflow-hidden ${
+      className={`h-full w-full bg-white dark:bg-dark-surface flex flex-col overflow-hidden transition-colors ${
         dimmed ? 'opacity-60' : 'opacity-100'
       }`}
     >
       {/* HEADER */}
-      <div className="p-4 border-b border-[#E8E8E8] flex items-center gap-3 flex-shrink-0">
-        <div className="p-2 bg-[#F0F4FF] rounded-lg">
-          <Bell className="w-4 h-4 text-[#1d2089] flex-shrink-0" />
+      <div className="p-4 border-b border-[#E8E8E8] dark:border-dark-border dark:bg-dark-bg-primary flex items-center gap-3 flex-shrink-0 transition-colors">
+        <div className="p-2 bg-[#F0F4FF] dark:bg-blue-900/30 rounded-lg transition-colors">
+          <Bell className="w-4 h-4 text-[#1d2089] dark:text-[#60a5fa] flex-shrink-0 transition-colors" />
         </div>
-        <h3 className="text-sm font-semibold text-[#232333] flex-1 truncate">
+        <h3 className="text-sm font-semibold text-[#232333] dark:text-dark-text flex-1 truncate transition-colors">
           {t('notificationsPanel.title')}
         </h3>
         {onSearchChange && (
@@ -153,7 +153,7 @@ export default function NotificationsPanel({
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={t('notificationsPanel.searchPlaceholder')}
-            className="bg-[#F6F6F6] text-xs text-[#232333] px-3 py-1.5 rounded-lg border border-[#E8E8E8] flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-[#1d2089]"
+            className="bg-[#F6F6F6] dark:bg-dark-border text-xs text-[#232333] dark:text-dark-text px-3 py-1.5 rounded-lg border border-[#E8E8E8] dark:border-dark-border flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] transition-colors"
           />
         )}
       </div>

@@ -174,28 +174,28 @@ function ContactUsersPanel({
       {/* Delete Confirmation Modal */}
       {pendingDeleteMsg && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white border border-[#E8E8E8] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl transition-colors">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-3 rounded-xl bg-red-50">
+              <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950">
                 <Trash2 className="w-6 h-6 text-red-500" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#232333]">
+                <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">
                   {t('broadcast.deleteTitle', undefined, 'Delete Message')}
                 </h3>
-                <p className="text-sm text-[#6E7680]">
+                <p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">
                   {t('broadcast.deleteWarning', undefined, 'This action cannot be undone')}
                 </p>
               </div>
             </div>
-            <div className="bg-[#F6F6F6] rounded-xl p-4">
-              <p className="text-xs text-[#6E7680] mb-1">{t('broadcast.subjectLabel')}</p>
-              <p className="text-sm font-medium text-[#232333] break-all">{pendingDeleteMsg.subject}</p>
+            <div className="bg-[#F6F6F6] dark:bg-dark-surface-alt rounded-xl p-4 transition-colors">
+              <p className="text-xs text-[#6E7680] dark:text-dark-text-muted mb-1 transition-colors">{t('broadcast.subjectLabel')}</p>
+              <p className="text-sm font-medium text-[#232333] dark:text-dark-text break-all transition-colors">{pendingDeleteMsg.subject}</p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setPendingDeleteMsg(null)}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6F6F6] hover:bg-[#E8E8E8] text-[#232333] font-medium transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-surface text-[#232333] dark:text-dark-text font-medium transition-colors"
               >
                 {t('common.cancel')}
               </button>
@@ -212,70 +212,74 @@ function ContactUsersPanel({
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column - Broadcast Form */}
-        <div className="bg-white border border-[#E8E8E8] rounded-2xl overflow-hidden shadow-sm">
-          <div className="p-5 border-b border-[#E8E8E8] bg-[#F6F6F6]">
+      {/* ✅ Wrapper to hold BOTH cards */}
+      <div className="space-y-6">
+        {/* Broadcast composer card */}
+        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
+          <div className="p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-[#1d2089] rounded-xl">
                 <Send className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#232333]">
+                <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">
                   {t('broadcast.title')}
                 </h3>
-                <p className="text-sm text-[#6E7680]">
-                  {t('broadcast.subtitle')}
-                </p>
+                <p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('broadcast.subtitle')}</p>
               </div>
             </div>
           </div>
+
           <div className="p-5 space-y-4">
             {success && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-600 text-sm flex items-center gap-2">
+              <div className="p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/40 rounded-xl text-green-600 dark:text-green-300 text-sm flex items-center gap-2 transition-colors">
                 <CheckCircle className="w-4 h-4" />
                 {success}
               </div>
             )}
+
             <div>
-              <label className="block text-sm font-medium text-[#232333] mb-2">
+              <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">
                 {t('broadcast.subjectLabel')}
               </label>
               <input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-white border border-[#E8E8E8] rounded-xl px-4 py-3 text-[#232333] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1d2089] focus:border-transparent transition-all"
+                className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent transition-all"
                 placeholder={t('broadcast.subjectPlaceholder')}
               />
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-[#232333] mb-2">
+              <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2">
                 {messageLabelClean} <span className="text-red-500">*</span>
               </label>
               <textarea
                 rows={5}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="w-full bg-white border border-[#E8E8E8] rounded-xl px-4 py-3 text-[#232333] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1d2089] focus:border-transparent transition-all resize-none"
+                className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent transition-all resize-none"
                 placeholder={t('broadcast.messagePlaceholder')}
               />
             </div>
+
             <div className="flex items-center justify-between pt-2">
               <button
                 type="button"
                 onClick={onOpenDeleteMessages}
-                className="px-4 py-2.5 rounded-xl text-red-500 hover:bg-red-50 text-sm inline-flex items-center gap-2 transition-colors"
+                className="px-4 py-2.5 rounded-xl text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 text-sm inline-flex items-center gap-2 transition-colors"
                 title={t('messages.deleteTitle')}
               >
                 <Trash2 className="w-4 h-4" />
                 {t('messages.deleteTitle') || 'Delete Messages'}
               </button>
+
               <button
                 type="button"
                 onClick={sendBroadcast}
                 disabled={sending || !content.trim()}
-                className="px-6 py-2.5 rounded-xl bg-[#1d2089] hover:bg-[#161870] disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] text-white font-medium text-sm inline-flex items-center gap-2 transition-colors"
+                className="px-6 py-2.5 rounded-xl bg-[#1d2089] hover:bg-[#161870] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm inline-flex items-center gap-2 transition-colors"
               >
                 <Send className="w-4 h-4" />
                 {sending ? t('broadcast.sending') : t('broadcast.send')}
@@ -284,59 +288,51 @@ function ContactUsersPanel({
           </div>
         </div>
 
-        {/* Right Column - Sent Messages */}
-        <div className="bg-white border border-[#E8E8E8] rounded-2xl overflow-hidden shadow-sm">
-          <div className="p-5 border-b border-[#E8E8E8] bg-[#F6F6F6]">
+        {/* Sent messages card */}
+        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
+          <div className="p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-green-500 rounded-xl">
                 <CheckCircle className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#232333]">
+                <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">
                   {safeT('broadcast.sentMessages', 'Sent Messages')}
                 </h3>
-                {sentMessages.length > 0 && (
-                  <p className="text-sm text-[#6E7680]">
-                    {t(
-                      'broadcast.sentCount',
-                      { count: sentMessages.length },
-                      '{{count}} messages sent'
-                    )}
-                  </p>
-                )}
               </div>
             </div>
           </div>
+
           <div className="p-5">
             {sentMessages.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-[#F6F6F6] rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-[#F6F6F6] dark:bg-dark-surface-alt rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
                   <Send className="w-8 h-8 text-[#9CA3AF]" />
                 </div>
-                <p className="text-[#6E7680] text-sm">{t('broadcast.emptySentTitle', undefined, 'No messages sent yet')}</p>
-                <p className="text-[#9CA3AF] text-xs mt-1">{t('broadcast.emptySentSubtitle', undefined, 'Your broadcast messages will appear here')}</p>
+                <p className="text-[#6E7680] dark:text-dark-text-muted text-sm transition-colors">
+                  {t('broadcast.emptySentTitle', undefined, 'No messages sent yet')}
+                </p>
               </div>
             ) : (
               <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
                 {sentMessages.map((msg) => (
                   <div
                     key={msg.id}
-                    className="relative bg-[#F6F6F6] hover:bg-[#E8E8E8] border border-[#E8E8E8] rounded-xl p-4 transition-colors group"
+                    className="relative bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl p-4 transition-colors group"
                   >
                     <button
                       onClick={() => setPendingDeleteMsg(msg)}
-                      className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-red-50 text-[#9CA3AF] hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                      className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-[#9CA3AF] hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                       title={t('common.delete') || 'Delete'}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
-                    <h5 className="text-sm font-semibold text-[#232333] mb-1 pr-8">
+
+                    <h5 className="text-sm font-semibold text-[#232333] dark:text-white transition-colors mb-1 pr-8">
                       {msg.subject}
                     </h5>
-                    <p className="text-xs text-[#6E7680] line-clamp-2 mb-3">
-                      {msg.content}
-                    </p>
-                    <div className="flex items-center gap-2 text-[10px] text-[#9CA3AF]">
+                    <p className="text-xs text-[#6E7680] dark:text-dark-text-muted line-clamp-2 mb-3 transition-colors">{msg.content}</p>
+                    <div className="flex items-center gap-2 text-[10px] text-[#9CA3AF] dark:text-dark-text-muted transition-colors">
                       <Clock className="w-3 h-3" />
                       {new Date(msg.created_at).toLocaleString()}
                     </div>
@@ -350,6 +346,7 @@ function ContactUsersPanel({
     </>
   );
 }
+
 
 type Tab = 'documents' | 'analytics' | 'users' | 'activity' | 'chat' | 'contact' | 'messages';
 
@@ -821,7 +818,7 @@ activities.unshift({
     <div className="flex flex-col h-full">
       {/* Hide internal tab bar when controlled by external sidebar */}
       {!controlledTab && (
-        <div className="flex border-b border-[#E8E8E8] bg-white">
+        <div className="flex border-b border-[#E8E8E8] dark:border-dark-border bg-white dark:bg-dark-bg-primary transition-colors">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -831,8 +828,8 @@ activities.unshift({
               }}
               className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 transition-all ${
                 activeTab === tab.id
-                  ? 'bg-[#F0F4FF] border-b-2 border-[#1d2089] text-[#1d2089]'
-                  : 'text-[#6E7680] hover:bg-[#F6F6F6] hover:text-[#232333]'
+                  ? 'bg-[#F0F4FF] dark:bg-dark-surface border-b-2 border-[#1d2089] dark:border-[#60a5fa] text-[#1d2089] dark:text-[#60a5fa]'
+                  : 'text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-border hover:text-[#232333] dark:hover:text-white'
               }`}
             >
               <tab.icon className="w-5 h-5" />
@@ -842,32 +839,32 @@ activities.unshift({
         </div>
       )}
 
-      <div key={activeTab} className="flex-1 overflow-y-auto p-6 mac-tab-animate bg-[#F6F6F6]">
+      <div key={activeTab} className="flex-1 overflow-y-auto p-6 mac-tab-animate bg-[#F6F6F6] dark:bg-dark-gradient transition-colors">
         {/* Delete Confirmation Modal */}
         {pendingDelete && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div className="bg-white border border-[#E8E8E8] rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 transition-colors">
               <div className="flex items-center gap-3 mb-2">
-                <div className="p-3 rounded-xl bg-red-50">
+                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950">
                   <Trash2 className="w-6 h-6 text-red-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-[#232333]">
+                  <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">
   {t('documentTable.deleteTitle')}
 </h3>
-<p className="text-sm text-[#6E7680]">
+<p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">
   {t('documentTable.deleteWarning')}
 </p>
                 </div>
               </div>
-              <div className="bg-[#F6F6F6] rounded-xl p-4">
-                <p className="text-xs text-[#6E7680] mb-1">File Name</p>
-                <p className="text-sm font-medium text-[#232333] break-all">{pendingDelete.filename}</p>
+              <div className="bg-[#F6F6F6] dark:bg-dark-surface-alt rounded-xl p-4 transition-colors">
+                <p className="text-xs text-[#6E7680] dark:text-dark-text-muted mb-1 transition-colors">File Name</p>
+                <p className="text-sm font-medium text-[#232333] dark:text-dark-text break-all transition-colors">{pendingDelete.filename}</p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setPendingDelete(null)}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6F6F6] hover:bg-[#E8E8E8] text-[#232333] font-medium transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-surface text-[#232333] dark:text-dark-text font-medium transition-colors"
                 >
                   {t('common.cancel')}
                 </button>
@@ -888,31 +885,31 @@ activities.unshift({
         {/* Duplicate Warning Modal */}
         {showDuplicateWarning && duplicateFile && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div className="bg-white border border-[#E8E8E8] rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 transition-colors">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 rounded-xl bg-amber-50">
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950">
                   <AlertTriangle className="w-6 h-6 text-amber-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-[#232333]">Duplicate Document</h3>
-                  <p className="text-sm text-[#6E7680]">This file already exists</p>
+                  <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">Duplicate Document</h3>
+                  <p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">This file already exists</p>
                 </div>
               </div>
 
-              <div className="space-y-3 bg-[#F6F6F6] rounded-xl p-4">
+              <div className="space-y-3 bg-[#F6F6F6] dark:bg-dark-border rounded-xl p-4 transition-colors">
                 <div>
-                  <p className="text-xs text-[#6E7680]">File Name</p>
-                  <p className="text-sm font-medium text-[#232333]">{duplicateFile.filename}</p>
+                  <p className="text-xs text-[#6E7680] dark:text-dark-text-muted transition-colors">File Name</p>
+                  <p className="text-sm font-medium text-[#232333] dark:text-dark-text transition-colors">{duplicateFile.filename}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#6E7680]">Uploaded on</p>
-                  <p className="text-sm font-medium text-[#232333]">
+                  <p className="text-xs text-[#6E7680] dark:text-dark-text-muted transition-colors">Uploaded on</p>
+                  <p className="text-sm font-medium text-[#232333] dark:text-dark-text transition-colors">
                     {new Date(duplicateFile.created_at).toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-[#6E7680]">Uploaded by</p>
-                  <p className="text-sm font-medium text-[#232333]">{duplicateFile.create_by || 'System'}</p>
+                  <p className="text-xs text-[#6E7680] dark:text-dark-text-muted transition-colors">Uploaded by</p>
+                  <p className="text-sm font-medium text-[#232333] dark:text-dark-text transition-colors">{duplicateFile.create_by || 'System'}</p>
                 </div>
               </div>
 
@@ -922,7 +919,7 @@ activities.unshift({
                     setShowDuplicateWarning(false);
                     setDuplicateFile(null);
                   }}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6F6F6] hover:bg-[#E8E8E8] text-[#232333] font-medium transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-surface text-[#232333] dark:text-dark-text font-medium transition-colors"
                 >
                   Cancel
                 </button>
@@ -944,17 +941,17 @@ activities.unshift({
         {activeTab === 'documents' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between gap-4">
-              <h3 className="text-xl font-semibold text-[#232333]">{t('documentTable.title')}</h3>
+              <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">{t('documentTable.title')}</h3>
               <div className="flex items-center gap-3 flex-1 max-w-md">
                 {/* Simple Search Input */}
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6E7680]" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6E7680] dark:text-dark-text-muted transition-colors" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={t('documentTable.searchPlaceholder')}
-                    className="w-full pl-10 pr-4 py-2 bg-white border border-[#E8E8E8] rounded-xl text-[#232333] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1d2089]"
+                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
                   />
                 </div>
                 <label className="flex items-center gap-2 px-4 py-2.5 bg-[#1d2089] hover:bg-[#161870] text-white rounded-xl transition-colors cursor-pointer whitespace-nowrap font-medium">
@@ -972,28 +969,28 @@ activities.unshift({
             </div>
 
             {uploadingFiles.length > 0 && (
-              <div className="bg-[#F0F4FF] border border-[#1d2089]/20 rounded-2xl p-6 space-y-6">
+              <div className="bg-[#F0F4FF] dark:bg-dark-surface-alt border border-[#1d2089]/20 dark:border-dark-border rounded-2xl p-6 space-y-6 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h4 className="text-lg font-semibold text-[#232333] mb-1">{t('documentTable.filesSelected', {count: uploadingFiles.length,})}</h4>
-                    <p className="text-sm text-[#6E7680]">{t('documentTable.totalSize', {size: (uploadingFiles.reduce((acc, f) => acc + f.size, 0) /1024 /1024).toFixed(2),})}</p>
+                    <h4 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors mb-1">{t('documentTable.filesSelected', {count: uploadingFiles.length,})}</h4>
+                    <p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('documentTable.totalSize', {size: (uploadingFiles.reduce((acc, f) => acc + f.size, 0) /1024 /1024).toFixed(2),})}</p>
                   </div>
                   <button
                     onClick={resetUpload}
-                    className="p-2 hover:bg-white rounded-lg transition-colors"
+                    className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-lg transition-colors"
                   >
-                    <X className="w-5 h-5 text-[#6E7680]" />
+                    <X className="w-5 h-5 text-[#6E7680] dark:text-dark-text-muted transition-colors" />
                   </button>
                 </div>
 
                 {/* Review list with per-file categories and selection */}
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {uploadingFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between bg-white rounded-xl px-3 py-2 gap-3 border border-[#E8E8E8]">
+                    <div key={index} className="flex items-center justify-between bg-white dark:bg-dark-surface rounded-xl px-3 py-2 gap-3 border border-[#E8E8E8] dark:border-dark-border transition-colors">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <input
                           type="checkbox"
-                          className="w-4 h-4 accent-[#1d2089]"
+                          className="w-4 h-4 accent-[#1d2089] dark:accent-dark-accent-blue"
                           checked={selectedToRemove.has(file.name)}
                           onChange={(e) => {
                             setSelectedToRemove(prev => {
@@ -1005,8 +1002,8 @@ activities.unshift({
                           disabled={uploadProgress[file.name] !== 'pending'}
                         />
                         <FileText className="w-4 h-4 text-[#1d2089] flex-shrink-0" />
-                        <span className="text-sm text-[#232333] truncate" title={file.name}>{file.name}</span>
-                        <span className="text-xs text-[#6E7680]">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                        <span className="text-sm text-[#232333] dark:text-dark-text truncate transition-colors" title={file.name}>{file.name}</span>
+                        <span className="text-xs text-[#6E7680] dark:text-dark-text-muted transition-colors">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
                         {uploadProgress[file.name] === 'success' && (
                           <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
                         )}
@@ -1016,7 +1013,7 @@ activities.unshift({
                       </div>
                       {/* Per-file category selector */}
                     <div className="flex items-center gap-2">
-                        <label className="text-xs text-slate-400">
+                        <label className="text-xs text-slate-400 dark:text-dark-text-muted transition-colors">
   {t('documentTable.categoryLabel')}
 </label>
 
@@ -1024,7 +1021,7 @@ activities.unshift({
                           value={fileCategories[file.name] || 'company_policy'}
                           onChange={(e) => setFileCategories(prev => ({ ...prev, [file.name]: e.target.value }))}
                           disabled={uploadProgress[file.name] !== 'pending'}
-                          className="bg-[#F6F6F6] border border-[#E8E8E8] text-[#232333] text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#1d2089]"
+                          className="bg-[#F6F6F6] dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
                         >
                           <option value="company_policy">
   {t('documentTable.category.companyPolicy')}
@@ -1060,7 +1057,7 @@ activities.unshift({
                     <button
   onClick={removeSelectedFiles}
   disabled={selectedToRemove.size === 0}
-  className="px-3 py-2 rounded-xl bg-[#F6F6F6] hover:bg-[#E8E8E8] text-[#232333] disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+  className="px-3 py-2 rounded-xl bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-surface text-[#232333] dark:text-dark-text disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
 >
   {t('documentTable.removeSelected')}
 </button>
@@ -1076,7 +1073,7 @@ activities.unshift({
                 {/* Global category picker hidden during review (kept for defaulting new selections) */}
                 {!reviewMode && (
                   <div>
-                    <label className="block text-sm font-medium text-[#232333] mb-3">
+                    <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-3 transition-colors">
   {t('documentTable.defaultCategory')}
 </label>
 
@@ -1093,7 +1090,7 @@ activities.unshift({
                           className={`px-4 py-2 rounded-xl font-medium transition-all ${
                             uploadCategory === cat.value
                               ? 'bg-[#1d2089] text-white shadow-lg'
-                              : 'bg-white text-[#6E7680] hover:bg-[#F6F6F6] border border-[#E8E8E8]'
+                              : 'bg-white dark:bg-dark-surface text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-border border border-[#E8E8E8] dark:border-dark-border'
                           }`}
                         >
                           {cat.label}
@@ -1104,7 +1101,7 @@ activities.unshift({
                 )}
 
                 <div className="space-y-4">
-                  <h5 className="text-sm font-semibold text-[#232333]">
+                  <h5 className="text-sm font-semibold text-[#232333] dark:text-white transition-colors">
   {t('documentTable.pipelineTitle')}
 </h5>
 
@@ -1113,7 +1110,7 @@ activities.unshift({
                       <div key={step.step}>
                         <div className="flex items-center gap-3 mb-2">
                           {getStepIcon(step.step, step.status)}
-                          <span className="text-sm font-medium text-[#232333]">
+                          <span className="text-sm font-medium text-[#232333] dark:text-dark-text transition-colors">
                               {t(step.labelKey)}
                           </span>
 
@@ -1167,10 +1164,10 @@ activities.unshift({
               </div>
             )}
 
-            <div className="bg-white border border-[#E8E8E8] rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
               {/* Bulk actions above table */}
-              <div className="flex items-center justify-between p-3 border-b border-[#E8E8E8] bg-[#F6F6F6]">
-                <div className="text-sm text-[#6E7680]">
+              <div className="flex items-center justify-between p-3 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
+                <div className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">
                   {t('documentTable.manage')}
                 </div>
                 <button
@@ -1187,7 +1184,7 @@ activities.unshift({
                 </button>
               </div>
               <table className="w-full">
-                <thead className="bg-[#F6F6F6] border-b border-[#E8E8E8]">
+                <thead className="bg-[#F6F6F6] dark:bg-dark-bg-primary border-b border-[#E8E8E8] dark:border-dark-border transition-colors">
                   <tr>
                     <th className="px-4 py-3 text-left">
                       {(() => {
@@ -1213,27 +1210,27 @@ activities.unshift({
                         );
                       })()}
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
         {t('documentTable.documentName')}
       </th>
 
-      <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+      <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
         {t('documentTable.size')}
       </th>
 
-      <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+      <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
         {t('documentTable.uploadedBy')}
       </th>
 
-      <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+      <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
         {t('documentTable.uploadDate')}
       </th>
 
-      <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+      <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
         {t('documentTable.status')}
       </th>
 
-      <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+      <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
         {t('documentTable.action')}
       </th>
                   </tr>
@@ -1246,7 +1243,7 @@ activities.unshift({
                     
                     return filteredDocs.length > 0 ? (
                       filteredDocs.map((doc) => (
-                      <tr key={doc.id} className="border-b border-[#E8E8E8] hover:bg-[#F6F6F6]">
+                      <tr key={doc.id} className="border-b border-[#E8E8E8] dark:border-dark-border hover:bg-[#F6F6F6] dark:hover:bg-dark-border transition-colors">
                         <td className="px-4 py-3">
                           <input
                             type="checkbox"
@@ -1261,12 +1258,12 @@ activities.unshift({
                             }}
                           />
                         </td>
-                        <td className="px-4 py-3 text-[#232333] font-medium">{doc.filename}</td>
-                        <td className="px-4 py-3 text-[#6E7680]">
+                        <td className="px-4 py-3 text-[#232333] dark:text-dark-text font-medium transition-colors">{doc.filename}</td>
+                        <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
                           {(doc.size / 1024 / 1024).toFixed(2)} MB
                         </td>
-                        <td className="px-4 py-3 text-[#6E7680]">{doc.create_by || 'System'}</td>
-                        <td className="px-4 py-3 text-[#6E7680]">
+                        <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{doc.create_by || 'System'}</td>
+                        <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
                           {new Date(doc.created_at).toLocaleDateString()}
                         </td>
                         <td className="px-4 py-3">
@@ -1289,7 +1286,7 @@ activities.unshift({
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={6} className="px-4 py-8 text-center text-[#6E7680]">
+                        <td colSpan={6} className="px-4 py-8 text-center text-[#6E7680] dark:text-dark-text-muted transition-colors">
                           {t('documentTable.noDocuments')}
                         </td>
                       </tr>
@@ -1306,14 +1303,11 @@ activities.unshift({
         )}
 
         {activeTab === 'chat' && (
-          <div className="bg-white border border-[#E8E8E8] rounded-2xl overflow-hidden animate-section-in flex flex-col h-full shadow-sm">
-            <div className="p-4 border-b border-[#E8E8E8] bg-[#F6F6F6]">
-              <h3 className="text-xl font-semibold text-[#232333]">
+          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden animate-section-in flex flex-col h-full shadow-sm transition-colors">
+            <div className="p-4 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
+              <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
   {t('chat.title')}
 </h3>
-<p className="text-sm text-[#6E7680]">
-  {t('chat.subtitle')}
-</p>
             </div>
             {/* Make chat occupy full vertical height with proper scrolling */}
             <div className="flex-1 min-h-0">
@@ -1328,25 +1322,25 @@ activities.unshift({
 
             {showContactDeleteMessages && (
             <div ref={contactDeleteRef} className="mt-6">
-              <div className="bg-white border border-[#E8E8E8] rounded-2xl overflow-hidden shadow-sm">
+              <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
                 {/* Header with close button */}
-                <div className="p-5 border-b border-[#E8E8E8] bg-red-50 flex items-center justify-between">
+                <div className="p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-red-50 dark:bg-red-950/30 flex items-center justify-between transition-colors">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 bg-red-500 rounded-xl">
                       <AlertTriangle className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-[#232333]">
+                      <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">
                         {t('messages.deleteTitle')}
                       </h3>
-                      <p className="text-sm text-[#6E7680]">
+                      <p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">
                         Permanently delete message history
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowContactDeleteMessages(false)}
-                    className="p-2 rounded-xl hover:bg-red-100 text-[#6E7680] hover:text-red-500 transition-colors"
+                    className="p-2 rounded-xl hover:bg-red-100 dark:hover:bg-red-950/50 text-[#6E7680] dark:text-dark-text-muted hover:text-red-500 dark:hover:text-red-400 transition-colors"
                     title="Close"
                   >
                     <X className="w-5 h-5" />
@@ -1354,42 +1348,42 @@ activities.unshift({
                 </div>
                 
                 <div className="p-5">
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5">
-                    <p className="text-sm text-amber-700">
+                  <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 mb-5 transition-colors">
+                    <p className="text-sm text-amber-700 dark:text-amber-300 transition-colors">
                       <span className="font-semibold">Warning:</span> This is a destructive action. Once deleted, messages cannot be recovered.
                     </p>
                   </div>
                     
                   <div className="space-y-3 mb-5">
-                    <label className="flex items-center gap-4 p-4 bg-[#F6F6F6] border border-[#E8E8E8] rounded-xl cursor-pointer hover:bg-[#E8E8E8] transition-colors">
+                    <label className="flex items-center gap-4 p-4 bg-[#F6F6F6] dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-xl cursor-pointer hover:bg-[#E8E8E8] dark:hover:bg-dark-surface transition-colors">
                       <input
                         type="checkbox"
                         checked={deleteUserMessages}
                         onChange={(e) => setDeleteUserMessages(e.target.checked)}
-                        className="w-5 h-5 accent-[#1d2089] rounded"
+                        className="w-5 h-5 accent-[#1d2089] dark:accent-dark-accent-blue rounded"
                       />
                       <div className="flex-1">
-                        <span className="text-[#232333] font-medium">
+                        <span className="text-[#232333] dark:text-dark-text font-medium transition-colors">
                           {t('messages.usersLabel')}
                         </span>
-                        <p className="text-xs text-[#6E7680] mt-1">
+                        <p className="text-xs text-[#6E7680] dark:text-dark-text-muted mt-1 transition-colors">
                           {t('messages.usersHelp')}
                         </p>
                       </div>
                     </label>
 
-                    <label className="flex items-center gap-4 p-4 bg-[#F6F6F6] border border-[#E8E8E8] rounded-xl cursor-pointer hover:bg-[#E8E8E8] transition-colors">
+                    <label className="flex items-center gap-4 p-4 bg-[#F6F6F6] dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-xl cursor-pointer hover:bg-[#E8E8E8] dark:hover:bg-dark-surface transition-colors">
                       <input
                         type="checkbox"
                         checked={deleteAdminMessages}
                         onChange={(e) => setDeleteAdminMessages(e.target.checked)}
-                        className="w-5 h-5 accent-[#1d2089] rounded"
+                        className="w-5 h-5 accent-[#1d2089] dark:accent-dark-accent-blue rounded"
                       />
                       <div className="flex-1">
-                        <span className="text-[#232333] font-medium">
+                        <span className="text-[#232333] dark:text-dark-text font-medium transition-colors">
                           {t('messages.adminsLabel')}
                         </span>
-                        <p className="text-xs text-[#6E7680] mt-1">
+                        <p className="text-xs text-[#6E7680] dark:text-dark-text-muted mt-1 transition-colors">
                           {t('messages.adminsHelp')}
                         </p>
                       </div>
@@ -1399,7 +1393,7 @@ activities.unshift({
                   <div className="flex gap-3">
                     <button
                       onClick={() => setShowContactDeleteMessages(false)}
-                      className="flex-1 px-6 py-3 bg-[#F6F6F6] hover:bg-[#E8E8E8] text-[#232333] font-medium rounded-xl transition-colors"
+                      className="flex-1 px-6 py-3 bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-surface text-[#232333] dark:text-dark-text font-medium rounded-xl transition-colors"
                     >
                       {t('common.cancel')}
                     </button>
@@ -1414,7 +1408,7 @@ activities.unshift({
                         setDeleteSuccess(false);
                       }}
                       disabled={!deleteUserMessages && !deleteAdminMessages}
-                      className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
+                      className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 disabled:bg-[#E8E8E8] dark:disabled:bg-dark-border disabled:text-[#9CA3AF] dark:disabled:text-dark-text-muted disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
                     >
                       <Trash2 className="w-5 h-5" />
                       {t('messages.deleteButton')}
@@ -1429,39 +1423,39 @@ activities.unshift({
 
         {activeTab === 'users' && (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-[#232333]">{t('userManagement.title')}</h3>
+            <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">{t('userManagement.title')}</h3>
 
-            <div className="bg-white border border-[#E8E8E8] rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
               <table className="w-full">
-                <thead className="bg-[#F6F6F6] border-b border-[#E8E8E8]">
+                <thead className="bg-[#F6F6F6] dark:bg-dark-bg-primary border-b border-[#E8E8E8] dark:border-dark-border transition-colors">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
                       {t('userManagement.table.name')}
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
                       {t('userManagement.table.employeeId')}
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
                       {t('userManagement.table.department')}
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
                       {t('userManagement.table.lastActive')}
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680]">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
                       {t('userManagement.table.queries')}
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {mockUsers.map((user) => (
-                    <tr key={user.id} className="border-b border-[#E8E8E8] hover:bg-[#F6F6F6]">
-                      <td className="px-4 py-3 text-[#232333] font-medium">{user.name}</td>
-                      <td className="px-4 py-3 text-[#6E7680]">{user.employeeId}</td>
-                      <td className="px-4 py-3 text-[#6E7680]">{user.department}</td>
-                      <td className="px-4 py-3 text-[#6E7680]">
+                    <tr key={user.id} className="border-b border-[#E8E8E8] dark:border-dark-border hover:bg-[#F6F6F6] dark:hover:bg-dark-border transition-colors">
+                      <td className="px-4 py-3 text-[#232333] dark:text-dark-text font-medium transition-colors">{user.name}</td>
+                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.employeeId}</td>
+                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.department}</td>
+                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
                         {user.lastActive.toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-[#6E7680]">{user.queries}</td>
+                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.queries}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1472,26 +1466,26 @@ activities.unshift({
 
         {activeTab === 'activity' && (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-[#232333]">{t('activity.title')}</h3>
+            <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">{t('activity.title')}</h3>
 
             <div className="space-y-3">
               {mockActivity.map((activity) => (
                 <div
                   key={activity.id}
-                  className="bg-white border border-[#E8E8E8] rounded-2xl p-4 hover:bg-[#F6F6F6] transition-colors shadow-sm"
+                  className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-4 hover:bg-[#F6F6F6] dark:hover:bg-dark-border transition-colors shadow-sm"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-[#F0F4FF] rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Activity className="w-5 h-5 text-[#1d2089]" />
+                    <div className="w-10 h-10 bg-[#F0F4FF] dark:bg-dark-surface-alt rounded-xl flex items-center justify-center flex-shrink-0 transition-colors">
+                      <Activity className="w-5 h-5 text-[#1d2089] dark:text-dark-accent-blue transition-colors" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[#232333] font-medium">{activity.user}</span>
+                        <span className="text-[#232333] dark:text-dark-text font-medium transition-colors">{activity.user}</span>
                         <span className="text-[#9CA3AF]">•</span>
-                        <span className="text-[#6E7680]">{activity.action}</span>
+                        <span className="text-[#6E7680] dark:text-dark-text-muted transition-colors">{activity.action}</span>
                       </div>
-                      <p className="text-sm text-[#6E7680] mb-2">{activity.detail}</p>
-                      <div className="flex items-center gap-1 text-xs text-[#9CA3AF]">
+                      <p className="text-sm text-[#6E7680] dark:text-dark-text-muted mb-2 transition-colors">{activity.detail}</p>
+                      <div className="flex items-center gap-1 text-xs text-[#9CA3AF] dark:text-dark-text-muted transition-colors">
                         <Clock className="w-3 h-3" />
                         <span>{activity.timestamp.toLocaleString()}</span>
                       </div>
@@ -1511,7 +1505,7 @@ activities.unshift({
                   <AlertTriangle className="w-6 h-6 text-red-400" />
                 </div>
                 <div className="flex-1">
-                 <h3 className="text-xl font-semibold text-white mb-2">
+                 <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors mb-2">
     {t('messages.deleteTitle')}
   </h3>
 
@@ -1584,17 +1578,17 @@ activities.unshift({
       {/* Delete Messages Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white border border-[#E8E8E8] rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden">
-            <div className="p-5 border-b border-[#E8E8E8] bg-[#F6F6F6] flex items-start justify-between gap-4">
+          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden transition-colors">
+            <div className="p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary flex items-start justify-between gap-4 transition-colors">
               <div className="flex items-start gap-3">
-                <div className="p-3 rounded-xl bg-red-50 flex-shrink-0">
+                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 flex-shrink-0 transition-colors">
                   <AlertTriangle className="w-6 h-6 text-red-500" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-[#232333]">
+                  <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
                     {t('messages.deleteTitle')}
                   </h3>
-                  <p className="text-sm text-[#6E7680] mt-1">
+                  <p className="text-sm text-[#6E7680] dark:text-dark-text-muted mt-1 transition-colors">
                     {t('messages.deleteDescription')}
                   </p>
                 </div>
@@ -1606,7 +1600,7 @@ activities.unshift({
                   setDeleteSuccess(false);
                 }}
                 disabled={isDeleting}
-                className="p-2 rounded-xl hover:bg-[#E8E8E8] text-[#6E7680] hover:text-[#232333] transition-colors"
+                className="p-2 rounded-xl hover:bg-[#E8E8E8] dark:hover:bg-dark-border text-[#6E7680] dark:text-dark-text-muted hover:text-[#232333] dark:hover:text-dark-text transition-colors"
                 title={t('common.close')}
               >
                 <X className="w-5 h-5" />
@@ -1614,11 +1608,11 @@ activities.unshift({
             </div>
 
             <div className="p-5 space-y-5">
-              <div className="bg-[#F6F6F6] border border-[#E8E8E8] rounded-xl p-4">
-                <p className="text-sm font-medium text-[#232333] mb-2">
+              <div className="bg-[#F6F6F6] dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-xl p-4 transition-colors">
+                <p className="text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">
                   {t('messages.aboutToDelete')}
                 </p>
-                <ul className="text-sm text-[#6E7680] space-y-1 ml-5">
+                <ul className="text-sm text-[#6E7680] dark:text-dark-text-muted space-y-1 ml-5 transition-colors">
                   {deleteUserMessages && (
                     <li className="list-disc">{t('messages.deleteUsers')}</li>
                   )}
@@ -1629,7 +1623,7 @@ activities.unshift({
               </div>
 
               <div>
-                <p className="text-sm font-medium text-[#232333] mb-2">
+                <p className="text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">
                   {t('messages.confirmLabel').replace('DELETE ALL MESSAGES', '')}
                   <span className="ml-2 font-mono bg-[#1d2089] text-white px-2 py-1 rounded-lg">
                     {t('messages.confirmText')}
@@ -1640,12 +1634,12 @@ activities.unshift({
                   value={confirmationText}
                   onChange={(e) => setConfirmationText(e.target.value)}
                   placeholder={t('messages.confirmPlaceholder')}
-                  className="w-full bg-white border border-[#E8E8E8] rounded-xl px-4 py-3 text-[#232333] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1d2089] focus:border-transparent font-mono"
+                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue focus:border-transparent font-mono transition-colors"
                   autoFocus
                 />
               </div>
 
-              <div className="flex gap-3 pt-4 border-t border-[#E8E8E8]">
+              <div className="flex gap-3 pt-4 border-t border-[#E8E8E8] dark:border-dark-border">
               <button
                 onClick={() => {
                   setShowDeleteConfirm(false);
@@ -1653,7 +1647,7 @@ activities.unshift({
                   setDeleteSuccess(false);
                 }}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-3 rounded-xl bg-[#F6F6F6] hover:bg-[#E8E8E8] disabled:opacity-50 disabled:cursor-not-allowed text-[#232333] transition-colors font-medium"
+                className="flex-1 px-4 py-3 rounded-xl bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-surface disabled:opacity-50 disabled:cursor-not-allowed text-[#232333] dark:text-dark-text transition-colors font-medium"
               >
                 {t('common.cancel')}
               </button>
@@ -1723,7 +1717,7 @@ activities.unshift({
                   }
                 }}
                 disabled={confirmationText !== 'DELETE ALL MESSAGES' || isDeleting || deleteSuccess}
-                className="flex-1 px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600 disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] disabled:cursor-not-allowed text-white transition-colors font-semibold flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600 disabled:bg-[#E8E8E8] dark:disabled:bg-dark-border disabled:text-[#9CA3AF] dark:disabled:text-dark-text-muted disabled:cursor-not-allowed text-white transition-colors font-semibold flex items-center justify-center gap-2"
               >
                 {isDeleting ? (
   <>
