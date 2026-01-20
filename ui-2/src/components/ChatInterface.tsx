@@ -331,11 +331,11 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
 
   return (
     <>
-      <div className="flex items-center gap-1 mt-2 pt-2 border-t border-[#E8E8E8]">
+      <div className="flex items-center gap-1 mt-2 pt-2 border-t border-slate-600">
         {/* Copy */}
         <button
     onClick={handleCopy}
-    className="p-1.5 rounded-md text-[#6E7680] hover:text-[#232333] hover:bg-[#F6F6F6] transition-colors"
+    className="p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-600/50 transition-all duration-200"
     title={t('chatActions.copy')}
   >
     {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
@@ -344,10 +344,10 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
   {/* Like */}
   <button
     onClick={() => handleFeedback('like')}
-    className={`p-1.5 rounded-md transition-colors ${
+    className={`p-1.5 rounded-md transition-all duration-200 ${
       feedback === 'like'
         ? 'text-green-400 bg-green-400/20'
-        : 'text-[#6E7680] hover:text-[#232333] hover:bg-[#F6F6F6]'
+        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-600/50'
     }`}
     title={t('chatActions.good')}
   >
@@ -357,10 +357,10 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
   {/* Dislike */}
   <button
     onClick={() => handleFeedback('dislike')}
-    className={`p-1.5 rounded-md transition-colors ${
+    className={`p-1.5 rounded-md transition-all duration-200 ${
       feedback === 'dislike'
         ? 'text-red-400 bg-red-400/20'
-        : 'text-[#6E7680] hover:text-[#232333] hover:bg-[#F6F6F6]'
+        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-600/50'
     }`}
     title={t('chatActions.bad')}
   >
@@ -370,7 +370,7 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
   {/* Share */}
   <button
     onClick={handleShare}
-    className="p-1.5 rounded-md text-[#6E7680] hover:text-[#232333] hover:bg-[#F6F6F6] transition-colors"
+    className="p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-600/50 transition-all duration-200"
     title={t('chatActions.share')}
   >
     <Share2 className="w-4 h-4" />
@@ -379,7 +379,7 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
   {/* Regenerate */}
   <button
     onClick={onRegenerate}
-    className="p-1.5 rounded-md text-[#6E7680] hover:text-[#232333] hover:bg-[#F6F6F6] transition-colors"
+    className="p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-600/50 transition-all duration-200"
     title={t('chatActions.regenerate')}
   >
     <RefreshCw className="w-4 h-4" />
@@ -391,11 +391,11 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
     {showShareModal && (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowShareModal(false)} />
-        <div className="relative bg-white dark:bg-dark-bg-secondary border border-[#E8E8E8] dark:border-dark-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden transition-colors">
+        <div className="relative bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden transition-colors">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-tertiary transition-colors">
-            <h2 className="text-lg font-semibold text-[#232333] dark:text-dark-text">{t('chatActions.shareTitle')}</h2>
-            <button onClick={() => setShowShareModal(false)} className="text-[#6E7680] dark:text-dark-text-secondary hover:text-[#232333] dark:hover:text-dark-text transition-colors">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-700">
+            <h2 className="text-lg font-semibold text-slate-100">{t('chatActions.shareTitle')}</h2>
+            <button onClick={() => setShowShareModal(false)} className="text-slate-400 hover:text-slate-200 transition-colors">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -404,30 +404,30 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
           <div className="p-6 space-y-4">
             {/* Preview */}
             <div>
-              <p className="text-sm font-medium text-[#232333] mb-2">{t('chatActions.sharePreview')}:</p>
-              <div className="bg-[#F6F6F6] border border-[#E8E8E8] rounded-lg p-3 max-h-24 overflow-y-auto text-xs text-[#6E7680]">
+              <p className="text-sm font-medium text-slate-200 mb-2">{t('chatActions.sharePreview')}:</p>
+              <div className="bg-slate-700 border border-slate-600 rounded-lg p-3 max-h-24 overflow-y-auto text-xs text-slate-400">
                 {parseDualLanguageContent(content).rawContent.substring(0, 200)}...
               </div>
             </div>
 
             {/* Share Options */}
             <div className="space-y-2">
-              <p className="text-sm font-medium text-[#232333]">{t('chatActions.shareRecipient')}</p>
-              <button onClick={() => handleShareAction('email')} className="w-full p-3 text-left bg-[#F6F6F6] hover:bg-[#E8E8E8] rounded-lg text-[#232333] transition-colors">
+              <p className="text-sm font-medium text-slate-200">{t('chatActions.shareRecipient')}</p>
+              <button onClick={() => handleShareAction('email')} className="w-full p-3 text-left bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition-all duration-200">
                 📧 {t('chatActions.shareEmail')}
               </button>
-              <button onClick={() => handleShareAction('teams')} className="w-full p-3 text-left bg-[#F6F6F6] hover:bg-[#E8E8E8] rounded-lg text-[#232333] transition-colors">
+              <button onClick={() => handleShareAction('teams')} className="w-full p-3 text-left bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition-all duration-200">
                 💬 {t('chatActions.shareTeams')}
               </button>
-              <button onClick={() => handleShareAction('clipboard')} className="w-full p-3 text-left bg-[#F6F6F6] hover:bg-[#E8E8E8] rounded-lg text-[#232333] transition-colors">
+              <button onClick={() => handleShareAction('clipboard')} className="w-full p-3 text-left bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition-all duration-200">
                 📋 {t('chatActions.shareEmail')}
               </button>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex gap-3 px-6 py-4 border-t border-[#E8E8E8] bg-white">
-            <button onClick={() => setShowShareModal(false)} className="flex-1 px-4 py-2 rounded-lg bg-[#1d2089] hover:bg-[#161870] text-white transition-colors">
+          <div className="flex gap-3 px-6 py-4 border-t border-slate-700 bg-slate-800">
+            <button onClick={() => setShowShareModal(false)} className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-[#1d2089] to-[#0E4BD9] hover:from-[#2d3a9d] hover:to-[#1a5ce0] text-white transition-all duration-200">
               {t('chatActions.cancelButton')}
             </button>
           </div>
@@ -599,13 +599,13 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
       {/* Source Language Content */}
       <div className="space-y-2">
         <div className="flex items-center gap-2 pb-2">
-          <Globe className="w-3.5 h-3.5 text-[#1d2089]" />
-          <span className="text-xs font-semibold text-[#1d2089]">
+          <Globe className="w-3.5 h-3.5 text-blue-400" />
+          <span className="text-xs font-semibold text-blue-400">
             {sourceLanguageName}
           </span>
         </div>
 
-        <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#232333]">
+        <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-100">
           {displayText || ''}
         </p>
       </div>
@@ -616,7 +616,7 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
           <button
             onClick={handleTranslate}
             disabled={loadingTranslation}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-[#F6F6F6] border border-[#E8E8E8] text-[#232333] hover:bg-[#E8E8E8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-slate-700 border border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
           >
             <Languages className="w-3.5 h-3.5" />
             <span>
@@ -625,22 +625,22 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
           </button>
         ) : (
           <>
-            <div className="mt-3 p-4 rounded-xl bg-white dark:bg-dark-bg-secondary border border-[#E8E8E8] dark:border-dark-border shadow-sm transition-colors">
-              <div className="flex items-center gap-2 mb-2 pb-2 border-b border-[#E8E8E8] dark:border-dark-border">
-                <Globe className="w-4 h-4 text-[#1d2089] dark:text-blue-400" />
-                <span className="text-xs font-semibold text-[#232333] dark:text-dark-text">
+            <div className="mt-3 p-4 rounded-xl bg-slate-700 border border-slate-600 shadow-lg transition-colors">
+              <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-600">
+                <Globe className="w-4 h-4 text-blue-400" />
+                <span className="text-xs font-semibold text-slate-200">
                   {targetLanguageName}
                 </span>
               </div>
 
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-[#232333] dark:text-dark-text">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-100">
                 {translation}
               </p>
             </div>
 
             <button
               onClick={handleTranslate}
-              className="mt-2 flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-[#F6F6F6] border border-[#E8E8E8] text-[#232333] hover:bg-[#E8E8E8] transition-colors"
+              className="mt-2 flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-slate-700 border border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white transition-all duration-200"
             >
               <Globe className="w-3.5 h-3.5" />
               <span>Hide Translation</span>
@@ -649,7 +649,7 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
         )}
 
         {translationError && (
-          <div className="mt-2 p-2 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">
+          <div className="mt-2 p-2 rounded-lg bg-red-900/30 border border-red-700/50 text-xs text-red-300">
             {translationError}
             <button
               onClick={handleTranslate}
@@ -1098,7 +1098,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
         onCancel={() => setConfirmDelete(null)}
       />
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-full">
+      <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-800">
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {Array.isArray(messages) && messages.map((message) => (
           <div
@@ -1108,10 +1108,10 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
             } animate-fadeIn`}
           >
             <div
-              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                 message.type === 'user'
-                  ? 'bg-[#1d2089]'
-                  : 'bg-[#059669]'
+                  ? 'bg-gradient-to-br from-[#1d2089] to-[#0E4BD9]'
+                  : 'bg-gradient-to-br from-emerald-500 to-emerald-600'
               }`}
             >
               {message.type === 'user' ? (
@@ -1127,10 +1127,10 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
               } flex flex-col gap-2`}
             >
               <div
-                className={`px-4 py-3 rounded-2xl ${
+                className={`px-4 py-3 rounded-2xl transition-all ${
                   message.type === 'user'
-                    ? 'bg-[#1d2089] text-white'
-                    : 'bg-white border border-[#E8E8E8] text-[#232333] shadow-sm'
+                    ? 'bg-gradient-to-r from-[#1d2089] to-[#0E4BD9] text-white shadow-lg shadow-blue-900/30'
+                    : 'bg-slate-600 border border-slate-600 text-slate-100 shadow-sm'
                 }`}
               >
                 {message.type === 'bot' ? (
@@ -1333,7 +1333,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
               onKeyDown={handleKeyDown}
               placeholder={t('chat.askQuestion')}
               rows={1}
-              className="w-full px-4 py-3 bg-[#F6F6F6] border border-[#E8E8E8] rounded-xl text-[#232333] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1d2089] focus:border-transparent resize-none"
+              className="w-full px-4 py-3 bg-white border-2 border-[#E8E8E8] rounded-xl text-[#232333] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1d2089] focus:border-[#1d2089] resize-none transition-all"
               style={{ minHeight: '48px', maxHeight: '150px' }}
             />
           </div>
