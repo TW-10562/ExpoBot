@@ -13,7 +13,8 @@
     "close": "Close",
     "search": "Search",
     "loading": "Loading...",
-    "deleteAll": "Delete All"
+    "deleteAll": "Delete All",
+    "warning": "Warning:"
   },
    "nav": {
     "chat": "Assistant",
@@ -45,7 +46,9 @@
     "deleted": "Deleted",
     "deletePermanently": "Delete Permanently",
     "confirmText": "DELETE ALL MESSAGES",
-     "deleteSuccess": "Successfully deleted {{count}} messages"
+     "deleteSuccess": "Successfully deleted {{count}} messages",
+     "deleteWarning": "This is a destructive action. Once deleted, messages cannot be recovered.",
+     "permanentDeleteTitle": "Permanently delete message history"
   },
 
   "login": {
@@ -154,16 +157,47 @@
     
     }
   },
-  
   "userManagement": {
     "title": "User Management",
+    "addUser": "Add User",
     "table": {
-      "name": "Name",
+      "firstName": "First Name",
+      "lastName": "Last Name",
       "employeeId": "Employee ID",
-      "department": "Department",
-      "lastActive": "Last Active",
-      "queries": "Queries"
-    }
+      "userJobRole": "User Job Role",
+      "areaOfWork": "Area of Work",
+      "role": "Role",
+      "username": "Username",
+      "password": "Password",
+      "lastUpdated": "Last Updated",
+      "actions": "Actions"
+    },
+    "form": {
+      "addUserTitle": "Add User",
+      "editUserTitle": "Edit User",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit"
+    },
+    "password": {
+      "show": "Show Password",
+      "hide": "Hide Password"
+    },
+    "delete": {
+      "adminPassword": "Enter Admin Password",
+      "confirmTitle": "Confirm Save",
+      "confirmMessage": "Are you sure you want to save this change?",
+      "confirmButton": "Delete",
+      "deleting": "Deleting...",
+      "deleted": "Deleted"
+    },
+    "validation": {
+      "required": "This field is required",
+      "usernameExists": "Username already exists",
+      "invalidPassword": "Password must be at least 6 characters"
+    },
+    "empty": "No users found. Click 'Add User' to create one."
   },
    "broadcast": {
     "title": "Contact Users",

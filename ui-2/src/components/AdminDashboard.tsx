@@ -23,7 +23,7 @@ import { useToast } from '../context/ToastContext';
 import { getToken } from '../api/auth';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import ChatInterface from './ChatInterface';
-
+import UserManagement from './UserManagement';
 interface BroadcastMessage {
   id: number;
   subject: string;
@@ -1334,7 +1334,7 @@ activities.unshift({
                         {t('messages.deleteTitle')}
                       </h3>
                       <p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                        Permanently delete message history
+                        {t('messages.permanentDeleteTitle')}
                       </p>
                     </div>
                   </div>
@@ -1350,7 +1350,7 @@ activities.unshift({
                 <div className="p-5">
                   <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-xl p-4 mb-5 transition-colors">
                     <p className="text-sm text-amber-700 dark:text-amber-300 transition-colors">
-                      <span className="font-semibold">Warning:</span> This is a destructive action. Once deleted, messages cannot be recovered.
+                      <span className="font-semibold">{t('common.warning')}</span>{' '}{t('messages.deleteWarning')}
                     </p>
                   </div>
                     
@@ -1421,48 +1421,7 @@ activities.unshift({
           </div>
         )}
 
-        {activeTab === 'users' && (
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">{t('userManagement.title')}</h3>
-
-            <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
-              <table className="w-full">
-                <thead className="bg-[#F6F6F6] dark:bg-dark-bg-primary border-b border-[#E8E8E8] dark:border-dark-border transition-colors">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                      {t('userManagement.table.name')}
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                      {t('userManagement.table.employeeId')}
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                      {t('userManagement.table.department')}
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                      {t('userManagement.table.lastActive')}
-                    </th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                      {t('userManagement.table.queries')}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockUsers.map((user) => (
-                    <tr key={user.id} className="border-b border-[#E8E8E8] dark:border-dark-border hover:bg-[#F6F6F6] dark:hover:bg-dark-border transition-colors">
-                      <td className="px-4 py-3 text-[#232333] dark:text-dark-text font-medium transition-colors">{user.name}</td>
-                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.employeeId}</td>
-                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.department}</td>
-                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                        {user.lastActive.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.queries}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+       {activeTab === 'users' && <UserManagement />}
 
         {activeTab === 'activity' && (
           <div className="space-y-6">

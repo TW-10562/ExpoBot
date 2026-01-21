@@ -16,8 +16,8 @@
     "deleteAll": "すべて削除",
     "deleting": "削除中...",
     "deleted": "削除完了",
-    "deletePermanently": "完全に削除"
-    
+    "deletePermanently": "完全に削除",
+    "warning": "警告："
   },
 
   
@@ -78,7 +78,9 @@
     "deleted": "削除済み",
     "deletePermanently": "完全に削除",
     "confirmText": "DELETE ALL MESSAGES",
-    "deleteSuccess": "{{count}} 件のメッセージを正常に削除しました"
+    "deleteSuccess": "{{count}} 件のメッセージを正常に削除しました",
+     "deleteWarning": "これは取り消しできない操作です。一度削除すると、メッセージは復元できません。",
+     "permanentDeleteTitle": "メッセージ履歴を完全に削除"
   },
 
  "brand": {
@@ -162,13 +164,45 @@
   },
   "userManagement": {
     "title": "ユーザー管理",
+    "addUser": "ユーザーを追加",
     "table": {
-      "name": "名前",
+      "firstName": "名前",
+      "lastName": "姓",
       "employeeId": "社員ID",
-      "department": "部署",
-      "lastActive": "最終アクティブ",
-      "queries": "クエリ数"
-    }
+      "userJobRole": "職務",
+      "areaOfWork": "業務範囲",
+      "role": "ロール",
+      "username": "ユーザー名",
+      "password": "パスワード",
+      "lastUpdated": "最終更新",
+      "actions": "操作"
+    },
+    "form": {
+      "addUserTitle": "ユーザーを追加",
+      "editUserTitle": "ユーザーを編集",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "delete": "削除",
+      "edit": "編集"
+    },
+    "password": {
+      "show": "パスワードを表示",
+      "hide": "パスワードを隠す"
+    },
+    "delete": {
+      "adminPassword": "管理者パスワードを入力",
+      "confirmTitle": "変更を確認",
+      "confirmMessage": "この変更を保存してもよろしいですか？",
+      "confirmButton": "削除",
+      "deleting": "削除中...",
+      "deleted": "削除完了"
+    },
+    "validation": {
+      "required": "このフィールドは必須です",
+      "usernameExists": "ユーザー名は既に存在します",
+      "invalidPassword": "パスワードは最低6文字である必要があります"
+    },
+    "empty": "ユーザーが見つかりません。「ユーザーを追加」をクリックして作成してください。"
   },
    "broadcast": {
     "title": "ユーザーへの連絡",
