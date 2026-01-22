@@ -2,18 +2,18 @@ import { useState, useEffect } from 'react';
 import { ToastProvider } from './context/ToastContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
-import LoginPage from './components/LoginPage';
-import HomePage from './components/HomePage';
-import Popup from './components/Popup';
-import ChatInterface from './components/ChatInterface';
-import HistoryPage from './components/HistoryPage';
-import ProfilePopup from './components/ProfilePopup';
-import AdminDashboard from './components/AdminDashboard';
+import LoginPage from './components/pages/LoginPage';
+import HomePage from './components/pages/HomePage';
+import Popup from './components/modals/Popup';
+import ChatInterface from './components/chat/ChatInterface';
+import HistoryPage from './components/chat/HistoryPage';
+import ProfilePopup from './components/modals/ProfilePopup';
+import AdminDashboard from './components/admin/AdminDashboard';
 // @ts-ignore
-import Messenger from './components/Messenger';
+import Messenger from './components/chat/Messenger';
 // @ts-ignore
-import ContactAdminPopup from './components/ContactAdminPopup';
-import BroadcastModal from './components/BroadcastModal';
+import ContactAdminPopup from './components/modals/ContactAdminPopup';
+import BroadcastModal from './components/modals/BroadcastModal';
 import { User, FeatureType, HistoryItem } from './types';
 import { getNotifications as apiGetNotifications, createSupportTicket } from './api/support';
 import { getToken } from './api/auth';
