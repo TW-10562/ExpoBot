@@ -73,13 +73,8 @@ export default function HomePage({
           onNotificationBellClick?.();
           const next = !showNotificationPanel;
           setShowNotificationPanel(next);
-
-          if (next && onMarkAsRead) {
-            const unreadItems = (notifications || []).filter((it: any) => it && it.read === false);
-            for (const item of unreadItems) {
-              onMarkAsRead(item);
-            }
-          }
+          // NOTE: Removed auto-mark behavior. Messages should only be marked as read
+          // when user explicitly clicks "Mark as Read" button, not when opening panel.
         }}
         notifications={notifications}
         onMarkAsRead={onMarkAsRead}
