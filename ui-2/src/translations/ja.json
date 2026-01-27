@@ -162,9 +162,35 @@
       "processing": "処理中..."
     }
   },
+  "user": {
+    "role": {
+      "user": "ユーザー",
+      "admin": "管理者"
+    },
+    "jobRole": {
+      "ai_engineer": "AIエンジニア",
+      "system_engineer": "システムエンジニア",
+      "it_manager": "ITマネージャー",
+      "tl": "TL",
+      "hr": "人事",
+      "sales_manager": "営業マネージャー",
+      "sales_person": "営業職",
+      "tester": "テスター",
+      "factory_worker": "工場作業員",
+      "call_center_agent": "コールセンター担当者"
+    },
+    "area": {
+      "ayase": "綾瀬",
+      "ebina": "海老名",
+      "akihabara_main": "秋葉原メインビル",
+      "akihabara_daidoh": "秋葉原ダイドウビル",
+      "hiratsuka": "平塚"
+    }
+  },
   "userManagement": {
     "title": "ユーザー管理",
     "addUser": "ユーザーを追加",
+    "uploadCsv": "CSVをアップロード",
     "table": {
       "firstName": "名前",
       "lastName": "姓",
@@ -172,7 +198,6 @@
       "userJobRole": "職務",
       "areaOfWork": "業務範囲",
       "role": "ロール",
-      "username": "ユーザー名",
       "password": "パスワード",
       "lastUpdated": "最終更新",
       "actions": "操作"
@@ -183,7 +208,9 @@
       "save": "保存",
       "cancel": "キャンセル",
       "delete": "削除",
-      "edit": "編集"
+      "edit": "編集",
+      "selectJobRole": "職務を選択",
+      "selectAreaOfWork": "業務範囲を選択"
     },
     "password": {
       "show": "パスワードを表示",
@@ -199,7 +226,6 @@
     },
     "validation": {
       "required": "このフィールドは必須です",
-      "usernameExists": "ユーザー名は既に存在します",
       "invalidPassword": "パスワードは最低6文字である必要があります"
     },
     "empty": "ユーザーが見つかりません。「ユーザーを追加」をクリックして作成してください。"

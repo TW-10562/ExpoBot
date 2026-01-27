@@ -157,9 +157,35 @@
     
     }
   },
+  "user": {
+    "role": {
+      "user": "User",
+      "admin": "Admin"
+    },
+    "jobRole": {
+      "ai_engineer": "AI Engineer",
+      "system_engineer": "System Engineer",
+      "it_manager": "IT Manager",
+      "tl": "TL",
+      "hr": "HR",
+      "sales_manager": "Sales Manager",
+      "sales_person": "Sales Person",
+      "tester": "Tester",
+      "factory_worker": "Factory Worker",
+      "call_center_agent": "Call Center Agent"
+    },
+    "area": {
+      "ayase": "Ayase",
+      "ebina": "Ebina",
+      "akihabara_main": "Akihabara Main Building",
+      "akihabara_daidoh": "Akihabara Daidoh Building",
+      "hiratsuka": "Hiratsuka"
+    }
+  },
   "userManagement": {
     "title": "User Management",
     "addUser": "Add User",
+    "uploadCsv": "Upload CSV",
     "table": {
       "firstName": "First Name",
       "lastName": "Last Name",
@@ -167,7 +193,6 @@
       "userJobRole": "User Job Role",
       "areaOfWork": "Area of Work",
       "role": "Role",
-      "username": "Username",
       "password": "Password",
       "lastUpdated": "Last Updated",
       "actions": "Actions"
@@ -178,7 +203,9 @@
       "save": "Save",
       "cancel": "Cancel",
       "delete": "Delete",
-      "edit": "Edit"
+      "edit": "Edit",
+      "selectJobRole": "Select Job Role",
+      "selectAreaOfWork": "Select Area of Work"
     },
     "password": {
       "show": "Show Password",
@@ -194,7 +221,6 @@
     },
     "validation": {
       "required": "This field is required",
-      "usernameExists": "Username already exists",
       "invalidPassword": "Password must be at least 6 characters"
     },
     "empty": "No users found. Click 'Add User' to create one."
