@@ -449,7 +449,7 @@ async function getSearchKeywords(prompt: string): Promise<string[]> {
     (config as any)?.Models?.chatKeywordGenModel?.name ||
     (config as any)?.Models?.chatModel?.name ||
     (config as any)?.Ollama?.model ||
-    'gpt-oss:20b';
+    'gpt-oss:120b';
 
   try {
     const response = await fetch(`${url.replace(/\/+$/, '')}/api/chat`, {
@@ -459,9 +459,9 @@ async function getSearchKeywords(prompt: string): Promise<string[]> {
         stream: false,
         model: keywordModelName,
         messages,
-        // Structured outputs doesn't work with gpt-oss:20b due to the use of the new Harmony response format.
+        // Structured outputs doesn't work with gpt-oss:120b due to the use of the new Harmony response format.
         // refer to: https://github.com/ollama/ollama/issues/11691#issuecomment-3157223324
-        format: keywordModelName.includes("gpt-oss:20b") ? null : keywordSchema,
+        format: keywordModelName.includes("gpt-oss:120b") ? null : keywordSchema,
         options: {
           temperature: config.Models.chatKeywordGenModel.temperature ?? 0.1,
           repeat_penalty: config.Models.chatKeywordGenModel.repeat_penalty ?? 1.5

@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import {
-  Upload,
   X,
   FileText,
   CheckCircle,
   Clock,
-  Zap,
   AlertCircle,
 } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
@@ -250,49 +248,34 @@ export default function DocumentUpload({
     setSelectedToRemove(new Set());
   };
 
-  const getStepIcon = (
-    step: number,
-    status: 'pending' | 'in-progress' | 'completed' | 'error'
-  ) => {
-    if (status === 'completed')
-      return <CheckCircle className="w-5 h-5 text-green-400" />;
-    if (status === 'in-progress')
-      return <Zap className="w-5 h-5 text-yellow-400 animate-pulse" />;
-    if (status === 'error') return <AlertCircle className="w-5 h-5 text-red-400" />;
-
-    const icons = {
-      1: <Upload className="w-5 h-5 text-slate-400" />,
-      2: <FileText className="w-5 h-5 text-slate-400" />,
-      3: <FileText className="w-5 h-5 text-slate-400" />,
-      4: <FileText className="w-5 h-5 text-slate-400" />,
-    };
-    return icons[step as 1 | 2 | 3 | 4];
-  };
+  /* pipeline icons intentionally removed — UI shows label + progress bar only */
+  /* step icons were removed to declutter the pipeline; status is still communicated via
+     badge + progress bar (accessible and theme-aware) */
 
   return (
     <>
       {uploadingFiles.length > 0 && (
-        <div className="bg-[#F0F4FF] dark:bg-dark-surface-alt border border-[#1d2089]/20 dark:border-dark-border rounded-2xl p-6 space-y-6 transition-colors">
+        <div className="bg-surface-alt dark:bg-dark-surface-alt border border-default rounded-2xl p-6 space-y-6 transition-colors">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h4 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors mb-1">{t('documentTable.filesSelected', { count: uploadingFiles.length })}</h4>
-              <p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('documentTable.totalSize', { size: (uploadingFiles.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2) })}</p>
+              <h4 className="text-lg font-semibold text-foreground dark:text-white transition-colors mb-1">{t('documentTable.filesSelected', { count: uploadingFiles.length })}</h4>
+              <p className="text-sm text-muted dark:text-dark-text-muted transition-colors">{t('documentTable.totalSize', { size: (uploadingFiles.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2) })}</p>
             </div>
             <button
               onClick={resetUpload}
-              className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-lg transition-colors"
+              className="p-2 hover:bg-surface dark:hover:bg-white/10 rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-[#6E7680] dark:text-dark-text-muted transition-colors" />
+              <X className="w-5 h-5 text-icon-muted dark:text-dark-text-muted icon-current" />
             </button>
-          </div>
+          </div> 
 
           <div className="space-y-2 max-h-60 overflow-y-auto">
             {uploadingFiles.map((file, index) => (
-              <div key={index} className="flex items-center justify-between bg-white dark:bg-dark-surface rounded-xl px-3 py-2 gap-3 border border-[#E8E8E8] dark:border-dark-border transition-colors">
+              <div key={index} className="flex items-center justify-between bg-surface dark:bg-dark-surface rounded-xl px-3 py-2 gap-3 border border-default transition-colors">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <input
                     type="checkbox"
-                    className="w-4 h-4 accent-[#1d2089] dark:accent-dark-accent-blue"
+                    className="w-4 h-4 accent-accent dark:accent-accent"
                     checked={selectedToRemove.has(file.name)}
                     onChange={(e) => {
                       setSelectedToRemove(prev => {
@@ -303,9 +286,9 @@ export default function DocumentUpload({
                     }}
                     disabled={uploadProgress[file.name] !== 'pending'}
                   />
-                  <FileText className="w-4 h-4 text-[#1d2089] flex-shrink-0" />
-                  <span className="text-sm text-[#232333] dark:text-dark-text truncate transition-colors" title={file.name}>{file.name}</span>
-                  <span className="text-xs text-[#6E7680] dark:text-dark-text-muted transition-colors">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                  <FileText className="w-4 h-4 text-icon-muted flex-shrink-0 icon-current" />
+                  <span className="text-sm text-foreground dark:text-dark-text truncate transition-colors" title={file.name}>{file.name}</span>
+                  <span className="text-xs text-muted dark:text-dark-text-muted transition-colors">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
                   {uploadProgress[file.name] === 'success' && (
                     <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
                   )}
@@ -321,7 +304,7 @@ export default function DocumentUpload({
                     value={fileCategories[file.name] || 'company_policy'}
                     onChange={(e) => setFileCategories(prev => ({ ...prev, [file.name]: e.target.value }))}
                     disabled={uploadProgress[file.name] !== 'pending'}
-                    className="bg-[#F6F6F6] dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                    className="bg-surface dark:bg-dark-surface-alt border border-default text-foreground dark:text-dark-text text-xs rounded-lg px-2 py-1 focus:outline-none focus-ring-accent transition-colors"
                   >
                     <option value="company_policy">{t('documentTable.category.companyPolicy')}</option>
                     <option value="internal_guide">{t('documentTable.category.internalGuide')}</option>
@@ -331,9 +314,9 @@ export default function DocumentUpload({
                   {uploadProgress[file.name] === 'pending' && (
                     <button
                       onClick={() => removeFile(file.name)}
-                      className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-red-400"
+                      className="p-1 hover:bg-white/10 rounded text-muted hover:text-error transition-colors"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-4 h-4 icon-current" />
                     </button>
                   )}
                 </div>
@@ -346,7 +329,7 @@ export default function DocumentUpload({
               <button
                 onClick={removeSelectedFiles}
                 disabled={selectedToRemove.size === 0}
-                className="px-3 py-2 rounded-xl bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-surface text-[#232333] dark:text-dark-text disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+                className="px-3 py-2 rounded-xl bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-surface text-foreground dark:text-dark-text disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
               >
                 {t('documentTable.removeSelected')}
               </button>
@@ -373,8 +356,8 @@ export default function DocumentUpload({
                     onClick={() => setUploadCategory(cat.value)}
                     className={`px-4 py-2 rounded-xl font-medium transition-all ${
                       uploadCategory === cat.value
-                        ? 'bg-[#1d2089] text-white shadow-lg'
-                        : 'bg-white dark:bg-dark-surface text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-border border border-[#E8E8E8] dark:border-dark-border'
+                        ? 'btn-primary shadow-lg'
+                        : 'bg-surface dark:bg-dark-surface text-muted dark:text-dark-text-muted hover:bg-surface-alt dark:hover:bg-dark-border border border-default'
                     }`}
                   >
                     {cat.label}
@@ -391,30 +374,31 @@ export default function DocumentUpload({
             <div className="space-y-3">
               {pipelineSteps.map((step) => (
                 <div key={step.step}>
-                  <div className="flex items-center gap-3 mb-2">
-                    {getStepIcon(step.step, step.status)}
-                    <span className="text-sm font-medium text-[#232333] dark:text-dark-text transition-colors">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-medium text-foreground dark:text-dark-text transition-colors">
                       {t(step.labelKey)}
                     </span>
+
                     {step.status === 'completed' && (
-                      <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded">
+                      <span className="text-xs bg-surface-alt text-success px-2 py-1 rounded">
                         {t('documentTable.pipelineStatusDone')}
                       </span>
                     )}
                     {step.status === 'in-progress' && (
-                      <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded">
+                      <span className="text-xs bg-surface-alt text-warning px-2 py-1 rounded">
                         {t('documentTable.pipelineStatusProcessing')}
                       </span>
                     )}
                   </div>
+
                   <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         step.status === 'completed'
-                          ? 'w-full bg-green-500'
+                          ? 'w-full btn-success'
                           : step.status === 'in-progress'
-                          ? 'w-2/3 bg-blue-500'
-                          : 'w-0 bg-slate-500'
+                          ? 'w-2/3 bg-accent'
+                          : 'w-0 bg-surface-alt'
                       }`}
                     />
                   </div>
@@ -426,7 +410,7 @@ export default function DocumentUpload({
           {reviewMode ? (
             <button
               onClick={handleStartUpload}
-              className="w-full px-6 py-3 bg-[#1d2089] hover:bg-[#161870] text-white font-semibold rounded-xl transition-all"
+              className="w-full px-6 py-3 btn-primary font-semibold rounded-xl transition-all"
             >
               {t('documentTable.nextContinue')}
             </button>
@@ -434,7 +418,7 @@ export default function DocumentUpload({
             <button
               onClick={handleStartUpload}
               disabled={pipelineSteps[0].status !== 'pending'}
-              className="w-full px-6 py-3 bg-[#1d2089] hover:bg-[#161870] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all"
+              className="w-full px-6 py-3 btn-primary disabled:opacity-50 disabled:cursor-not-allowed font-semibold rounded-xl transition-all"
             >
               {pipelineSteps[0].status === 'pending' ? '🚀 Start Upload Pipeline' : t('documentTable.pipeline.processing')}
             </button>

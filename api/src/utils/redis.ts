@@ -31,10 +31,10 @@ export const initializeZSet = async () => {
   const envUrlRaw = process.env.OLLAMA_URL;
   const envUrl = envUrlRaw ? envUrlRaw.trim().replace(/\/+$/, '') : '';
   const configuredUrls = (config.Ollama.url || []).map(u => u.trim().replace(/\/+$/, ''));
-  const fallbackUrl = 'http://127.0.0.1:11434';
+  const fallbackUrl = 'http://127.0.0.1:11435';
   const urls = envUrl ? [envUrl] : (configuredUrls.length > 0 ? configuredUrls : [fallbackUrl]);
 
-  // Reset ZSET to avoid stale endpoints like http://localhost:11434 lingering
+  // Reset ZSET to avoid stale endpoints like http://localhost:11435 lingering
   try {
     await redis.del('ollama_api_weight_set');
     console.info(`[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] ♻️  既存の Ollama API ZSET をリセットしました (ollama_api_weight_set)`);

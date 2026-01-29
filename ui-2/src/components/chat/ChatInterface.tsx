@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { 
-  Send, Bot, User, Globe, Languages, Copy, ThumbsUp, ThumbsDown, 
+import {
+  Send, Bot, User, Globe, Languages, Copy, ThumbsUp, ThumbsDown,
   RefreshCw, Check, Share2, Plus, Trash2, StopCircle,
   Download, X
 } from 'lucide-react';
@@ -59,37 +59,15 @@ function parseDualLanguageContent(content: string): DualLanguageContent {
     };
   }
 
-  // Log the raw content for debugging
-  console.log('[parseDualLanguageContent] Raw content (first 500 chars):', content.substring(0, 500));
-  console.log('[parseDualLanguageContent] Content length:', content.length);
-  console.log('[parseDualLanguageContent] Content includes SINGLE_LANG markers:', content.includes('SINGLE_LANG_START'));
-  console.log('[parseDualLanguageContent] Content includes DUAL_LANG markers:', content.includes('DUAL_LANG_START'));
-
-  // First, try to parse the NEW single-language format
+  // NEW single-language format
   const singleLangMatch = content.match(/<!--SINGLE_LANG_START-->([\s\S]*?)<!--SINGLE_LANG_END-->/);
   if (singleLangMatch && singleLangMatch[1]) {
     try {
       const jsonStr = singleLangMatch[1].trim();
-      console.log('[parseDualLanguageContent] Found SINGLE_LANG markers, JSON length:', jsonStr.length);
-      console.log('[parseDualLanguageContent] JSON content (first 300 chars):', jsonStr.substring(0, 300));
-      
-      if (!jsonStr || jsonStr.length === 0) {
-        console.error('[parseDualLanguageContent] JSON string is empty between markers');
-        throw new Error('Empty JSON between markers');
-      }
-      
-      // Validate that this looks like JSON before parsing
-      if (!jsonStr.includes('{') && !jsonStr.includes('}')) {
-        console.warn('[parseDualLanguageContent] JSON string does not contain object brackets');
-        throw new Error('Invalid JSON format');
-      }
+      if (!jsonStr || jsonStr.length === 0) throw new Error('Empty JSON between markers');
+      if (!jsonStr.includes('{') && !jsonStr.includes('}')) throw new Error('Invalid JSON format');
 
       const parsed = JSON.parse(jsonStr);
-      console.log('[parseDualLanguageContent] Parsed SINGLE-LANGUAGE format');
-      console.log(`  - language: ${parsed.language}`);
-      console.log(`  - translationPending: ${parsed.translationPending}`);
-      console.log(`  - content: ${parsed.content?.substring(0, 50)}...`);
-      
       return {
         isDualLanguage: false,
         isSingleLanguage: true,
@@ -102,72 +80,30 @@ function parseDualLanguageContent(content: string): DualLanguageContent {
       };
     } catch (e) {
       console.error('[parseDualLanguageContent] Single-language JSON parse error:', e);
-      if (singleLangMatch[1]) {
-        console.error('[parseDualLanguageContent] Failed to parse JSON:', singleLangMatch[1].substring(0, 200));
-      }
-      // Don't return yet, try other formats
     }
   }
-  
-  // Try stripping HTML tags that might be wrapping the content
+
+  // Strip HTML tags / markers
   let cleanContent = content
-    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/<[^>]*>/g, '')
     .replace(/<!--SINGLE_LANG_START-->/g, '')
     .replace(/<!--SINGLE_LANG_END-->/g, '')
     .replace(/<!--DUAL_LANG_START-->/g, '')
     .replace(/<!--DUAL_LANG_END-->/g, '')
     .trim();
-  
-  // Try to parse JSON format first (new format)
-  // More robust regex that handles potential line breaks and whitespace
+
+  // NEW dual-language JSON format
   const jsonMatch = cleanContent.match(/\{[\s\S]*?"dualLanguage"\s*:\s*true[\s\S]*?\}/);
   if (jsonMatch) {
     try {
-      const jsonStr = jsonMatch[0];
-      
-      // Validate before parsing
-      if (!jsonStr || jsonStr.trim().length === 0) {
-        throw new Error('Empty JSON string');
-      }
-
-      const parsed = JSON.parse(jsonStr);
-      console.log('[parseDualLanguageContent] Parsed DUAL-LANGUAGE JSON');
-      console.log(`  - targetLanguage: ${parsed.targetLanguage}`);
-      console.log(`  - japanese: ${typeof parsed.japanese} (${parsed.japanese?.substring(0, 50)}...)`);
-      console.log(`  - translated: ${typeof parsed.translated} (${parsed.translated?.substring(0, 50)}...)`);
-      
+      const parsed = JSON.parse(jsonMatch[0]);
       if (parsed.dualLanguage) {
-        // Extract actual text content, cleaning any nested JSON
         let jaText = parsed.japanese || '';
         let enText = parsed.translated || '';
-        
-        console.log('[parseDualLanguageContent] Before cleaning:');
-        console.log(`  - jaText length: ${jaText.length}`);
-        console.log(`  - enText length: ${enText.length}`);
-        
-        // If japanese or translated fields contain JSON, extract the actual text
-        if (typeof jaText === 'string' && jaText.includes('"dualLanguage"')) {
-          try {
-            const nestedJson = JSON.parse(jaText.match(/\{[\s\S]*\}/)?.[0] || '{}');
-            jaText = nestedJson.japanese || nestedJson.translated || jaText.replace(/\{[\s\S]*\}/g, '').trim();
-          } catch { /* use as-is */ }
-        }
-        if (typeof enText === 'string' && enText.includes('"dualLanguage"')) {
-          try {
-            const nestedJson = JSON.parse(enText.match(/\{[\s\S]*\}/)?.[0] || '{}');
-            enText = nestedJson.translated || nestedJson.english || enText.replace(/\{[\s\S]*\}/g, '').trim();
-          } catch { /* use as-is */ }
-        }
-        
-        // Clean any remaining JSON artifacts from the text
-        jaText = jaText.replace(/\{[\s\S]*?"dualLanguage"[\s\S]*?\}/g, '').trim();
-        enText = enText.replace(/\{[\s\S]*?"dualLanguage"[\s\S]*?\}/g, '').trim();
-        
-        console.log('[parseDualLanguageContent] Final values:');
-        console.log(`  - jaText: ${jaText.substring(0, 50)}...`);
-        console.log(`  - enText: ${enText.substring(0, 50)}...`);
-        console.log(`  - targetLanguage from JSON: ${parsed.targetLanguage}`);
-        
+
+        jaText = String(jaText).replace(/\{[\s\S]*?"dualLanguage"[\s\S]*?\}/g, '').trim();
+        enText = String(enText).replace(/\{[\s\S]*?"dualLanguage"[\s\S]*?\}/g, '').trim();
+
         return {
           isDualLanguage: true,
           isSingleLanguage: false,
@@ -179,43 +115,34 @@ function parseDualLanguageContent(content: string): DualLanguageContent {
       }
     } catch (e) {
       console.error('[parseDualLanguageContent] JSON parse error:', e);
-      if (jsonMatch[0]) {
-        console.error('[parseDualLanguageContent] Failed JSON string (first 200 chars):', jsonMatch[0]?.substring(0, 200));
-      }
-      // Continue to other formats
     }
   }
-  
-  // Try [EN]/[JA] format
+
+  // [EN]/[JA] format
   const enMatch = cleanContent.match(/\[EN\]\s*([\s\S]*?)(?=\[JA\]|$)/i);
   const jaMatch = cleanContent.match(/\[JA\]\s*([\s\S]*?)(?=\[EN\]|$)/i);
-  
   if (enMatch && jaMatch) {
     const englishText = enMatch[1].trim();
     const japaneseText = jaMatch[1].trim();
-    
     if (englishText && japaneseText) {
-      // Determine user language based on order in content
       const enIndex = cleanContent.indexOf('[EN]');
       const jaIndex = cleanContent.indexOf('[JA]');
       const userLangFirst = enIndex < jaIndex ? 'en' : 'ja';
-      
-      // Assign based on user language: user's language is the original, other is translation
+
       return {
         isDualLanguage: true,
         isSingleLanguage: false,
-        japanese: japaneseText,           // Always store Japanese text in 'japanese' field
-        translated: englishText,          // Always store English text in 'translated' field
-        targetLanguage: userLangFirst,    // Store which language the user asked in
+        japanese: japaneseText,
+        translated: englishText,
+        targetLanguage: userLangFirst,
         rawContent: content,
       };
     }
   }
-  
-  // Try splitting by common separators (---) 
+
+  // Separator split
   const parts = cleanContent.split(/\n---+\n/);
   if (parts.length >= 2) {
-    // Check if second part looks like Japanese
     const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(parts[1]);
     if (hasJapanese) {
       return {
@@ -228,14 +155,9 @@ function parseDualLanguageContent(content: string): DualLanguageContent {
       };
     }
   }
-  
-  // Return clean content as single language with all required fields
-  console.log('[parseDualLanguageContent] No recognized format found, returning as plain text');
-  console.log('[parseDualLanguageContent] Returning cleaned content:', cleanContent.substring(0, 100));
-  
-  // Even if no markers found, try to detect if this looks like it should have been JSON
+
+  // Try direct JSON parse if looks like JSON
   if (cleanContent.startsWith('{') && cleanContent.includes('dualLanguage')) {
-    console.log('[parseDualLanguageContent] Content looks like JSON but markers were missing, trying direct parse');
     try {
       const parsed = JSON.parse(cleanContent);
       if (parsed.dualLanguage === false && parsed.content) {
@@ -251,11 +173,11 @@ function parseDualLanguageContent(content: string): DualLanguageContent {
         };
       }
     } catch (e) {
-      console.error('[parseDualLanguageContent] Direct JSON parse also failed:', e);
+      console.error('[parseDualLanguageContent] Direct JSON parse failed:', e);
     }
   }
-  
-  return { 
+
+  return {
     isDualLanguage: false,
     isSingleLanguage: false,
     rawContent: cleanContent,
@@ -266,7 +188,7 @@ function parseDualLanguageContent(content: string): DualLanguageContent {
   };
 }
 
-// Action buttons component for bot messages (Chatllama3.2:latest style)
+// Action buttons component for bot messages
 interface MessageActionsProps {
   content: string;
   messageId: string;
@@ -280,15 +202,13 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
   const [showShareModal, setShowShareModal] = useState(false);
   const { t } = useLang();
   const toast = useToast();
+
   const handleCopy = async () => {
-    // Parse and extract clean text
     const parsed = parseDualLanguageContent(content);
     let textToCopy = parsed.rawContent;
-    
     if (parsed.isDualLanguage && parsed.translated && parsed.japanese) {
       textToCopy = `${parsed.translated}\n\n---\n\n${parsed.japanese}`;
     }
-    
     await navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -299,16 +219,14 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
     onFeedback?.(messageId, type);
   };
 
-  const handleShare = async () => {
-    setShowShareModal(true);
-  };
+  const handleShare = async () => setShowShareModal(true);
 
   const handleShareAction = async (method: 'email' | 'teams' | 'outlook' | 'clipboard') => {
     const parsed = parseDualLanguageContent(content);
-    const textToShare = parsed.isDualLanguage 
+    const textToShare = parsed.isDualLanguage
       ? (parsed.translated || parsed.japanese || parsed.rawContent)
       : parsed.rawContent;
-    
+
     if (method === 'clipboard') {
       await navigator.clipboard.writeText(textToShare);
       toast.success(t('chatActions.copied'));
@@ -317,7 +235,6 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
       const body = encodeURIComponent(`${t('chatActions.shareMessage')}\n\n${textToShare}`);
       window.location.href = `mailto:?subject=${subject}&body=${body}`;
     } else if (method === 'teams') {
-      // Teams deep link: Simplified share (in production, use Teams SDK)
       const msg = `${t('chatActions.shareMessage')}\n\n${textToShare}`;
       await navigator.clipboard.writeText(msg);
       toast.success(t('chatActions.shareSubject'));
@@ -331,115 +248,88 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
 
   return (
     <>
-      <div className="flex items-center gap-1 mt-2 pt-2 border-t border-slate-600">
-        {/* Copy */}
+      <div className="flex items-center gap-1 mt-2 pt-2 border-t border-black/10 dark:border-white/10">
+        <button onClick={handleCopy} className="mac-iconbtn" title={t('chatActions.copy')}>
+          {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+        </button>
+
         <button
-    onClick={handleCopy}
-    className="p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-600/50 transition-all duration-200"
-    title={t('chatActions.copy')}
-  >
-    {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
-  </button>
+          onClick={() => handleFeedback('like')}
+          className={`mac-iconbtn ${feedback === 'like' ? 'mac-iconbtn-active-good' : ''}`}
+          title={t('chatActions.good')}
+        >
+          <ThumbsUp className="w-4 h-4" />
+        </button>
 
-  {/* Like */}
-  <button
-    onClick={() => handleFeedback('like')}
-    className={`p-1.5 rounded-md transition-all duration-200 ${
-      feedback === 'like'
-        ? 'text-green-400 bg-green-400/20'
-        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-600/50'
-    }`}
-    title={t('chatActions.good')}
-  >
-    <ThumbsUp className="w-4 h-4" />
-  </button>
+        <button
+          onClick={() => handleFeedback('dislike')}
+          className={`mac-iconbtn ${feedback === 'dislike' ? 'mac-iconbtn-active-bad' : ''}`}
+          title={t('chatActions.bad')}
+        >
+          <ThumbsDown className="w-4 h-4" />
+        </button>
 
-  {/* Dislike */}
-  <button
-    onClick={() => handleFeedback('dislike')}
-    className={`p-1.5 rounded-md transition-all duration-200 ${
-      feedback === 'dislike'
-        ? 'text-red-400 bg-red-400/20'
-        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-600/50'
-    }`}
-    title={t('chatActions.bad')}
-  >
-    <ThumbsDown className="w-4 h-4" />
-  </button>
+        <button onClick={handleShare} className="mac-iconbtn" title={t('chatActions.share')}>
+          <Share2 className="w-4 h-4" />
+        </button>
 
-  {/* Share */}
-  <button
-    onClick={handleShare}
-    className="p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-600/50 transition-all duration-200"
-    title={t('chatActions.share')}
-  >
-    <Share2 className="w-4 h-4" />
-  </button>
-
-  {/* Regenerate */}
-  <button
-    onClick={onRegenerate}
-    className="p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-600/50 transition-all duration-200"
-    title={t('chatActions.regenerate')}
-  >
-    <RefreshCw className="w-4 h-4" />
-  </button>
-
+        <button onClick={onRegenerate} className="mac-iconbtn" title={t('chatActions.regenerate')}>
+          <RefreshCw className="w-4 h-4" />
+        </button>
       </div>
 
-    {/* Share Modal */}
-    {showShareModal && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowShareModal(false)} />
-        <div className="relative bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden transition-colors">
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-700">
-            <h2 className="text-lg font-semibold text-slate-100">{t('chatActions.shareTitle')}</h2>
-            <button onClick={() => setShowShareModal(false)} className="text-slate-400 hover:text-slate-200 transition-colors">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowShareModal(false)} />
+          <div className="relative mac-modal w-full max-w-md overflow-hidden">
+            <div className="mac-modal-header">
+              <h2 className="text-[15px] font-semibold text-slate-900 dark:text-white">
+                {t('chatActions.shareTitle')}
+              </h2>
+              <button onClick={() => setShowShareModal(false)} className="mac-iconbtn" aria-label="Close">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-          {/* Content */}
-          <div className="p-6 space-y-4">
-            {/* Preview */}
-            <div>
-              <p className="text-sm font-medium text-slate-200 mb-2">{t('chatActions.sharePreview')}:</p>
-              <div className="bg-slate-700 border border-slate-600 rounded-lg p-3 max-h-24 overflow-y-auto text-xs text-slate-400">
-                {parseDualLanguageContent(content).rawContent.substring(0, 200)}...
+            <div className="p-6 space-y-4">
+              <div>
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">
+                  {t('chatActions.sharePreview')}:
+                </p>
+                <div className="mac-panel p-3 max-h-24 overflow-y-auto text-xs text-slate-800 dark:text-slate-200">
+                  {parseDualLanguageContent(content).rawContent.substring(0, 200)}...
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                  {t('chatActions.shareRecipient')}
+                </p>
+                <button onClick={() => handleShareAction('email')} className="mac-menuitem">
+                  📧 {t('chatActions.shareEmail')}
+                </button>
+                <button onClick={() => handleShareAction('teams')} className="mac-menuitem">
+                  💬 {t('chatActions.shareTeams')}
+                </button>
+                <button onClick={() => handleShareAction('clipboard')} className="mac-menuitem">
+                  📋 {t('chatActions.shareEmail')}
+                </button>
               </div>
             </div>
 
-            {/* Share Options */}
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-slate-200">{t('chatActions.shareRecipient')}</p>
-              <button onClick={() => handleShareAction('email')} className="w-full p-3 text-left bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition-all duration-200">
-                📧 {t('chatActions.shareEmail')}
-              </button>
-              <button onClick={() => handleShareAction('teams')} className="w-full p-3 text-left bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition-all duration-200">
-                💬 {t('chatActions.shareTeams')}
-              </button>
-              <button onClick={() => handleShareAction('clipboard')} className="w-full p-3 text-left bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-200 transition-all duration-200">
-                📋 {t('chatActions.shareEmail')}
+            <div className="p-4 border-t border-black/10 dark:border-white/10">
+              <button onClick={() => setShowShareModal(false)} className="mac-primary w-full">
+                {t('chatActions.cancelButton')}
               </button>
             </div>
           </div>
-
-          {/* Footer */}
-          <div className="flex gap-3 px-6 py-4 border-t border-slate-700 bg-slate-800">
-            <button onClick={() => setShowShareModal(false)} className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-[#1d2089] to-[#0E4BD9] hover:from-[#2d3a9d] hover:to-[#1a5ce0] text-white transition-all duration-200">
-              {t('chatActions.cancelButton')}
-            </button>
-          </div>
         </div>
-      </div>
       )}
     </>
   );
 }
 
-// Component for displaying dual-language content side by side
-// User's language is shown first (column 1), translation second (column 2)
+// Component for displaying dual-language content
 function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageContent; taskOutputId?: number }) {
   const [translation, setTranslation] = useState<string | null>(null);
   const [loadingTranslation, setLoadingTranslation] = useState(false);
@@ -447,23 +337,19 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
   const { t } = useLang();
   const toast = useToast();
 
-  // Determine the source language from content
   let sourceLanguage: 'ja' | 'en' = 'en';
   let targetLanguage: 'ja' | 'en' = 'ja';
   let displayText = '';
 
   if (content.isSingleLanguage && content.language) {
-    // New single-language format with explicit language
     sourceLanguage = content.language;
     targetLanguage = content.language === 'ja' ? 'en' : 'ja';
     displayText = content.content || '';
   } else if (content.isDualLanguage) {
-    // Old dual-language format
     sourceLanguage = content.targetLanguage === 'ja' ? 'ja' : 'en';
     targetLanguage = sourceLanguage === 'ja' ? 'en' : 'ja';
-    displayText = sourceLanguage === 'ja' ? content.japanese : content.translated;
+    displayText = sourceLanguage === 'ja' ? (content.japanese || '') : (content.translated || '');
   } else {
-    // Plain text fallback
     displayText = content.content || content.rawContent || '';
     sourceLanguage = 'en';
     targetLanguage = 'ja';
@@ -481,19 +367,17 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
     setLoadingTranslation(true);
     setTranslationError(null);
 
-    // Set 5-minute timeout for translation (increased from 2 minutes)
     const translationTimeoutId = setTimeout(() => {
       setLoadingTranslation(false);
-      const errorMsg = sourceLanguage === 'ja' 
+      const errorMsg = sourceLanguage === 'ja'
         ? '翻訳タイムアウト(5分以上かかりました。サーバーが忙しい可能性があります。)'
         : 'Translation timeout (took more than 5 minutes). Please try again.';
       setTranslationError(errorMsg);
-      console.error('[Translation] STEP 6: Timeout after 5 minutes');
-    }, 300000); // 5 minutes (increased from 120000)
+    }, 300000);
 
     try {
       if (!taskOutputId) {
-        const errorMsg = sourceLanguage === 'ja' 
+        const errorMsg = sourceLanguage === 'ja'
           ? 'メッセージIDが見つかりません'
           : 'Unable to find message ID for translation';
         setTranslationError(errorMsg);
@@ -501,147 +385,81 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
         return;
       }
 
-      console.log('[Translation] STEP 6: Starting on-demand translation:', {
-        outputId: taskOutputId,
-        sourceLanguage,
-        targetLanguage,
-        contentLength: displayText.length,
-      });
-
-      console.log('[Translation] STEP 6: Fetch URL:', '/dev-api/api/gen-task/translate-on-demand');
-      console.log('[Translation] Request body:', {
-        outputId: taskOutputId,
-        targetLanguage: targetLanguage,
-      });
-
       const token = getToken();
       const headers: HeadersInit = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
       const response = await fetch('/dev-api/api/gen-task/translate-on-demand', {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          outputId: taskOutputId,
-          targetLanguage: targetLanguage,
-        }),
+        body: JSON.stringify({ outputId: taskOutputId, targetLanguage }),
       });
 
-      console.log('[Translation] Response status:', response.status, response.statusText);
-      console.log('[Translation] Response headers:', {
-        contentType: response.headers.get('content-type'),
-        contentLength: response.headers.get('content-length'),
-      });
-
-      // Read response as text first to handle errors better
       const responseText = await response.text();
-      console.log('[Translation] Raw response text (first 500 chars):', responseText.substring(0, 500));
 
       if (!response.ok) {
-        console.error('[Translation] API Error Response:', {
-          status: response.status,
-          statusText: response.statusText,
-          body: responseText,
-        });
-        
-        // Try to parse error as JSON
         let errorMessage = response.statusText;
         try {
           const errorData = JSON.parse(responseText);
           errorMessage = errorData.message || errorData.error || response.statusText;
         } catch {
-          // If not JSON, use plain text
           errorMessage = responseText || response.statusText;
         }
-        
         throw new Error(`API Error [${response.status}]: ${errorMessage}`);
       }
 
-      // Parse successful response
-      if (!responseText || responseText.trim().length === 0) {
-        throw new Error('Server returned empty response');
-      }
-      
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('[Translation] JSON parse error:', parseError);
-        console.error('[Translation] Failed to parse:', responseText.substring(0, 300));
-        throw new Error(`Invalid JSON response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
-      }
-      
-      console.log('[Translation] Parsed response:', {
-        hasResult: !!data.result,
-        hasContent: !!data.result?.content,
-        code: data.code,
-        message: data.message,
-      });
+      if (!responseText || responseText.trim().length === 0) throw new Error('Server returned empty response');
 
-      if (data.result?.content) {
-        setTranslation(data.result.content);
-      } else {
-        throw new Error(`No translation content in response. Got: ${JSON.stringify(data)}`);
-      }
+      const data = JSON.parse(responseText);
+      if (data.result?.content) setTranslation(data.result.content);
+      else throw new Error(`No translation content in response. Got: ${JSON.stringify(data)}`);
     } catch (error) {
-      console.error('[Translation] Full error details:', error);
       const errorMsg = error instanceof Error ? error.message : String(error);
       setTranslationError(errorMsg);
+      toast.error(errorMsg);
     } finally {
+      clearTimeout(translationTimeoutId);
       setLoadingTranslation(false);
     }
   };
 
   return (
     <div className="w-full space-y-3">
-      {/* Source Language Content */}
       <div className="space-y-2">
         <div className="flex items-center gap-2 pb-2">
-          <Globe className="w-3.5 h-3.5 text-blue-400" />
-          <span className="text-xs font-semibold text-blue-400">
+          <Globe className="w-3.5 h-3.5 text-blue-500" />
+          <span className="text-xs font-semibold text-blue-600 dark:text-blue-300">
             {sourceLanguageName}
           </span>
         </div>
 
-        <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-100">
+        <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-slate-100">
           {displayText || ''}
         </p>
       </div>
 
-      {/* Translation Button - Always Show */}
       <div>
         {!translation ? (
-          <button
-            onClick={handleTranslate}
-            disabled={loadingTranslation}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-slate-700 border border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-          >
+          <button onClick={handleTranslate} disabled={loadingTranslation} className="mac-secondary">
             <Languages className="w-3.5 h-3.5" />
-            <span>
-              {loadingTranslation ? 'Translating...' : `Show ${targetLanguageName}`}
-            </span>
+            <span>{loadingTranslation ? 'Translating...' : `Show ${targetLanguageName}`}</span>
           </button>
         ) : (
           <>
-            <div className="mt-3 p-4 rounded-xl bg-slate-700 border border-slate-600 shadow-lg transition-colors">
-              <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-600">
-                <Globe className="w-4 h-4 text-blue-400" />
-                <span className="text-xs font-semibold text-slate-200">
+            <div className="mt-3 mac-panel p-4">
+              <div className="flex items-center gap-2 mb-2 pb-2 border-b border-black/10 dark:border-white/10">
+                <Globe className="w-4 h-4 text-blue-500" />
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
                   {targetLanguageName}
                 </span>
               </div>
 
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-100">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-slate-100">
                 {translation}
               </p>
             </div>
 
-            <button
-              onClick={handleTranslate}
-              className="mt-2 flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-slate-700 border border-slate-600 text-slate-300 hover:bg-slate-600 hover:text-white transition-all duration-200"
-            >
+            <button onClick={handleTranslate} className="mt-2 mac-secondary">
               <Globe className="w-3.5 h-3.5" />
               <span>Hide Translation</span>
             </button>
@@ -649,12 +467,9 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
         )}
 
         {translationError && (
-          <div className="mt-2 p-2 rounded-lg bg-red-900/30 border border-red-700/50 text-xs text-red-300">
+          <div className="mt-2 p-2 rounded-lg bg-red-900/10 dark:bg-red-900/30 border border-red-700/20 dark:border-red-700/50 text-xs text-red-600 dark:text-red-300">
             {translationError}
-            <button
-              onClick={handleTranslate}
-              className="ml-2 underline hover:no-underline"
-            >
+            <button onClick={handleTranslate} className="ml-2 underline hover:no-underline">
               Retry
             </button>
           </div>
@@ -669,7 +484,8 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
     {
       id: '1',
       type: 'bot',
-      content: 'Hello! I\'m your HR Policy Assistant. I can help you with questions about company policies, benefits, leave, remote work, and more. You can ask in English or Japanese (日本語でも質問できます).',
+      content:
+        "Hello! I'm your HR Policy Assistant. I can help you with questions about company policies, benefits, leave, remote work, and more. You can ask in English or Japanese (日本語でも質問できます).",
       timestamp: new Date(),
     },
   ]);
@@ -677,23 +493,19 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
   const [isTyping, setIsTyping] = useState(false);
   const [chatList, setChatList] = useState<ChatTask[]>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  // const [showHistory, setShowHistory] = useState(false);
   const [fieldSort, setFieldSort] = useState(0);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; title: string } | null>(null);
   const [pdfPreview, setPdfPreview] = useState<{ filename: string; page: number; highlight?: string } | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
-  // Get translations
+
   const { t } = useLang();
-  
-  // Toast notifications from context
   const toast = useToast();
 
-  // Show toast notification (wrapper for compatibility)
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     if (type === 'success') toast.success(message);
     else if (type === 'error') toast.error(message);
@@ -708,21 +520,16 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
     scrollToBottom();
   }, [messages]);
 
-  // Focus input when requested
   useEffect(() => {
-    if (typeof focusSignal !== 'undefined') {
-      inputRef.current?.focus();
-    }
+    if (typeof focusSignal !== 'undefined') inputRef.current?.focus();
   }, [focusSignal]);
 
-  // Load chat list on mount
   useEffect(() => {
     loadChatList();
     return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-      }
+      if (pollingRef.current) clearInterval(pollingRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadChatList = async () => {
@@ -741,16 +548,6 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
     }
   };
 
-  // Load chat messages helper (currently unused; sidebar selection not present)
-  // const loadChatMessages = async (taskId: string) => { /* ... */ };
-
-  // selectChat reserved for future sidebar list usage
-  // const selectChat = (chatId: string) => {
-  //   setCurrentChatId(chatId);
-  //   loadChatMessages(chatId);
-  //   setShowHistory(false);
-  // };
-
   const startNewChat = () => {
     setCurrentChatId(null);
     setMessages([{
@@ -762,22 +559,9 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
     setFieldSort(0);
   };
 
-  // const deleteChat = async (chatId: string, e: React.MouseEvent) => {
-  //   e.stopPropagation();
-  //   try {
-  //     await deleteTaskOutput(chatId);
-  //     setChatList(prev => prev.filter(chat => chat.id !== chatId));
-  //     if (currentChatId === chatId) {
-  //       startNewChat();
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to delete chat:', error);
-  //   }
-  // };
-
   const pollForResponse = useCallback((taskId: string, newFieldSort: number) => {
     let attempts = 0;
-    const maxAttempts = 180; // up to 3 minutes, reset on progress
+    const maxAttempts = 360;
     let lastContentLength = 0;
 
     pollingRef.current = setInterval(async () => {
@@ -786,7 +570,6 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
       try {
         const response = await listTaskOutput({ pageNum: 1, pageSize: 1000, taskId });
         if (response.code === 200 && response.result?.rows) {
-          // Find output matching the sort field (try exact match first, then +1)
           const latestOutput = response.result.rows.find(
             (o: TaskOutput) => o.sort === newFieldSort || o.sort === newFieldSort + 1
           ) || response.result.rows
@@ -797,12 +580,11 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
             const contentText = latestOutput.content || '';
             const contentLen = contentText.length;
 
-            // Update message even if content is empty (to show status)
             setMessages(prev => {
               const updated = [...prev];
               const lastIndex = updated.length - 1;
               if (updated[lastIndex]?.type === 'bot' &&
-                  (!updated[lastIndex].taskOutputId || updated[lastIndex].taskOutputId === latestOutput.id)) {
+                (!updated[lastIndex].taskOutputId || updated[lastIndex].taskOutputId === latestOutput.id)) {
                 updated[lastIndex] = {
                   ...updated[lastIndex],
                   content: contentText,
@@ -813,13 +595,11 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
               return updated;
             });
 
-            // Reset timeout counter if content grows
             if (contentLen > lastContentLength) {
               lastContentLength = contentLen;
-              attempts = 0; // give more time on progress
+              attempts = 0;
             }
 
-            // Stop polling only when terminal status
             if (latestOutput.status === 'FINISHED' || latestOutput.status === 'FAILED' || latestOutput.status === 'CANCEL') {
               setIsTyping(false);
               if (pollingRef.current) {
@@ -836,13 +616,6 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
                 });
               }
             }
-          } else if (attempts > 5) {
-            console.log('[DEBUG] No output found. All outputs:', response.result.rows.map((o: TaskOutput) => ({
-              id: o.id,
-              sort: o.sort,
-              status: o.status,
-              hasContent: !!o.content
-            })));
           }
         }
       } catch (error) {
@@ -855,23 +628,19 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
           clearInterval(pollingRef.current);
           pollingRef.current = null;
         }
-        // Only show timeout if no content ever arrived
         if (lastContentLength === 0) {
           setMessages(prev => {
             const updated = [...prev];
             const lastIndex = updated.length - 1;
             if (updated[lastIndex]?.type === 'bot' && !updated[lastIndex].content) {
-              updated[lastIndex] = {
-                ...updated[lastIndex],
-                content: '⏱️ Response timeout. Please try again.',
-              };
+              updated[lastIndex] = { ...updated[lastIndex], content: '⏱️ Response timeout. Please try again.' };
             }
             return updated;
           });
         }
       }
     }, 1000);
-  }, [messages, onSaveToHistory]);
+  }, [onSaveToHistory]);
 
   const handleSend = async (overrideInput?: string) => {
     const payload = (overrideInput ?? input).trim();
@@ -899,14 +668,13 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
 
     try {
       let taskId = currentChatId;
-      
-      // Step 1: For new chats, first create an empty chat to get taskId
+
       if (!taskId) {
         const createResponse = await addTask({
           type: 'CHAT',
-          formData: {}, // Empty formData creates new chat
+          formData: {},
         });
-        
+
         if (createResponse.code === 200 && createResponse.result?.taskId) {
           taskId = createResponse.result.taskId;
           setCurrentChatId(taskId);
@@ -919,7 +687,6 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
       const newFieldSort = fieldSort + 1;
       setFieldSort(newFieldSort);
 
-      // Step 2: Send the actual message with taskId
       const response = await addTask({
         type: 'CHAT',
         formData: {
@@ -933,12 +700,12 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
       });
 
       if (response.code === 200 && response.result?.taskId) {
-        const taskId = response.result.taskId;
+        const taskId2 = response.result.taskId;
         if (!currentChatId) {
-          setCurrentChatId(taskId);
+          setCurrentChatId(taskId2);
           loadChatList();
         }
-        pollForResponse(taskId, newFieldSort);
+        pollForResponse(taskId2, newFieldSort);
       } else {
         setIsTyping(false);
         setMessages(prev => {
@@ -960,7 +727,6 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
 
   const handleFeedback = async (messageId: string, emoji: string, taskOutputId?: number) => {
     if (!taskOutputId) return;
-    
     const message = messages.find(m => m.id === messageId);
     if (!message) return;
 
@@ -969,10 +735,10 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
         taskOutputId,
         emoji,
         outputContent: message.content,
-        question: '', // Could be improved to find the user question
+        question: '',
       });
-      
-      setMessages(prev => prev.map(m => 
+
+      setMessages(prev => prev.map(m =>
         m.id === messageId ? { ...m, feedback: { emoji } } : m
       ));
     } catch (error) {
@@ -980,7 +746,6 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
     }
   };
 
-  // Stop generation
   const stopGeneration = () => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
@@ -991,17 +756,13 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
       const updated = [...prev];
       const lastMsg = updated[updated.length - 1];
       if (lastMsg?.type === 'bot' && !lastMsg.content) {
-        updated[updated.length - 1] = {
-          ...lastMsg,
-          content: t('chat.generationStopped'),
-        };
+        updated[updated.length - 1] = { ...lastMsg, content: t('chat.generationStopped') };
       }
       return updated;
     });
     showToast(t('chat.generation'), 'info');
   };
 
-  // Clear current chat
   const clearChat = () => {
     setMessages([{
       id: '1',
@@ -1014,33 +775,21 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
     showToast(t('chat.chatSaved'), 'success');
   };
 
-  // Handle keyboard shortcuts
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Enter to send (without shift)
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
-    // Escape to stop generation
-    if (e.key === 'Escape' && isTyping) {
-      stopGeneration();
-    }
+    if (e.key === 'Escape' && isTyping) stopGeneration();
   };
 
-  // Handle input change - no auto-resize to prevent scroll
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     onUserTyping?.(true);
     if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
-    typingTimerRef.current = setTimeout(() => {
-      onUserTyping?.(false);
-    }, 800);
+    typingTimerRef.current = setTimeout(() => onUserTyping?.(false), 800);
   };
 
-  // Handler for recommendation tile click
-  
-
-  // Regenerate: resend the previous user prompt relative to a bot message
   const regenerateAt = (botMessageId: string) => {
     if (isTyping) return;
     const idx = messages.findIndex(m => m.id === botMessageId);
@@ -1048,13 +797,11 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
     const prevUser = [...messages].slice(0, idx).reverse().find(m => m.type === 'user');
     if (!prevUser) return;
     showToast(t('chat.regen'), 'info');
-
     handleSend(prevUser.content);
   };
 
   return (
-    <div className="flex h-full flex-col md:flex-row">
-      {/* Chat Export Dialog */}
+    <div className="flex h-full flex-col md:flex-row mac-root">
       {showExportDialog && (
         <ChatExport
           messages={messages.map(m => ({
@@ -1067,7 +814,6 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
         />
       )}
 
-      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={confirmDelete !== null}
         title="Delete Chat"
@@ -1080,16 +826,13 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
               if (confirmDelete.id) {
                 await deleteTaskOutput(confirmDelete.id);
                 setChatList(prev => prev.filter(c => c.id !== confirmDelete.id));
-                if (currentChatId === confirmDelete.id) {
-                  startNewChat();
-                }
+                if (currentChatId === confirmDelete.id) startNewChat();
                 showToast('Chat deleted', 'success');
               } else {
-                // No server-side chat id: just clear local chat
                 clearChat();
                 showToast('Chat cleared', 'success');
               }
-            } catch (error) {
+            } catch {
               showToast('Failed to delete chat', 'error');
             }
             setConfirmDelete(null);
@@ -1097,306 +840,591 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
         }}
         onCancel={() => setConfirmDelete(null)}
       />
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-800">
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {Array.isArray(messages) && messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex gap-3 ${
-              message.type === 'user' ? 'flex-row-reverse' : 'flex-row'
-            } animate-fadeIn`}
-          >
-            <div
-              className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                message.type === 'user'
-                  ? 'bg-gradient-to-br from-[#1d2089] to-[#0E4BD9]'
-                  : 'bg-gradient-to-br from-emerald-500 to-emerald-600'
-              }`}
-            >
-              {message.type === 'user' ? (
-                <User className="w-5 h-5 text-white" />
-              ) : (
-                <Bot className="w-5 h-5 text-white" />
-              )}
-            </div>
 
+      <div className="flex-1 flex flex-col h-full bg-transparent mac-window">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 mac-glass-surface mac-scroll">
+          {Array.isArray(messages) && messages.map((message) => (
             <div
-              className={`flex-1 max-w-full sm:max-w-[80%] md:max-w-[60%] ${
-                message.type === 'user' ? 'items-end' : 'items-start'
-              } flex flex-col gap-2`}
+              key={message.id}
+              className={`flex gap-3 ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'} animate-fadeIn`}
             >
               <div
-                className={`px-4 py-3 rounded-2xl transition-all ${
+                className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center`}
+                style={
                   message.type === 'user'
-                    ? 'bg-gradient-to-r from-[#1d2089] to-[#0E4BD9] text-white shadow-lg shadow-blue-900/30'
-                    : 'bg-slate-600 border border-slate-600 text-slate-100 shadow-sm'
-                }`}
+                    ? { backgroundImage: 'linear-gradient(135deg, var(--c-accent), var(--c-accent-strong))' }
+                    : undefined
+                }
               >
-                {message.type === 'bot' ? (
-                  message.content ? (
-                    (() => {
-                      try {
-                        const parsed = parseDualLanguageContent(message.content);
-                        console.log('[Message Render] Parsed content:', {
-                          isDualLanguage: parsed.isDualLanguage,
-                          isSingleLanguage: parsed.isSingleLanguage,
-                          hasContent: !!parsed.content,
-                          rawContentLength: parsed.rawContent?.length,
-                          taskOutputId: message.taskOutputId,
-                        });
-                        
-                        // Always render with DualLanguageMessage for proper translation button handling
-                        return (
-                          <>
-                            <DualLanguageMessage content={parsed} taskOutputId={message.taskOutputId} />
-                            <MessageActions 
-                              content={message.content} 
-                              messageId={message.id}
-                              onFeedback={(id, fb) => {
-                                const emoji = fb === 'like' ? '👍' : '👎';
-                                handleFeedback(id, emoji, message.taskOutputId);
-                                showToast(fb === 'like' ? t('chat.like') : t('chat.dislike'), 'success');
-                              }}
-                              onRegenerate={() => regenerateAt(message.id)}
-                            />
-                          </>
-                        );
-                      } catch (error) {
-                        console.error('Error rendering message:', error);
-                        console.error('Message content:', message.content?.substring(0, 200));
-                        
-                        // Fallback to plain text with translation button
-                        return (
-                          <>
-                            <div className="space-y-3">
-                              <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                                {message.content}
-                              </p>
-                              <DualLanguageMessage 
-                                content={{
-                                  isDualLanguage: false,
-                                  isSingleLanguage: false,
-                                  rawContent: message.content,
-                                  content: message.content,
-                                }}
-                                taskOutputId={message.taskOutputId} 
-                              />
-                            </div>
-                            <MessageActions 
-                              content={message.content} 
-                              messageId={message.id}
-                              onFeedback={(id, fb) => {
-                                const emoji = fb === 'like' ? '👍' : '👎';
-                                handleFeedback(id, emoji, message.taskOutputId);
-                                showToast(fb === 'like' ? t('chat.like') : t('chat.dislike'), 'success');
-                              }}
-                              onRegenerate={() => regenerateAt(message.id)}
-                            />
-                          </>
-                        );
-                      }
-                    })()
-                  ) : (
-                    // Show typing indicator when content is empty
-                    <div className="flex gap-1">
-                      <div
-                        className="w-2 h-2 bg-[#1d2089] rounded-full animate-bounce"
-                        style={{ animationDelay: '0ms' }}
-                      />
-                      <div
-                        className="w-2 h-2 bg-[#1d2089] rounded-full animate-bounce"
-                        style={{ animationDelay: '150ms' }}
-                      />
-                      <div
-                        className="w-2 h-2 bg-[#1d2089] rounded-full animate-bounce"
-                        style={{ animationDelay: '300ms' }}
-                      />
-                    </div>
-                  )
+                {message.type === 'user' ? (
+                  <User className="w-5 h-5 text-white" />
                 ) : (
-                  <div className="group/msg relative">
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                      {message.content}
-                    </p>
-                    {/* Edit button for user messages */}
-                    {message.type === 'user' && !isTyping && (
-                      <button
-                        onClick={() => {
-                          setInput(message.content);
-                          inputRef.current?.focus();
-                        }}
-                        className="absolute -right-8 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover/msg:opacity-100 text-slate-400 hover:text-white transition-opacity"
-                        title="Edit & resend"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
+                  <Bot className="w-5 h-5 text-white" />
                 )}
               </div>
 
-              {message.source && (
-                <SourceCitation
-                  document={message.source.document}
-                  page={message.source.page}
-                  excerpt={message.content.slice(0, 100)}
-                  onClick={() => setPdfPreview({
-                    filename: message.source!.document,
-                    page: message.source!.page,
-                    highlight: message.content.slice(0, 50),
-                  })}
-                />
-              )}
+              <div
+                className={`flex-1 max-w-full sm:max-w-[80%] md:max-w-[60%] ${
+                  message.type === 'user' ? 'items-end' : 'items-start'
+                } flex flex-col gap-2`}
+              >
+                {/* ✅ Reference-style mac glass bubble */}
+                <div
+                  className={[
+                    "px-4 py-3 mac-glass-bubble",
+                    message.type === "user" ? "mac-glass-user" : "mac-glass-bot",
+                  ].join(" ")}
+                >
+                  {message.type === 'bot' ? (
+                    message.content ? (
+                      (() => {
+                        try {
+                          const parsed = parseDualLanguageContent(message.content);
+                          return (
+                            <>
+                              <DualLanguageMessage content={parsed} taskOutputId={message.taskOutputId} />
+                              <MessageActions
+                                content={message.content}
+                                messageId={message.id}
+                                onFeedback={(id, fb) => {
+                                  const emoji = fb === 'like' ? '👍' : '👎';
+                                  handleFeedback(id, emoji, message.taskOutputId);
+                                  showToast(fb === 'like' ? t('chat.like') : t('chat.dislike'), 'success');
+                                }}
+                                onRegenerate={() => regenerateAt(message.id)}
+                              />
+                            </>
+                          );
+                        } catch (error) {
+                          console.error('Error rendering message:', error);
+                          return (
+                            <>
+                              <div className="space-y-3">
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-slate-100">
+                                  {message.content}
+                                </p>
+                                <DualLanguageMessage
+                                  content={{
+                                    isDualLanguage: false,
+                                    isSingleLanguage: false,
+                                    rawContent: message.content,
+                                    content: message.content,
+                                  }}
+                                  taskOutputId={message.taskOutputId}
+                                />
+                              </div>
+                              <MessageActions
+                                content={message.content}
+                                messageId={message.id}
+                                onFeedback={(id, fb) => {
+                                  const emoji = fb === 'like' ? '👍' : '👎';
+                                  handleFeedback(id, emoji, message.taskOutputId);
+                                  showToast(fb === 'like' ? t('chat.like') : t('chat.dislike'), 'success');
+                                }}
+                                onRegenerate={() => regenerateAt(message.id)}
+                              />
+                            </>
+                          );
+                        }
+                      })()
+                    ) : (
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    )
+                  ) : (
+                    <div className="group/msg relative">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-slate-100">
+                        {message.content}
+                      </p>
+                      {message.type === 'user' && !isTyping && (
+                        <button
+                          onClick={() => {
+                            setInput(message.content);
+                            inputRef.current?.focus();
+                          }}
+                          className="absolute -right-8 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover/msg:opacity-100 text-slate-400 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-opacity"
+                          title="Edit & resend"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
 
-              <span className="text-xs text-[#9CA3AF] px-2 hidden sm:inline">
-                {message.timestamp.toLocaleTimeString()}
-              </span>
+                {message.source && (
+                  <SourceCitation
+                    document={message.source.document}
+                    page={message.source.page}
+                    excerpt={message.content.slice(0, 100)}
+                    onClick={() => setPdfPreview({
+                      filename: message.source!.document,
+                      page: message.source!.page,
+                      highlight: message.content.slice(0, 50),
+                    })}
+                  />
+                )}
+
+                <span className="text-xs text-slate-500 dark:text-slate-400 px-2 hidden sm:inline">
+                  {message.timestamp.toLocaleTimeString()}
+                </span>
+              </div>
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {pdfPreview && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setPdfPreview(null)} />
+            <div className="relative w-full max-w-4xl">
+              <PDFPreview
+                filename={pdfPreview.filename}
+                pageNumber={pdfPreview.page}
+                highlightText={pdfPreview.highlight}
+                onClose={() => setPdfPreview(null)}
+              />
             </div>
           </div>
-        ))}
+        )}
 
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* PDF Preview Modal */}
-      {pdfPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setPdfPreview(null)} />
-          <div className="relative w-full max-w-4xl">
-            <PDFPreview
-              filename={pdfPreview.filename}
-              pageNumber={pdfPreview.page}
-              highlightText={pdfPreview.highlight}
-              onClose={() => setPdfPreview(null)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Input Area with Recommendation Tiles */}
-      <div className="p-4 border-t border-[#E8E8E8] bg-white">
-        {/* Recommendation tiles removed */}
-
-        {/* Action buttons */}
-        <div className="flex items-center gap-2 mb-3">
-          <button
-            onClick={startNewChat}
-            className="p-2 rounded-lg bg-[#F6F6F6] text-[#6E7680] hover:bg-[#E8E8E8] hover:text-[#232333] transition-colors"
-            title={t('chat.newChat')}
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setConfirmDelete({ id: currentChatId || '', title: chatList.find(c => c.id === currentChatId)?.title || t('chat.deleteChat') })}
-            className="p-2 rounded-lg bg-[#F6F6F6] text-[#6E7680] hover:bg-[#E8E8E8] hover:text-[#232333] transition-colors"
-            title={t('chat.clearHistory')}
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-          
-          {/* Separator */}
-          <div className="w-px h-5 bg-[#E8E8E8]" />
-          
-          {/* Export Chat */}
-          <button
-            onClick={() => setShowExportDialog(true)}
-            className="p-2 rounded-lg bg-[#F6F6F6] text-[#6E7680] hover:bg-[#E8E8E8] hover:text-[#232333] transition-colors"
-            title={t('chat.exportChat')}
-          >
-            <Download className="w-4 h-4" />
-          </button>
-          
-          {isTyping && (
-            <button
-              onClick={stopGeneration}
-              className="p-2 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors flex items-center gap-1"
-              title={`${t('chat.stop')} (Esc)`}
-            >
-              <StopCircle className="w-4 h-4" />
-              <span className="text-xs">{t('chat.stop')}</span>
+        {/* ✅ FIXED: bottom area now true glass in dark + clean in light */}
+        <div className="p-4 mac-inputbar">
+          <div className="flex items-center gap-2 mb-3">
+            <button onClick={startNewChat} className="mac-toolbarbtn" title={t('chat.newChat')}>
+              <Plus className="w-4 h-4" />
             </button>
-          )}
-          <div className="flex-1" />
-          <span className="text-xs text-[#9CA3AF]">
-            {input.length > 0 && `${input.length} chars`}
-          </span>
-        </div>
 
-        {/* Input field */}
-        <div className="flex gap-3">
-          <div className="flex-1 relative">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              placeholder={t('chat.askQuestion')}
-              rows={1}
-              className="w-full px-4 py-3 bg-white border-2 border-[#E8E8E8] rounded-xl text-[#232333] placeholder-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#1d2089] focus:border-[#1d2089] resize-none transition-all"
-              style={{ minHeight: '48px', maxHeight: '150px' }}
-            />
+            <button
+              onClick={() => setConfirmDelete({ id: currentChatId || '', title: chatList.find(c => c.id === currentChatId)?.title || t('chat.deleteChat') })}
+              className="mac-toolbarbtn"
+              title={t('chat.clearHistory')}
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+
+            <div className="w-px h-5 bg-black/10 dark:bg-white/10" />
+
+            <button onClick={() => setShowExportDialog(true)} className="mac-toolbarbtn" title={t('chat.exportChat')}>
+              <Download className="w-4 h-4" />
+            </button>
+
+            {isTyping && (
+              <button onClick={stopGeneration} className="mac-stopbtn" title={`${t('chat.stop')} (Esc)`}>
+                <StopCircle className="w-4 h-4" />
+                <span className="text-xs">{t('chat.stop')}</span>
+              </button>
+            )}
+
+            <div className="flex-1" />
+            <span className="text-xs text-slate-500 dark:text-slate-400">{input.length > 0 && `${input.length} chars`}</span>
           </div>
-          <button
-            onClick={() => handleSend()}
-            disabled={!input.trim() || isTyping}
-            className="px-6 py-3 h-fit bg-[#1d2089] hover:bg-[#0E4BD9] disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] disabled:cursor-not-allowed text-white rounded-xl transition-colors flex items-center gap-2 self-end"
-          >
-            <Send className="w-5 h-5" />
-            <span className="hidden sm:inline">{t('chat.send')}</span>
-          </button>
+
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder={t('chat.askQuestion')}
+                rows={1}
+                className="mac-textarea"
+                style={{ minHeight: '48px', maxHeight: '150px' }}
+              />
+            </div>
+            <button onClick={() => handleSend()} disabled={!input.trim() || isTyping} className="mac-sendbtn">
+              <Send className="w-5 h-5" />
+              <span className="hidden sm:inline">{t('chat.send')}</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-4 mt-2 text-xs text-slate-500 dark:text-slate-400">
+            <span><kbd className="mac-kbd">Enter</kbd> {t('inputTips.send')}</span>
+            <span><kbd className="mac-kbd">Shift+Enter</kbd> {t('inputTips.newline')}</span>
+            {isTyping && <span><kbd className="mac-kbd">Esc</kbd> {t('inputTips.stop')}</span>}
+          </div>
         </div>
 
-        {/* Keyboard hints */}
-        <div className="flex items-center gap-4 mt-2 text-xs text-[#9CA3AF]">
-  <span>
-    <kbd className="px-1.5 py-0.5 bg-[#F6F6F6] border border-[#E8E8E8] rounded text-[10px] text-[#6E7680]">Enter</kbd> {t('inputTips.send')}
-  </span>
-  <span>
-    <kbd className="px-1.5 py-0.5 bg-[#F6F6F6] border border-[#E8E8E8] rounded text-[10px] text-[#6E7680]">Shift+Enter</kbd> {t('inputTips.newline')}
-  </span>
-  {isTyping && (
-    <span>
-      <kbd className="px-1.5 py-0.5 bg-[#F6F6F6] border border-[#E8E8E8] rounded text-[10px] text-[#6E7680]">Esc</kbd> {t('inputTips.stop')}
-    </span>
-  )}
-</div>
-      </div>
-      </div>
+        <style>{`
+          /* =========================================================
+             Fixes based on your screenshots:
+             ✅ Dark mode bottom bar becomes glass (no white block)
+             ✅ Light mode becomes clean + premium (no "ugly grey")
+             ========================================================= */
 
-      <style>{`
-        /* Recommendation Tiles responsiveness (optional improvement) */
-        .recommendation-tile {
-          transition: background 0.2s, color 0.2s;
-        }
+          .mac-root{
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+          }
 
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
+          /* Page / container backdrop (LIGHT) */
+          .mac-window{
+            background:
+              radial-gradient(1100px 800px at 18% 10%, rgba(60,130,255,0.14), transparent 55%),
+              radial-gradient(900px 700px at 85% 18%, rgba(140,80,255,0.10), transparent 55%),
+              radial-gradient(900px 700px at 55% 90%, rgba(70,200,180,0.08), transparent 58%),
+              linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,255,255,0.70));
           }
-          to {
+
+          /* Page / container backdrop (DARK) */
+          .dark .mac-window{
+            background:
+              radial-gradient(1100px 800px at 18% 10%, rgba(60,130,255,0.20), transparent 55%),
+              radial-gradient(900px 700px at 85% 18%, rgba(140,80,255,0.16), transparent 55%),
+              radial-gradient(900px 700px at 55% 90%, rgba(70,200,180,0.10), transparent 58%),
+              linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.78));
+          }
+
+          /* Chat surface behind bubbles (LIGHT) */
+          .mac-glass-surface{
+            background:
+              radial-gradient(900px 600px at 20% 20%, rgba(255,255,255,0.55), transparent 65%),
+              radial-gradient(700px 500px at 80% 30%, rgba(255,255,255,0.35), transparent 65%),
+              linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.16));
+            border-top: 1px solid rgba(0,0,0,0.05);
+          }
+
+          /* Chat surface behind bubbles (DARK) */
+          .dark .mac-glass-surface{
+            background:
+              radial-gradient(900px 600px at 20% 20%, rgba(255,255,255,0.05), transparent 60%),
+              radial-gradient(700px 500px at 80% 30%, rgba(255,255,255,0.04), transparent 60%),
+              linear-gradient(180deg, rgba(0,0,0,0.22), rgba(0,0,0,0.38));
+            border-top: 1px solid rgba(255,255,255,0.06);
+          }
+
+          /* Reference-style glass bubble */
+          .mac-glass-bubble{
+            position: relative;
+            border-radius: 22px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.32);
+            border: 1px solid rgba(255,255,255,0.50);
+
+            backdrop-filter: blur(30px) saturate(135%);
+            -webkit-backdrop-filter: blur(30px) saturate(135%);
+
+            box-shadow:
+              0 18px 55px rgba(15,23,42,0.12),
+              inset 0 1px 0 rgba(255,255,255,0.45);
+
+            transform: translateZ(0);
+          }
+
+          .mac-glass-bubble::before{
+            content:"";
+            position:absolute;
+            inset:-2px;
+            pointer-events:none;
+            background:
+              radial-gradient(900px 260px at 18% 0%,
+                rgba(255,255,255,0.42),
+                rgba(255,255,255,0.14) 35%,
+                transparent 62%);
             opacity: 1;
-            transform: translateY(0);
           }
-        }
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(20px);
+
+          .mac-glass-bubble::after{
+            content:"";
+            position:absolute;
+            inset:-40px;
+            pointer-events:none;
+            background:
+              radial-gradient(320px 240px at 12% 22%,
+                rgba(255,255,255,0.28),
+                transparent 65%),
+              radial-gradient(420px 320px at 92% 34%,
+                rgba(255,255,255,0.20),
+                transparent 70%),
+              radial-gradient(520px 420px at 72% 92%,
+                rgba(255,255,255,0.14),
+                transparent 72%);
+            filter: blur(7px);
+            opacity: 0.95;
           }
-          to {
-            opacity: 1;
-            transform: translateX(0);
+
+          .mac-glass-user{
+            background: rgba(120,170,255,0.26);
+            border-color: rgba(170,210,255,0.45);
           }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-        .animate-slideIn {
-          animation: slideIn 0.3s ease-out;
-        }
-      `}</style>
+
+          .mac-glass-bot{
+            background: rgba(255,255,255,0.26);
+            border-color: rgba(255,255,255,0.42);
+          }
+
+          .dark .mac-glass-bubble{
+            background: rgba(20,20,20,0.34);
+            border-color: rgba(255,255,255,0.14);
+            box-shadow:
+              0 24px 70px rgba(0,0,0,0.45),
+              inset 0 1px 0 rgba(255,255,255,0.10);
+            backdrop-filter: blur(34px) saturate(135%);
+            -webkit-backdrop-filter: blur(34px) saturate(135%);
+          }
+          .dark .mac-glass-user{
+            background: rgba(90,140,255,0.16);
+            border-color: rgba(170,210,255,0.16);
+          }
+          .dark .mac-glass-bot{
+            background: rgba(30,30,30,0.30);
+            border-color: rgba(255,255,255,0.12);
+          }
+
+          /* Scrollbar */
+          .mac-scroll::-webkit-scrollbar { width: 10px; }
+          .mac-scroll::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.18);
+            border-radius: 999px;
+            border: 3px solid transparent;
+            background-clip: content-box;
+          }
+          .dark .mac-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.18);
+            border: 3px solid transparent;
+            background-clip: content-box;
+          }
+
+          /* ✅ Bottom bar (LIGHT) -> premium glass, not white slab */
+          .mac-inputbar{
+            border-top: 1px solid rgba(0,0,0,0.06);
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(26px) saturate(140%);
+            -webkit-backdrop-filter: blur(26px) saturate(140%);
+            box-shadow: 0 -12px 30px rgba(15,23,42,0.06);
+          }
+
+          /* ✅ Bottom bar (DARK) -> REAL glass */
+          .dark .mac-inputbar{
+            border-top: 1px solid rgba(255,255,255,0.10);
+            background: rgba(10,10,10,0.35);
+            backdrop-filter: blur(30px) saturate(150%);
+            -webkit-backdrop-filter: blur(30px) saturate(150%);
+            box-shadow: 0 -14px 40px rgba(0,0,0,0.35);
+          }
+
+          /* Buttons */
+          .mac-toolbarbtn{
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: rgba(255,255,255,0.60);
+            color: rgba(15,23,42,0.70);
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+            transition: transform .15s ease, background .15s ease;
+          }
+          .mac-toolbarbtn:hover{ background: rgba(255,255,255,0.75); transform: translateY(-1px); }
+          .mac-toolbarbtn:active{ transform: translateY(0) scale(0.98); }
+
+          .dark .mac-toolbarbtn{
+            border-color: rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.78);
+          }
+          .dark .mac-toolbarbtn:hover{ background: rgba(255,255,255,0.12); }
+
+          .mac-stopbtn{
+            padding: 8px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(239,68,68,0.25);
+            background: rgba(239,68,68,0.10);
+            color: rgba(239,68,68,0.9);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+          }
+
+          /* Textarea */
+          .mac-textarea{
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(0,0,0,0.10);
+            background: rgba(255,255,255,0.65);
+            color: rgba(15,23,42,0.92);
+            outline: none;
+            resize: none;
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            box-shadow: 0 10px 28px rgba(15,23,42,0.06), inset 0 1px 0 rgba(255,255,255,0.55);
+          }
+          .mac-textarea:focus{
+            border-color: rgba(110,160,255,0.55);
+            box-shadow: 0 0 0 4px rgba(110,160,255,0.14);
+          }
+
+          .dark .mac-textarea{
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.90);
+            box-shadow: 0 12px 34px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+          }
+          .dark .mac-textarea:focus{
+            border-color: rgba(110,160,255,0.45);
+            box-shadow: 0 0 0 4px rgba(110,160,255,0.18);
+          }
+
+          /* Send button */
+          .mac-sendbtn{
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(0,0,0,0.10);
+            background: rgba(255,255,255,0.70);
+            color: rgba(15,23,42,0.85);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform .15s ease, background .15s ease, opacity .15s ease;
+          }
+          .mac-sendbtn:hover{ background: rgba(255,255,255,0.85); transform: translateY(-1px); }
+          .mac-sendbtn:active{ transform: translateY(0) scale(0.98); }
+          .mac-sendbtn:disabled{ opacity: .45; cursor: not-allowed; transform: none; }
+
+          .dark .mac-sendbtn{
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.10);
+            color: rgba(255,255,255,0.92);
+          }
+          .dark .mac-sendbtn:hover{ background: rgba(255,255,255,0.14); }
+
+          /* Small helpers */
+          .mac-kbd{
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 10px;
+            background: rgba(255,255,255,0.60);
+            border: 1px solid rgba(0,0,0,0.08);
+          }
+          .dark .mac-kbd{
+            background: rgba(255,255,255,0.10);
+            border-color: rgba(255,255,255,0.10);
+          }
+
+          .mac-iconbtn{
+            padding: 6px;
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: rgba(255,255,255,0.60);
+            color: rgba(15,23,42,0.70);
+            transition: transform .15s ease, background .15s ease;
+          }
+          .mac-iconbtn:hover{ background: rgba(255,255,255,0.75); transform: translateY(-1px); }
+          .mac-iconbtn:active{ transform: translateY(0) scale(0.98); }
+
+          .dark .mac-iconbtn{
+            border-color: rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.85);
+          }
+          .dark .mac-iconbtn:hover{ background: rgba(255,255,255,0.12); }
+
+          .mac-iconbtn-active-good{
+            background: rgba(16,185,129,0.18) !important;
+            border-color: rgba(16,185,129,0.24) !important;
+            color: rgba(16,185,129,0.95) !important;
+          }
+          .mac-iconbtn-active-bad{
+            background: rgba(239,68,68,0.16) !important;
+            border-color: rgba(239,68,68,0.22) !important;
+            color: rgba(239,68,68,0.95) !important;
+          }
+
+          .mac-secondary{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: rgba(255,255,255,0.55);
+            color: rgba(15,23,42,0.78);
+          }
+          .mac-secondary:hover{ background: rgba(255,255,255,0.72); }
+
+          .dark .mac-secondary{
+            border-color: rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.86);
+          }
+          .dark .mac-secondary:hover{ background: rgba(255,255,255,0.12); }
+
+          .mac-panel{
+            border-radius: 14px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
+          }
+          .dark .mac-panel{
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.08);
+          }
+
+          .mac-modal{
+            border-radius: 16px;
+            border: 1px solid rgba(0,0,0,0.10);
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: blur(30px) saturate(150%);
+            -webkit-backdrop-filter: blur(30px) saturate(150%);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.28);
+          }
+          .dark .mac-modal{
+            border-color: rgba(255,255,255,0.12);
+            background: rgba(20,20,20,0.60);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.50);
+          }
+
+          .mac-modal-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:14px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+          }
+          .dark .mac-modal-header{
+            border-bottom: 1px solid rgba(255,255,255,0.10);
+          }
+
+          .mac-menuitem{
+            width:100%;
+            text-align:left;
+            padding:10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,0,0,0.08);
+            background: rgba(255,255,255,0.55);
+            color: rgba(15,23,42,0.88);
+            transition: background .15s ease, transform .15s ease;
+          }
+          .mac-menuitem:hover{ background: rgba(255,255,255,0.72); transform: translateY(-1px); }
+
+          .dark .mac-menuitem{
+            border-color: rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.90);
+          }
+          .dark .mac-menuitem:hover{ background: rgba(255,255,255,0.12); }
+
+          .mac-primary{
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(110,160,255,0.25);
+            background: linear-gradient(180deg, rgba(110,160,255,0.92), rgba(70,110,255,0.92));
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 16px 34px rgba(70,110,255,0.22);
+          }
+
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        `}</style>
+      </div>
     </div>
   );
 }

@@ -15,7 +15,7 @@ const getModelName = () => {
     process.env.OLLAMA_MODEL ||
     (config as any)?.Ollama?.model ||
     (config as any)?.Models?.chatModel?.name ||
-    'gpt-oss:20b'
+    'gpt-oss:120b'
   );
 };
 

@@ -28,7 +28,7 @@ const getChatModelName = () => {
     process.env.OLLAMA_MODEL ||
     (config as any)?.Models?.chatModel?.name ||
     (config as any)?.Ollama?.model ||
-    'gpt-oss:20b'
+    'gpt-oss:120b'
   );
 };
 
@@ -39,7 +39,7 @@ const getChatTitleModelName = () => {
     (config as any)?.Models?.chatTitleGenModel?.name ||
     (config as any)?.Models?.chatModel?.name ||
     (config as any)?.Ollama?.model ||
-    'gpt-oss:20b'
+    'gpt-oss:120b'
   );
 };
 
@@ -354,7 +354,7 @@ export const chatGenProcess = async (job) => {
     console.log(`\n[STEP 2] RAG Decision: useRAGForQuery=${useRAGForQuery} (filesAvailable=${filesAvailable})`);
     
     if (useRAGForQuery) {
-      console.log(`\n[STEP 2] RAG Search (using Japanese query for document search)`);
+      console.log(`\n[STEP 2] RAG Search`);
       kpiMetrics.ragUsed = true;
       const ragStartTime = Date.now();
       try {
@@ -364,12 +364,24 @@ export const chatGenProcess = async (job) => {
           return { outputId, isOk: false, content: '' };
         }
 
-        console.log(`[STEP 2] Starting RAG search with query: "${queryForRAG}"`);
+        console.log(`[STEP 2] Starting RAG search`);
         console.log(`[STEP 2] Searching ${storage_keyArray.length} document(s) via Solr`);
         
         try {
-          // Search using Solr
-          const searchTerms = queryForRAG.split(/\s+/).filter(t => t.length > 2).map(t => `"${t}"`).join(' OR ');
+          // Determine which query to use for Solr search
+          // If user query is English, search with English query (documents are in English)
+          // If user query is Japanese, try English translation of query for search
+          let searchQuery = queryForRAG;
+          if (userLanguage !== 'ja' && data.prompt) {
+            // For English queries, use original English query for Solr search
+            searchQuery = data.prompt;
+            console.log(`[STEP 2] Using original English query for Solr search: "${searchQuery}"`);
+          } else {
+            console.log(`[STEP 2] Using Japanese query for Solr search: "${searchQuery}"`);
+          }
+          
+          // Search using Solr with appropriate query
+          const searchTerms = searchQuery.split(/\s+/).filter(t => t.length > 2).map(t => `"${t}"`).join(' OR ');
           const solrQuery = encodeURIComponent(searchTerms || '*:*');
           const fileFilter = storage_keyArray.map(k => `id:"${k}"`).join(' OR ');
           const solrUrl = `${config.ApacheSolr.url}/solr/mycore/select?q=${solrQuery}&fq=(${fileFilter})&rows=5&wt=json`;
@@ -395,23 +407,29 @@ export const chatGenProcess = async (job) => {
               // Convert to string if it's not already
               docContent = String(docContent || '');
               
-              // Extract substring safely
-              const contentPreview = docContent.substring(0, 500);
+              // Clean up whitespace and truncate to reasonable length for LLM context
+              // Use up to 2000 chars per document to balance content quality with processing speed
+              docContent = docContent.trim().replace(/\s+/g, ' ');
+              const contentToInclude = docContent.substring(0, 2000);
               
-              documentContent += `Document: ${doc.title || doc.id}\n`;
-              documentContent += `Content: ${contentPreview}\n\n`;
+              documentContent += `\n--- Document: ${Array.isArray(doc.title) ? doc.title[0] : doc.title || doc.id} ---\n`;
+              documentContent += contentToInclude;
+              if (contentToInclude.length === 2000) {
+                documentContent += '\n[... document continues ...]';
+              }
+              documentContent += '\n';
               
-              console.log(`[STEP 2] Added document: ${doc.id}, content length: ${contentPreview.length}`);
+              console.log(`[STEP 2] Added document: ${doc.id}, content length: ${contentToInclude.length}`);
             }
-            prompt = `Document content for reference:\n${documentContent}\n\nUser query: ${queryForRAG}`;
-            console.log(`[STEP 2] RAG content prepared, length: ${prompt.length}`);
+            prompt = `Document content for reference:\n${documentContent}\n\nUser query: ${data.prompt}`;
+            console.log(`[STEP 2] RAG content prepared, total length: ${prompt.length}`);
           } else {
             console.log(`[STEP 2] No documents found, continuing without RAG context`);
-            prompt = queryForRAG;
+            prompt = data.prompt;
           }
         } catch (solrError) {
           console.error(`[STEP 2] Solr search error:`, solrError);
-          prompt = queryForRAG;
+          prompt = data.prompt;
         }
         kpiMetrics.ragTime = Date.now() - ragStartTime;
         console.log(`[STEP 2] RAG search completed in ${kpiMetrics.ragTime}ms`);
@@ -434,7 +452,10 @@ export const chatGenProcess = async (job) => {
     if (content !== "error happen" && isOk) {
       console.log(`\n[STEP 3] LLM Generation`);
       // Always generate answer in Japanese (documents are Japanese)
-      let systemMessageContent = `You are a helpful assistant. Answer ONLY using the document content provided. Respond in Japanese.`;
+      // Adjust system message based on whether RAG context is available
+      let systemMessageContent = kpiMetrics.ragUsed && prompt.includes('Document content for reference:')
+        ? `You are a helpful assistant. Answer ONLY using the document content provided. Respond in Japanese.`
+        : `You are a helpful assistant. Respond in Japanese. Answer the user's question to the best of your knowledge.`;
       const systemMessage = { role: 'system', content: systemMessageContent };
       const messagesWithSystem = [systemMessage, ...messages, { role: 'user', content: prompt }];
       const inputText = messagesWithSystem.map(m => m.content).join(' ');

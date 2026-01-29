@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+
 interface PopupProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,6 +17,7 @@ export default function Popup({
   maxWidth = 'max-w-4xl',
 }: PopupProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       setIsAnimating(true);
@@ -56,7 +58,7 @@ export default function Popup({
       />
 
       <div
-        className={`relative w-full ${maxWidth} h-[85vh] mac-glass mac-glass-translucent mac-border-highlight flex flex-col overflow-hidden transition-all duration-300 ${
+        className={`relative w-full ${maxWidth} h-[85vh] bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 flex flex-col overflow-hidden transition-all duration-300 ${
           isAnimating
             ? 'scale-100 translate-y-0 opacity-100'
             : 'scale-90 translate-y-8 opacity-0'

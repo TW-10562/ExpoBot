@@ -10,7 +10,131 @@
   --radius-base: 10px;
   --card-shadow: 0 6px 18px rgba(2,6,23,0.6);
   --transition-fast: 150ms;
+
+  /* Semantic color tokens (light) */
+  --c-foreground: #232333;
+  --c-muted: #6E7680; /* secondary text */
+  --c-placeholder: #9CA3AF;
+  --c-surface: #ffffff;
+  --c-surface-alt: #F0F4FF;
+  --c-bg: #F6F6F6;
+  --c-border: #E8E8E8;
+  --c-accent: #1d2089; /* primary action */
+  --c-accent-strong: #2563eb; /* stronger accent (used in dark) */
+  --c-accent-rgb: 29,32,137;
+  --c-success: #059669;
+  --c-warning: #d97706;
+  --c-error: #dc2626;
+  --c-icon-muted: #6E7680;
+  --c-avatar-bg: #60a5fa;
+  --c-on-avatar: #ffffff;
 }
+
+html.dark {
+  --c-foreground: #e6edf3;
+  --c-muted: #9aa6b2;
+  --c-placeholder: #6B7280;
+  --c-surface: #1a2332;
+  --c-surface-alt: #121827;
+  --c-bg: #0f1724;
+  --c-border: #2d3e52;
+  --c-accent: #60a5fa;
+  --c-accent-strong: #2563eb;
+  --c-accent-rgb: 96,165,250;
+  --c-success: #34d399;
+  --c-warning: #f59e0b;
+  --c-error: #fb7185;
+  --c-icon-muted: #9aa6b2;
+  --c-avatar-bg: #2563eb;
+  --c-on-avatar: #ffffff;
+}
+
+/* Small set of lightweight utilities (semantic, theme-aware) */
+.text-foreground{ color:var(--c-foreground) !important; }
+.text-muted{ color:var(--c-muted) !important; }
+.text-placeholder{ color:var(--c-placeholder) !important; }
+.text-success{ color:var(--c-success) !important; }
+.text-warning{ color:var(--c-warning) !important; }
+.text-error{ color:var(--c-error) !important; }
+.text-icon-muted{ color:var(--c-icon-muted) !important; }
+.text-on-accent{ color:var(--c-on-avatar) !important; }
+.text-accent{ color:var(--c-accent) !important; }
+.text-accent-strong{ color:var(--c-accent-strong) !important; }
+.bg-surface{ background:var(--c-surface) !important; }
+.bg-surface-alt{ background:var(--c-surface-alt) !important; }
+.bg-accent{ background:var(--c-accent) !important; }
+.bg-accent-strong{ background:var(--c-accent-strong) !important; }
+.border-default{ border-color:var(--c-border) !important; }
+.accent-accent{ accent-color:color-mix(in srgb, var(--c-accent) 80%, transparent); }
+.placeholder-muted::placeholder{ color:var(--c-placeholder) !important; }
+.icon-current{ color:currentColor; }
+
+/* small helpers for focus rings using accent token */
+.ring-accent:focus{ box-shadow: 0 0 0 4px rgba(var(--c-accent-rgb), 0.12); }
+.focus-ring-accent:focus{ outline:4px solid transparent; box-shadow: 0 0 0 4px rgba(var(--c-accent-rgb), 0.12); border-radius:12px; }
+
+/* state-aware button variants (use in components instead of hard-coded hexes) */
+.btn-primary{ background:var(--c-accent); color:var(--c-on-accent); }
+.btn-primary:hover{ filter:brightness(.95); }
+.btn-success{ background:var(--c-success); color:var(--c-on-accent); }
+.btn-danger{ background:var(--c-error); color:var(--c-on-accent); }
+.bg-error{ background:var(--c-error) !important; }
+.text-on-error{ color:var(--c-on-accent) !important; }
+.btn-surface{ background:var(--c-surface); color:var(--c-foreground); }
+
+/* robust input-icon wrapper for perfect vertical alignment */
+.input-icon-absolute{ position:absolute; inset-inline-start:0; inset-block-start:0; inset-block-end:0; display:flex; align-items:center; padding-inline-start:0.75rem; }
+.input-with-icon{ padding-left:2.5rem !important; }
+
+/* Ensure input-embedded icons remain highly visible in both themes
+   - scope narrowly to input contexts to avoid changing global icon palette
+   - increase stroke for small icons and prefer placeholder/ muted tokens in dark */
+.input-icon-absolute .icon-current,
+.input-with-icon .icon-current,
+.input-with-icon ~ .icon-current,
+.input-with-icon + .icon-current {
+  color: var(--c-icon-muted) !important;
+  opacity: 1 !important;
+  stroke-width: 1.5; /* improves perceptual weight at small sizes */
+  /* ensure SVG paths follow currentColor when icons use stroke/fill */
+  stroke: currentColor !important;
+  fill: none !important;
+}
+
+html.dark .input-icon-absolute .icon-current,
+html.dark .input-with-icon .icon-current,
+html.dark .input-with-icon ~ .icon-current,
+html.dark .input-with-icon + .icon-current {
+  /* use a slightly stronger token in dark so icons don't blend with deep surfaces */
+  color: var(--c-muted) !important;
+  stroke-width: 1.6;
+  opacity: 1 !important;
+}
+
+/* High-specificity safeguard for the login card only — resists overrides and cache staleness */
+.login-card .input-icon-absolute .icon-current,
+.login-card .input-with-icon .icon-current {
+  color: var(--c-muted) !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  stroke-width: 1.8 !important;
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.35));
+}
+
+html.dark .login-card .input-icon-absolute .icon-current,
+html.dark .login-card .input-with-icon .icon-current {
+  color: var(--c-muted) !important; /* ensures ~6:1 contrast on dark surface */
+  stroke-width: 1.9 !important;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+}
+
+/* badge accent (for small language badge etc.) */
+.badge-accent{ background:linear-gradient(135deg, rgba(var(--c-accent-rgb),0.95), rgba(var(--c-accent-rgb),0.7)); color:var(--c-on-accent); }
+
+/* ensure svg icons inherit color by default */
+svg{ color:inherit; }
+
 
 /* Global layout helpers */
 html,body,#root{height:100%;}

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Edit, Trash2, Eye, EyeOff, X, Save } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, Upload } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
 
 interface User {
@@ -7,10 +7,9 @@ interface User {
   firstName: string;
   lastName: string;
   employeeId: string;
-  userJobRole: string;
-  areaOfWork: string;
+  userJobRole: string; // e.g., 'ai_engineer'
+  areaOfWork: string; // e.g., 'ayase'
   role: 'admin' | 'user';
-  username: string;
   password: string;
   lastUpdated: Date;
 }
@@ -19,12 +18,74 @@ interface FormData {
   firstName: string;
   lastName: string;
   employeeId: string;
-  userJobRole: string;
-  areaOfWork: string;
+  userJobRole: string; // e.g., 'ai_engineer'
+  areaOfWork: string; // e.g., 'ayase'
   role: 'admin' | 'user';
-  username: string;
   password: string;
 }
+
+// Stable keys for Job Roles (used for storage and CSV)
+const JOB_ROLE_OPTIONS = [
+  { key: 'ai_engineer', label: 'AI Engineer' },
+  { key: 'system_engineer', label: 'System Engineer' },
+  { key: 'it_manager', label: 'IT Manager' },
+  { key: 'tl', label: 'TL' },
+  { key: 'hr', label: 'HR' },
+  { key: 'sales_manager', label: 'Sales Manager' },
+  { key: 'sales_person', label: 'Sales Person' },
+  { key: 'tester', label: 'Tester' },
+  { key: 'factory_worker', label: 'Factory Worker' },
+  { key: 'call_center_agent', label: 'Call Center Agent' },
+];
+
+// Stable keys for Areas of Work (used for storage and CSV)
+const AREA_OF_WORK_OPTIONS = [
+  { key: 'ayase', label: 'Ayase' },
+  { key: 'ebina', label: 'Ebina' },
+  { key: 'akihabara_main', label: 'Akihabara Main Building' },
+  { key: 'akihabara_daidoh', label: 'Akihabara Daidoh Building' },
+  { key: 'hiratsuka', label: 'Hiratsuka' },
+];
+
+// Helper function to convert display labels to stable keys
+// Accepts either stable keys or display labels and returns stable key
+const normalizeJobRole = (value: string): string => {
+  const trimmed = value.trim().toLowerCase();
+  
+  // Check if it's already a stable key
+  const jobRoleKey = JOB_ROLE_OPTIONS.find(
+    (opt) => opt.key === trimmed || opt.key === value.trim()
+  )?.key;
+  if (jobRoleKey) return jobRoleKey;
+  
+  // Try to match by display label (case-insensitive)
+  const jobRoleByLabel = JOB_ROLE_OPTIONS.find(
+    (opt) => opt.label.toLowerCase() === trimmed
+  )?.key;
+  if (jobRoleByLabel) return jobRoleByLabel;
+  
+  // Fallback: return original value
+  return value.trim();
+};
+
+const normalizeArea = (value: string): string => {
+  const trimmed = value.trim().toLowerCase();
+  
+  // Check if it's already a stable key
+  const areaKey = AREA_OF_WORK_OPTIONS.find(
+    (opt) => opt.key === trimmed || opt.key === value.trim()
+  )?.key;
+  if (areaKey) return areaKey;
+  
+  // Try to match by display label (case-insensitive)
+  const areaByLabel = AREA_OF_WORK_OPTIONS.find(
+    (opt) => opt.label.toLowerCase() === trimmed
+  )?.key;
+  if (areaByLabel) return areaByLabel;
+  
+  // Fallback: return original value
+  return value.trim();
+};
 
 const mockUsers: User[] = [
   {
@@ -32,10 +93,9 @@ const mockUsers: User[] = [
     firstName: 'John',
     lastName: 'Doe',
     employeeId: 'EMP001',
-    userJobRole: 'Developer',
-    areaOfWork: 'Engineering',
+    userJobRole: 'ai_engineer',
+    areaOfWork: 'ayase',
     role: 'user',
-    username: 'johndoe',
     password: 'pass123',
     lastUpdated: new Date(2024, 0, 15),
   },
@@ -44,10 +104,9 @@ const mockUsers: User[] = [
     firstName: 'Jane',
     lastName: 'Smith',
     employeeId: 'EMP002',
-    userJobRole: 'Manager',
-    areaOfWork: 'HR',
+    userJobRole: 'system_engineer',
+    areaOfWork: 'ebina',
     role: 'admin',
-    username: 'janesmith',
     password: 'pass456',
     lastUpdated: new Date(2024, 0, 10),
   },
@@ -61,6 +120,8 @@ export default function UserManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showConfirmSave, setShowConfirmSave] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [csvLoading, setCsvLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -68,11 +129,80 @@ export default function UserManagement() {
     userJobRole: '',
     areaOfWork: '',
     role: 'user',
-    username: '',
     password: '',
   });
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [adminPassword, setAdminPassword] = useState('');
+
+  // CSV Upload Handler - accepts both stable keys and display labels
+  // e.g., can accept either 'ai_engineer' or 'AI Engineer' and normalizes to 'ai_engineer'
+  const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setCsvLoading(true);
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string;
+        const lines = text.split('\n');
+        
+        // Skip header row
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const newUsers: User[] = [];
+        
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          const values = line.split(',').map(v => v.trim());
+          
+          // Map CSV columns to user fields
+          const firstNameIdx = headers.indexOf('first name');
+          const lastNameIdx = headers.indexOf('last name');
+          const employeeIdIdx = headers.indexOf('employee id');
+          const jobRoleIdx = headers.indexOf('user job role');
+          const areaOfWorkIdx = headers.indexOf('area of work');
+          const roleIdx = headers.indexOf('role');
+          const passwordIdx = headers.indexOf('password');
+          
+          // Normalize job role and area to stable keys (supports both stable keys and display labels)
+          const jobRoleValue = values[jobRoleIdx] || '';
+          const areaValue = values[areaOfWorkIdx] || '';
+          
+          const newUser: User = {
+            id: String(users.length + newUsers.length + 1),
+            firstName: values[firstNameIdx] || '',
+            lastName: values[lastNameIdx] || '',
+            employeeId: values[employeeIdIdx] || '',
+            userJobRole: normalizeJobRole(jobRoleValue), // Converts display label to stable key
+            areaOfWork: normalizeArea(areaValue), // Converts display label to stable key
+            role: (values[roleIdx]?.toLowerCase() === 'admin' ? 'admin' : 'user'),
+            password: values[passwordIdx] || '',
+            lastUpdated: new Date(),
+          };
+          
+          if (newUser.firstName && newUser.lastName) {
+            newUsers.push(newUser);
+          }
+        }
+        
+        setUsers([...users, ...newUsers]);
+        setCsvLoading(false);
+        
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } catch (error) {
+        console.error('CSV parsing error:', error);
+        setCsvLoading(false);
+      }
+    };
+    
+    reader.readAsText(file);
+  };
 
   const handleAddUser = () => {
     setFormData({
@@ -82,14 +212,13 @@ export default function UserManagement() {
       userJobRole: '',
       areaOfWork: '',
       role: 'user',
-      username: '',
       password: '',
     });
     setShowAddModal(true);
   };
 
   const handleSaveNewUser = () => {
-    if (!formData.firstName || !formData.lastName || !formData.username) {
+    if (!formData.firstName || !formData.lastName) {
       return;
     }
     const newUser: User = {
@@ -106,7 +235,6 @@ export default function UserManagement() {
       userJobRole: '',
       areaOfWork: '',
       role: 'user',
-      username: '',
       password: '',
     });
   };
@@ -121,7 +249,6 @@ export default function UserManagement() {
         userJobRole: user.userJobRole,
         areaOfWork: user.areaOfWork,
         role: user.role,
-        username: user.username,
         password: user.password,
       });
       setEditingUser(userId);
@@ -152,7 +279,6 @@ export default function UserManagement() {
         userJobRole: '',
         areaOfWork: '',
         role: 'user',
-        username: '',
         password: '',
       });
     }
@@ -167,7 +293,6 @@ export default function UserManagement() {
       userJobRole: '',
       areaOfWork: '',
       role: 'user',
-      username: '',
       password: '',
     });
   };
@@ -200,46 +325,64 @@ export default function UserManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
           {t('userManagement.title')}
         </h3>
         {!editingUser && (
-          <button
-            onClick={handleAddUser}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1d2089] hover:bg-[#161870] dark:bg-dark-accent-blue dark:hover:bg-[#3b82f6] text-white text-sm font-medium transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            {t('userManagement.form.addUserTitle')}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* CSV Upload Button */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              onChange={handleCSVUpload}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={csvLoading}
+              data-state={csvLoading ? 'loading' : 'idle'}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg btn-success disabled:opacity-50 disabled:cursor-not-allowed text-on-accent text-sm font-medium transition-colors"
+              title={t('userManagement.uploadCsv') || 'Upload CSV'}
+            >
+              <Upload className={`w-4 h-4 icon-current ${csvLoading ? 'animate-pulse text-accent-strong' : ''}`} />
+              {csvLoading ? t('common.loading') : t('userManagement.uploadCsv')}
+            </button>
+            {/* Add User Button */}
+            <button
+              onClick={handleAddUser}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg btn-primary text-on-accent text-sm font-medium transition-colors"
+            >
+              <Plus className="w-4 h-4 icon-current" />
+              {t('userManagement.form.addUserTitle')}
+            </button>
+          </div>
         )}
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
+      <div className="bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-2xl overflow-hidden shadow-sm transition-colors">
         <table className="w-full">
-          <thead className="bg-[#F6F6F6] dark:bg-dark-bg-primary border-b border-[#E8E8E8] dark:border-dark-border transition-colors">
+          <thead className="bg-surface-alt dark:bg-dark-bg-primary border-b border-default dark:border-default transition-colors">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.firstName')}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.lastName')}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.employeeId')}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.userJobRole')}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.areaOfWork')}
               </th>
               <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.role')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                {t('userManagement.table.username')}
               </th>
               <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.password')}
@@ -255,7 +398,7 @@ export default function UserManagement() {
           <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan={10} className="px-4 py-8 text-center text-[#6E7680] dark:text-dark-text-muted transition-colors">
+                <td colSpan={9} className="px-4 py-8 text-center text-muted dark:text-dark-text-muted transition-colors">
                   {t('userManagement.empty')}
                 </td>
               </tr>
@@ -263,7 +406,7 @@ export default function UserManagement() {
               users.map((user) => (
                 <tr
                   key={user.id}
-                  className="border-b border-[#E8E8E8] dark:border-dark-border hover:bg-[#F6F6F6] dark:hover:bg-dark-border transition-colors"
+                  className="border-b border-default dark:border-default hover:bg-surface-alt dark:hover:bg-dark-border transition-colors"
                 >
                   {editingUser === user.id ? (
                     // Edit Mode
@@ -275,7 +418,7 @@ export default function UserManagement() {
                           onChange={(e) =>
                             setFormData({ ...formData, firstName: e.target.value })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-surface dark:bg-dark-surface border border-default dark:border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -285,7 +428,7 @@ export default function UserManagement() {
                           onChange={(e) =>
                             setFormData({ ...formData, lastName: e.target.value })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-surface dark:bg-dark-surface border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -298,12 +441,11 @@ export default function UserManagement() {
                               employeeId: e.target.value,
                             })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-surface dark:bg-dark-surface border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         />
                       </td>
                       <td className="px-4 py-3">
-                        <input
-                          type="text"
+                        <select
                           value={formData.userJobRole}
                           onChange={(e) =>
                             setFormData({
@@ -312,17 +454,30 @@ export default function UserManagement() {
                             })
                           }
                           className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
-                        />
+                        >
+                          <option value="">{t('userManagement.form.selectJobRole')}</option>
+                          {JOB_ROLE_OPTIONS.map((option) => (
+                            <option key={option.key} value={option.key}>
+                              {t(`user.jobRole.${option.key}`)}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       <td className="px-4 py-3">
-                        <input
-                          type="text"
+                        <select
                           value={formData.areaOfWork}
                           onChange={(e) =>
                             setFormData({ ...formData, areaOfWork: e.target.value })
                           }
                           className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
-                        />
+                        >
+                          <option value="">{t('userManagement.form.selectAreaOfWork')}</option>
+                          {AREA_OF_WORK_OPTIONS.map((option) => (
+                            <option key={option.key} value={option.key}>
+                              {t(`user.area.${option.key}`)}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       <td className="px-4 py-3">
                         <select
@@ -333,21 +488,11 @@ export default function UserManagement() {
                               role: e.target.value as 'admin' | 'user',
                             })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-surface dark:bg-dark-surface border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         >
-                          <option value="user">User</option>
-                          <option value="admin">Admin</option>
+                          <option value="user">{t('user.role.user')}</option>
+                          <option value="admin">{t('user.role.admin')}</option>
                         </select>
-                      </td>
-                      <td className="px-4 py-3">
-                        <input
-                          type="text"
-                          value={formData.username}
-                          onChange={(e) =>
-                            setFormData({ ...formData, username: e.target.value })
-                          }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
-                        />
                       </td>
                       <td className="px-4 py-3">
                         <input
@@ -372,7 +517,7 @@ export default function UserManagement() {
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="p-1 text-[#6E7680] dark:text-dark-text-muted hover:bg-white dark:hover:bg-white/10 rounded transition-colors"
+                          className="p-1 text-icon-muted dark:text-dark-text-muted hover:bg-surface hover:dark:bg-white/10 rounded transition-colors"
                           title={t('userManagement.form.cancel')}
                         >
                           <X className="w-4 h-4" />
@@ -390,10 +535,10 @@ export default function UserManagement() {
                       </td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.employeeId}</td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                        {user.userJobRole}
+                        {t(`user.jobRole.${user.userJobRole}`)}
                       </td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                        {user.areaOfWork}
+                        {t(`user.area.${user.areaOfWork}`)}
                       </td>
                       <td className="px-4 py-3">
                         <span
@@ -403,17 +548,16 @@ export default function UserManagement() {
                               : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                           } transition-colors`}
                         >
-                          {user.role}
+                          {t(`user.role.${user.role}`)}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.username}</td>
                       <td className="px-4 py-3 flex items-center gap-2">
                         <span className="text-[#6E7680] dark:text-dark-text-muted transition-colors">
                           {visiblePasswords.has(user.id) ? user.password : '••••••'}
                         </span>
                         <button
                           onClick={() => togglePasswordVisibility(user.id)}
-                          className="p-1 text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-border rounded transition-colors"
+                          className="p-1 text-muted dark:text-dark-text-muted hover:bg-surface-alt dark:hover:bg-dark-border rounded transition-colors"
                           title={
                             visiblePasswords.has(user.id)
                               ? t('userManagement.password.hide')
@@ -458,8 +602,8 @@ export default function UserManagement() {
       {/* Add User Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
-            <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
+          <div className="bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
+            <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
               {t('userManagement.form.addUserTitle')}
             </h3>
 
@@ -471,7 +615,7 @@ export default function UserManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
               <input
                 type="text"
@@ -480,7 +624,7 @@ export default function UserManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
               <input
                 type="text"
@@ -489,26 +633,36 @@ export default function UserManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, employeeId: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
-              <input
-                type="text"
-                placeholder={t('userManagement.table.userJobRole')}
+              <select
                 value={formData.userJobRole}
                 onChange={(e) =>
                   setFormData({ ...formData, userJobRole: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
-              />
-              <input
-                type="text"
-                placeholder={t('userManagement.table.areaOfWork')}
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
+              >
+                <option value="">{t('userManagement.form.selectJobRole')}</option>
+                {JOB_ROLE_OPTIONS.map((option) => (
+                  <option key={option.key} value={option.key}>
+                    {t(`user.jobRole.${option.key}`)}
+                  </option>
+                ))}
+              </select>
+              <select
                 value={formData.areaOfWork}
                 onChange={(e) =>
                   setFormData({ ...formData, areaOfWork: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
-              />
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
+              >
+                <option value="">{t('userManagement.form.selectAreaOfWork')}</option>
+                {AREA_OF_WORK_OPTIONS.map((option) => (
+                  <option key={option.key} value={option.key}>
+                    {t(`user.area.${option.key}`)}
+                  </option>
+                ))}
+              </select>
               <select
                 value={formData.role}
                 onChange={(e) =>
@@ -517,20 +671,11 @@ export default function UserManagement() {
                     role: e.target.value as 'admin' | 'user',
                   })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
               >
-                <option value="user">{t('userManagement.table.role')}: User</option>
-                <option value="admin">{t('userManagement.table.role')}: Admin</option>
+                <option value="user">{t('user.role.user')}</option>
+                <option value="admin">{t('user.role.admin')}</option>
               </select>
-              <input
-                type="text"
-                placeholder={t('userManagement.table.username')}
-                value={formData.username}
-                onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
-                }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
-              />
               <input
                 type="text"
                 placeholder={t('userManagement.table.password')}
@@ -538,20 +683,20 @@ export default function UserManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
             </div>
 
-            <div className="flex gap-3 justify-end pt-4 border-t border-[#E8E8E8] dark:border-dark-border transition-colors">
+            <div className="flex gap-3 justify-end pt-4 border-t border-default dark:border-default transition-colors">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 rounded-lg bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-border text-[#232333] dark:text-dark-text text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.cancel')}
               </button>
               <button
                 onClick={handleSaveNewUser}
-                className="px-4 py-2 rounded-lg bg-[#1d2089] hover:bg-[#161870] dark:bg-dark-accent-blue dark:hover:bg-[#3b82f6] text-white text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg btn-primary text-on-accent text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.save')}
               </button>
@@ -563,24 +708,24 @@ export default function UserManagement() {
       {/* Confirm Save Modal */}
       {showConfirmSave && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
-            <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
+          <div className="bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
+            <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
               {t('userManagement.delete.confirmTitle')}
             </h3>
-            <p className="text-[#6E7680] dark:text-dark-text-muted text-sm transition-colors">
+            <p className="text-muted dark:text-dark-text-muted text-sm transition-colors">
               {t('userManagement.form.editUserTitle')}
             </p>
 
-            <div className="flex gap-3 justify-end pt-4 border-t border-[#E8E8E8] dark:border-dark-border transition-colors">
+            <div className="flex gap-3 justify-end pt-4 border-t border-default dark:border-default transition-colors">
               <button
                 onClick={() => setShowConfirmSave(false)}
-                className="px-4 py-2 rounded-lg bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-border text-[#232333] dark:text-dark-text text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.cancel')}
               </button>
               <button
                 onClick={confirmSaveEdit}
-                className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg btn-success text-on-accent text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.save')}
               </button>
@@ -592,11 +737,11 @@ export default function UserManagement() {
       {/* Delete Confirmation Modal - Step 1 */}
       {showDeleteModal && !adminPassword && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
-            <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
+          <div className="bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
+            <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
               {t('userManagement.delete.adminPassword')}
             </h3>
-            <p className="text-[#6E7680] dark:text-dark-text-muted text-sm transition-colors">
+            <p className="text-muted dark:text-dark-text-muted text-sm transition-colors">
               {t('userManagement.delete.confirmMessage')}
             </p>
 
@@ -605,24 +750,24 @@ export default function UserManagement() {
               placeholder={t('userManagement.delete.adminPassword')}
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
-              className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+              className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
             />
 
-            <div className="flex gap-3 justify-end pt-4 border-t border-[#E8E8E8] dark:border-dark-border transition-colors">
+            <div className="flex gap-3 justify-end pt-4 border-t border-default dark:border-default transition-colors">
               <button
                 onClick={() => {
                   setShowDeleteModal(false);
                   setUserToDelete(null);
                   setAdminPassword('');
                 }}
-                className="px-4 py-2 rounded-lg bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-border text-[#232333] dark:text-dark-text text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.cancel')}
               </button>
               <button
                 onClick={confirmDelete}
                 disabled={!adminPassword.trim()}
-                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 disabled:bg-[#9CA3AF] dark:disabled:bg-[#6E7680] disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg btn-danger disabled:opacity-50 disabled:cursor-not-allowed text-on-accent text-sm font-medium transition-colors"
               >
                 {t('userManagement.delete.confirmButton')}
               </button>

@@ -91,7 +91,7 @@
     type: "chat",
   baseUrl: "https://6vml1c4r-11435.asse.devtunnels.ms/",
   // Use local Ollama when running locally:
-  // baseUrl: "http://localhost:11434/",
+  // baseUrl: "http://localhost:11435/",
     options: {
         temperature: 0.7,
         stream: false,

@@ -20,10 +20,10 @@ class LLMService {
  
   constructor() {
     const url = config.Ollama?.url;
-    this.baseUrl = Array.isArray(url) ? url[0] : (url || 'http://127.0.0.1:11434');
+    this.baseUrl = Array.isArray(url) ? url[0] : (url || 'http://127.0.0.1:11435');
     // Normalize trailing slashes
     this.baseUrl = this.baseUrl.replace(/\/+$/, '');
-    this.model = config.Ollama?.model || 'gpt-oss:20b';
+    this.model = config.Ollama?.model || 'gpt-oss:120b';
   }
  
   /**

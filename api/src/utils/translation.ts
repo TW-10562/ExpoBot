@@ -130,7 +130,7 @@ Do NOT translate citation markers or document names.`;
         process.env.OLLAMA_MODEL ||
         (config as any)?.Models?.chatModel?.name ||
         (config as any)?.Ollama?.model ||
-        'gpt-oss:20b';
+        'gpt-oss:120b';
       const apiUrl = `${url.replace(/\/+$/, '')}/api/chat`;
       console.log(`[Translation] Attempt ${attempt + 1}: Calling ${apiUrl} with model: ${modelName}`);
 

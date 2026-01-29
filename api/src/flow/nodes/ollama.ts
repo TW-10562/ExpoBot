@@ -17,7 +17,7 @@ function mergeOptions(configOptions: any = {}, inputOptions: any = {}) {
 export const ollamaNode = (config: OllamaNodeConfig) => {
     const {
         type = "chat",
-        baseUrl = "http://127.0.0.1:11434",
+        baseUrl = "http://127.0.0.1:11435",
         model,
         options = {},
     } = config;

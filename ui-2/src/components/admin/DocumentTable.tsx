@@ -80,24 +80,24 @@ export default function DocumentTable({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">{t('documentTable.title')}</h3>
+        <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">{t('documentTable.title')}</h3>
         <div className="flex items-center gap-3 flex-1 max-w-md">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6E7680] dark:text-dark-text-muted transition-colors" />
+            <div className="input-icon-absolute pointer-events-none"><Search className="w-4 h-4 text-icon-muted dark:text-dark-text-muted icon-current" /></div>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('documentTable.searchPlaceholder')}
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+              className="w-full input-with-icon pr-4 py-2 bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-xl text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
             />
           </div>
           <button
             onClick={onUploadClick}
-            className="flex items-center gap-2 px-4 py-2 bg-[#1d2089] hover:bg-[#161870] dark:bg-[#2563eb] dark:hover:bg-[#1d4ed8] text-white rounded-xl transition-colors cursor-pointer whitespace-nowrap font-medium shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 btn-primary dark:bg-accent-strong text-on-accent rounded-xl transition-colors cursor-pointer whitespace-nowrap font-medium shadow-sm"
             title={t('documentTable.upload')}
           >
-            <Upload className="w-4 h-4" />
+            <Upload className="w-4 h-4 icon-current" />
             <span className="hidden sm:inline">{t('documentTable.upload')}</span>
           </button>
         </div>
@@ -106,20 +106,20 @@ export default function DocumentTable({
       {/* Delete Confirmation Modal */}
       {pendingDelete && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-[#1a1a2e] border border-[#E8E8E8] dark:border-[#2d2d3d] rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 transition-colors">
+          <div className="bg-surface dark:bg-dark-surface rounded-2xl border border-default shadow-xl max-w-md w-full p-6 space-y-4 transition-colors">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-3 rounded-xl bg-red-50 dark:bg-red-500/15">
-                <Trash2 className="w-6 h-6 text-red-500 dark:text-red-400" />
+                <Trash2 className="w-6 h-6 text-error dark:text-error" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#232333] dark:text-[#f1f5f9] transition-colors">
+                <h3 className="text-lg font-semibold text-foreground dark:text-[#f1f5f9] transition-colors">
                   {t('documentTable.deleteTitle')}
                 </h3>
-                <p className="text-sm text-[#6E7680] dark:text-[#cbd5e1] transition-colors">
+                <p className="text-sm text-muted dark:text-dark-text-muted transition-colors">
                   {t('documentTable.deleteWarning')}
                 </p>
               </div>
-            </div>
+            </div> 
             <div className="bg-[#F6F6F6] dark:bg-[#252538] rounded-xl p-4 transition-colors border border-[#E8E8E8] dark:border-[#3d3d4d]">
               <p className="text-xs text-[#6E7680] dark:text-[#9ca3af] mb-1 transition-colors">File Name</p>
               <p className="text-sm font-medium text-[#232333] dark:text-[#e5e7eb] break-all transition-colors">{pendingDelete.filename}</p>
@@ -127,7 +127,7 @@ export default function DocumentTable({
             <div className="flex gap-3 pt-2 border-t border-[#E8E8E8] dark:border-[#3d3d4d]">
               <button
                 onClick={() => setPendingDelete(null)}
-                className="flex-1 px-4 py-3 rounded-xl bg-[#F6F6F6] dark:bg-[#252538] hover:bg-[#E8E8E8] dark:hover:bg-[#3d3d4d] text-[#232333] dark:text-[#e5e7eb] font-medium transition-colors"
+                className="flex-1 px-4 py-3 rounded-xl bg-surface dark:bg-dark-surface hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text font-medium transition-colors"
               >
                 {t('common.cancel')}
               </button>
@@ -136,9 +136,9 @@ export default function DocumentTable({
                   handleDeleteFile(pendingDelete.id, pendingDelete.filename);
                   setPendingDelete(null);
                 }}
-                className="flex-1 px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-on-accent font-semibold transition-colors flex items-center justify-center gap-2"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4 icon-current" />
                 {t('common.delete')}
               </button>
             </div>
