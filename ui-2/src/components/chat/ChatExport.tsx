@@ -116,32 +116,32 @@ export default function ChatExport({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 grid place-items-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+      <div className="relative bg-surface dark:bg-dark-surface border border-default rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transition-colors">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-default bg-surface-alt dark:bg-dark-bg-primary transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-              <Download className="w-5 h-5 text-blue-400" />
+            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center border border-default">
+              <Download className="w-5 h-5 text-on-accent icon-current" />
             </div>
             <div>
-              <h2 className="font-semibold text-white">{t('chatExport.title')}</h2>
-              <p className="text-xs text-slate-500">
+              <h2 className="font-semibold text-foreground dark:text-white transition-colors">{t('chatExport.title')}</h2>
+              <p className="text-xs text-muted dark:text-dark-text-muted transition-colors">
                 {t('chatExport.messagesCount', { count: messages.length })}
               </p>
             </div>
           </div>
 
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-700">
-            <X className="w-5 h-5 text-slate-400" />
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface dark:hover:bg-dark-border transition-colors">
+            <X className="w-5 h-5 text-muted dark:text-dark-text-muted" />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-6 space-y-3">
-          <p className="text-sm text-slate-400 mb-4">
+          <p className="text-sm text-muted dark:text-dark-text-muted mb-4 transition-colors">
             {t('chatExport.description')}
           </p>
 
@@ -149,11 +149,11 @@ export default function ChatExport({
           <ExportButton icon={File} title={t('chatExport.markdown.title')} desc={t('chatExport.markdown.desc')} onClick={exportAsMarkdown} />
           <ExportButton icon={File} title={t('chatExport.json.title')} desc={t('chatExport.json.desc')} onClick={exportAsJson} />
 
-          <div className="text-center text-xs text-slate-500">{t('chatExport.or')}</div>
+          <div className="text-center text-xs text-muted dark:text-dark-text-muted">{t('chatExport.or')}</div>
 
           <button
             onClick={copyToClipboard}
-            className="w-full flex items-center justify-center gap-2 p-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white"
+            className="w-full flex items-center justify-center gap-2 p-3 btn-primary text-on-accent rounded-xl transition-colors"
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             {copied ? t('chatExport.copied') : t('chatExport.copy')}
@@ -161,8 +161,8 @@ export default function ChatExport({
         </div>
 
         {exporting && (
-          <div className="absolute inset-0 bg-slate-900/80 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-on-accent animate-spin" />
           </div>
         )}
       </div>
@@ -170,18 +170,25 @@ export default function ChatExport({
   );
 }
 
-function ExportButton({ icon: Icon, title, desc, onClick }: any) {
+interface ExportButtonProps {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  desc: string;
+  onClick: () => void;
+}
+
+function ExportButton({ icon: Icon, title, desc, onClick }: ExportButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-4 p-4 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-left"
+      className="w-full flex items-center gap-4 p-4 bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border border border-default rounded-xl text-left transition-colors"
     >
-      <div className="w-10 h-10 rounded-lg bg-slate-600 flex items-center justify-center">
-        <Icon className="w-5 h-5 text-slate-300" />
+      <div className="w-10 h-10 rounded-xl bg-surface-alt dark:bg-dark-surface border border-default flex items-center justify-center">
+        <Icon className="w-5 h-5 text-icon-muted dark:text-dark-text-muted icon-current" />
       </div>
       <div>
-        <p className="font-medium text-white">{title}</p>
-        <p className="text-xs text-slate-500">{desc}</p>
+        <p className="font-medium text-foreground dark:text-dark-text transition-colors">{title}</p>
+        <p className="text-xs text-muted dark:text-dark-text-muted transition-colors">{desc}</p>
       </div>
     </button>
   );

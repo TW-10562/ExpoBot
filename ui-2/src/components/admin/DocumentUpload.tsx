@@ -36,12 +36,14 @@ export default function DocumentUpload({
   const { t } = useLang();
   const toast = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadControllerRef = useRef<AbortController | null>(null);
   const [uploadingFiles, setUploadingFiles] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<Record<string, 'pending' | 'uploading' | 'success' | 'error'>>({});
   const [uploadCategory, setUploadCategory] = useState<string>('company_policy');
   const [reviewMode, setReviewMode] = useState<boolean>(false);
   const [fileCategories, setFileCategories] = useState<Record<string, string>>({});
   const [selectedToRemove, setSelectedToRemove] = useState<Set<string>>(new Set());
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const [pipelineSteps, setPipelineSteps] = useState<{
     step: number;
     status: 'pending' | 'in-progress' | 'completed' | 'error';
@@ -106,10 +108,28 @@ export default function DocumentUpload({
   const handleStartUpload = async () => {
     if (uploadingFiles.length === 0) return;
     setReviewMode(false);
+    setIsUploading(true);
 
     console.log('🚀 [DocumentUpload] Starting upload pipeline...');
 
     try {
+      const controller = new AbortController();
+      uploadControllerRef.current = controller;
+
+      const abortableDelay = (ms: number, signal: AbortSignal) =>
+        new Promise<void>((resolve, reject) => {
+          if (signal.aborted) {
+            reject(new DOMException('Aborted', 'AbortError'));
+            return;
+          }
+          const timer = window.setTimeout(resolve, ms);
+          const onAbort = () => {
+            window.clearTimeout(timer);
+            reject(new DOMException('Aborted', 'AbortError'));
+          };
+          signal.addEventListener('abort', onAbort, { once: true });
+        });
+
       console.log('🔄 [DocumentUpload] STEP 1: File Upload - IN PROGRESS');
       setPipelineSteps((prev) =>
         prev.map((s) => (s.step === 1 ? { ...s, status: 'in-progress' } : s))
@@ -137,6 +157,7 @@ export default function DocumentUpload({
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formData,
+        signal: controller.signal,
       });
 
       if (!uploadResponse.ok) {
@@ -156,7 +177,7 @@ export default function DocumentUpload({
       setPipelineSteps((prev) =>
         prev.map((s) => (s.step === 2 ? { ...s, status: 'in-progress' } : s))
       );
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await abortableDelay(1500, controller.signal);
       console.log('✅ [DocumentUpload] STEP 2: Content Extraction - COMPLETED');
       setPipelineSteps((prev) =>
         prev.map((s) => (s.step === 2 ? { ...s, status: 'completed' } : s))
@@ -166,7 +187,7 @@ export default function DocumentUpload({
       setPipelineSteps((prev) =>
         prev.map((s) => (s.step === 3 ? { ...s, status: 'in-progress' } : s))
       );
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await abortableDelay(2000, controller.signal);
       console.log('✅ [DocumentUpload] STEP 3: Embedding & Indexing - COMPLETED');
       setPipelineSteps((prev) =>
         prev.map((s) => (s.step === 3 ? { ...s, status: 'completed' } : s))
@@ -176,7 +197,7 @@ export default function DocumentUpload({
       setPipelineSteps((prev) =>
         prev.map((s) => (s.step === 4 ? { ...s, status: 'in-progress' } : s))
       );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await abortableDelay(1000, controller.signal);
       console.log('✅ [DocumentUpload] STEP 4: RAG Integration - COMPLETED');
       setPipelineSteps((prev) =>
         prev.map((s) => (s.step === 4 ? { ...s, status: 'completed' } : s))
@@ -196,6 +217,27 @@ export default function DocumentUpload({
       toast.success(t('documentTable.uploadSuccess', { count: uploadingFiles.length, category: uploadCategory }));
       resetUpload();
     } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        console.warn('⏹️ [DocumentUpload] Upload cancelled by user.');
+        const cancelledFileNames = uploadingFiles.map((file) => file.name);
+        void cleanupCancelledUploads(cancelledFileNames);
+        setPipelineSteps([
+          { step: 1, status: 'pending', labelKey: 'documentTable.pipeline.fileUpload' },
+          { step: 2, status: 'pending', labelKey: 'documentTable.pipeline.contentExtraction' },
+          { step: 3, status: 'pending', labelKey: 'documentTable.pipeline.embeddingIndexing' },
+          { step: 4, status: 'pending', labelKey: 'documentTable.pipeline.ragIntegration' },
+        ]);
+        setReviewMode(true);
+        setUploadProgress((prev) => {
+          const next = { ...prev };
+          Object.keys(next).forEach((key) => {
+            if (next[key] === 'uploading') next[key] = 'pending';
+          });
+          return next;
+        });
+        toast.info('Upload canceled.');
+        return;
+      }
       console.error('❌ [DocumentUpload] Upload failed:', error);
       setPipelineSteps((prev) =>
         prev.map((s) =>
@@ -203,6 +245,51 @@ export default function DocumentUpload({
         )
       );
       toast.error(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsUploading(false);
+      uploadControllerRef.current = null;
+    }
+  };
+
+  const handleCancelUpload = () => {
+    if (!isUploading || !uploadControllerRef.current) return;
+    uploadControllerRef.current.abort();
+  };
+
+  const handleDefaultCategoryChange = (nextCategory: string) => {
+    const previousCategory = uploadCategory;
+    setUploadCategory(nextCategory);
+    setFileCategories((prev) => {
+      const next = { ...prev };
+      uploadingFiles.forEach((file) => {
+        const current = next[file.name] ?? previousCategory;
+        if (current === previousCategory) next[file.name] = nextCategory;
+      });
+      return next;
+    });
+  };
+
+  const cleanupCancelledUploads = async (fileNames: string[]) => {
+    if (fileNames.length === 0) return;
+    try {
+      const token = getToken();
+      const listResponse = await fetch('/dev-api/api/files?pageNum=1&pageSize=200', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      });
+      const listData = await listResponse.json();
+      const files = listData.result?.rows || listData.data || listData.rows || [];
+      if (!Array.isArray(files)) return;
+      const toDelete = files.filter((file) => fileNames.includes(file.filename));
+      await Promise.allSettled(
+        toDelete.map((file) =>
+          fetch(`/dev-api/api/files/${file.id}`, {
+            method: 'DELETE',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+          })
+        )
+      );
+    } catch (err) {
+      console.warn('⚠️ [DocumentUpload] Cleanup after cancel failed:', err);
     }
   };
 
@@ -217,6 +304,9 @@ export default function DocumentUpload({
 
   const resetUpload = () => {
     console.log('🔄 [DocumentUpload] Resetting upload form...');
+    if (pipelineSteps.some((step) => step.status === 'in-progress')) {
+      uploadControllerRef.current?.abort();
+    }
     setUploadingFiles([]);
     setUploadProgress({});
     setUploadCategory('company_policy');
@@ -333,39 +423,35 @@ export default function DocumentUpload({
               >
                 {t('documentTable.removeSelected')}
               </button>
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <span>{t('documentTable.selectedCount', { count: selectedToRemove.size })}</span>
-              </div>
             </div>
           )}
 
-          {!reviewMode && (
-            <div>
-              <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-3 transition-colors">
-                {t('documentTable.defaultCategory')}
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { value: 'company_policy', label: t('documentTable.category.companyPolicy') },
-                  { value: 'internal_guide', label: t('documentTable.category.internalGuide') },
-                  { value: 'procedure', label: t('documentTable.category.procedure') },
-                  { value: 'faq', label: t('documentTable.category.faq') },
-                ].map((cat) => (
-                  <button
-                    key={cat.value}
-                    onClick={() => setUploadCategory(cat.value)}
-                    className={`px-4 py-2 rounded-xl font-medium transition-all ${
-                      uploadCategory === cat.value
-                        ? 'btn-primary shadow-lg'
-                        : 'bg-surface dark:bg-dark-surface text-muted dark:text-dark-text-muted hover:bg-surface-alt dark:hover:bg-dark-border border border-default'
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
+          <div>
+            <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-3 transition-colors">
+              {t('documentTable.defaultCategory')}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { value: 'company_policy', label: t('documentTable.category.companyPolicy') },
+                { value: 'internal_guide', label: t('documentTable.category.internalGuide') },
+                { value: 'procedure', label: t('documentTable.category.procedure') },
+                { value: 'faq', label: t('documentTable.category.faq') },
+              ].map((cat) => (
+                <button
+                  key={cat.value}
+                  onClick={() => handleDefaultCategoryChange(cat.value)}
+                  disabled={isUploading}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    uploadCategory === cat.value
+                      ? 'btn-primary text-white shadow-lg'
+                      : 'bg-surface dark:bg-dark-surface text-muted dark:text-dark-text-muted hover:bg-surface-alt dark:hover:bg-dark-border border border-default'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
 
           <div className="space-y-4">
             <h5 className="text-sm font-semibold text-[#232333] dark:text-white transition-colors">
@@ -408,20 +494,34 @@ export default function DocumentUpload({
           </div>
 
           {reviewMode ? (
-            <button
-              onClick={handleStartUpload}
-              className="w-full px-6 py-3 btn-primary font-semibold rounded-xl transition-all"
-            >
-              {t('documentTable.nextContinue')}
-            </button>
+            <div className="flex justify-end">
+              <button
+                onClick={handleStartUpload}
+                className="px-6 py-3 btn-primary text-white font-semibold rounded-xl transition-all"
+              >
+                {t('documentTable.nextContinue')}
+              </button>
+            </div>
           ) : (
-            <button
-              onClick={handleStartUpload}
-              disabled={pipelineSteps[0].status !== 'pending'}
-              className="w-full px-6 py-3 btn-primary disabled:opacity-50 disabled:cursor-not-allowed font-semibold rounded-xl transition-all"
-            >
-              {pipelineSteps[0].status === 'pending' ? '🚀 Start Upload Pipeline' : t('documentTable.pipeline.processing')}
-            </button>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={handleCancelUpload}
+                disabled={!isUploading}
+                className="px-5 py-3 rounded-xl btn-danger text-on-accent text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  Cancel Upload
+                </span>
+              </button>
+              <button
+                onClick={handleStartUpload}
+                disabled={pipelineSteps[0].status !== 'pending' || isUploading}
+                className="px-6 py-3 btn-primary text-white disabled:opacity-50 disabled:cursor-not-allowed font-semibold rounded-xl transition-all"
+              >
+                {pipelineSteps[0].status === 'pending' ? '🚀 Start Upload Pipeline' : t('documentTable.pipeline.processing')}
+              </button>
+            </div>
           )}
         </div>
       )}

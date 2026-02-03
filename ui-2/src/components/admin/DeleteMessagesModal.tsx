@@ -87,7 +87,6 @@ export default function DeleteMessagesModal({
           setDeleteSuccess(false);
           setIsDeleting(false);
           onSuccess?.();
-          window.location.href = window.location.href.split('#')[0];
         }, 2000);
       } else {
         toast.error(data.message || 'Failed to delete messages');

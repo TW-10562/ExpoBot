@@ -17,18 +17,18 @@ export default function ContactHRPopup({
   if (!isOpen) return null;
  
   return (
-      <div className="bg-white rounded-2xl w-full max-w-md border border-[#E8E8E8] shadow-2xl">
+      <div className="bg-surface dark:bg-dark-surface rounded-2xl w-full max-w-md border border-default shadow-2xl transition-colors">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-[#E8E8E8] bg-[#F6F6F6]">
+        <div className="flex items-center justify-between p-5 border-b border-default bg-surface-alt dark:bg-dark-bg-primary transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#F0F4FF] rounded-xl flex items-center justify-center">
-              <AlertCircle className="w-5 h-5 text-[#1d2089]" />
+            <div className="w-10 h-10 bg-surface dark:bg-dark-surface rounded-xl flex items-center justify-center border border-default">
+              <AlertCircle className="w-5 h-5 text-accent" />
             </div>
-            <h3 className="font-semibold text-[#232333] text-lg">{title}</h3>
+            <h3 className="font-semibold text-foreground dark:text-white text-lg transition-colors">{title}</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl hover:bg-[#E8E8E8] text-[#6E7680] hover:text-[#232333] transition-colors"
+            className="p-2 rounded-xl hover:bg-surface dark:hover:bg-dark-border text-muted hover:text-foreground dark:text-white/70 dark:hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -36,28 +36,28 @@ export default function ContactHRPopup({
  
         {/* Content */}
         <div className="p-6 space-y-4">
-          <div className="bg-[#F0F4FF] border border-[#1d2089]/20 rounded-xl p-4">
-            <p className="text-[#232333] text-center">
+          <div className="bg-surface-alt dark:bg-dark-surface border border-default rounded-xl p-4 transition-colors">
+            <p className="text-foreground dark:text-white text-center transition-colors">
               {message}
             </p>
           </div>
  
-          <div className="space-y-3 text-sm text-[#6E7680]">
-            <p className="font-medium text-[#232333]">{t('hrContact.title')}</p>
+          <div className="space-y-3 text-sm text-muted dark:text-white/80 transition-colors">
+            <p className="font-medium text-foreground dark:text-white transition-colors">{t('hrContact.title')}</p>
 
       <p>
         📧 {t('hrContact.email')}:{" "}
-        <span className="text-[#1d2089]">hr@company.com</span>
+        <span className="text-accent dark:text-white">hr@company.com</span>
       </p>
 
       <p>
         📞 {t('hrContact.phone')}:{" "}
-        <span className="text-[#1d2089]">+1 (XXX) XXX-XXXX</span>
+        <span className="text-accent dark:text-white">+1 (XXX) XXX-XXXX</span>
       </p>
 
       <p>
         🏢 {t('hrContact.office')}:{" "}
-        <span className="text-[#1d2089]">
+        <span className="text-accent dark:text-white">
           {t('hrContact.officeLocation')}
         </span>
       </p>

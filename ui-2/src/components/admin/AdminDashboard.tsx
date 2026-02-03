@@ -181,7 +181,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
     <div className="flex flex-col h-full">
       {/* Hide internal tab bar when controlled by external sidebar */}
       {!controlledTab && (
-        <div className="flex border-b border-[#E8E8E8] dark:border-dark-border bg-white dark:bg-dark-bg-primary transition-colors overflow-x-auto">
+        <div className="flex border-b border-default bg-surface dark:bg-dark-bg-primary transition-colors overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -191,8 +191,8 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
               }}
               className={`flex items-center justify-center gap-2 px-6 py-4 transition-all whitespace-nowrap ${
                 activeTab === tab.id
-                  ? 'bg-[#F0F4FF] dark:bg-dark-surface border-b-2 border-[#1d2089] dark:border-[#60a5fa] text-[#1d2089] dark:text-[#60a5fa]'
-                  : 'text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-border hover:text-[#232333] dark:hover:text-white'
+                  ? 'bg-surface-alt dark:bg-dark-surface border-b-2 border-accent dark:border-accent-strong text-accent dark:text-accent-strong'
+                  : 'text-muted dark:text-dark-text-muted hover:bg-surface-alt dark:hover:bg-dark-border hover:text-foreground dark:hover:text-white'
               }`}
             >
               <tab.icon className="w-5 h-5" />
@@ -202,7 +202,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
         </div>
       )}
 
-      <div key={activeTab} className="flex-1 overflow-y-auto p-6 mac-tab-animate bg-[#F6F6F6] dark:bg-[#0f0f23] transition-colors">
+      <div key={activeTab} className="flex-1 overflow-y-auto p-6 mac-tab-animate bg-app transition-colors">
         {activeTab === 'documents' && (
           <>
             <DocumentUpload
@@ -222,9 +222,9 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
         {activeTab === 'analytics' && <AnalyticsDashboard />}
 
         {activeTab === 'chat' && (
-          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden animate-section-in flex flex-col h-full shadow-sm transition-colors">
-            <div className="p-4 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
-              <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
+          <div className="bg-surface dark:bg-dark-surface border border-default rounded-2xl overflow-hidden animate-section-in flex flex-col h-full shadow-sm transition-colors">
+            <div className="p-4 border-b border-default bg-surface-alt dark:bg-dark-bg-primary transition-colors">
+              <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
                 {t('chat.title')}
               </h3>
             </div>

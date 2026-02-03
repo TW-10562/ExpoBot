@@ -146,7 +146,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                     {t('login.username')}
                   </label>
                   <div className="relative">
-                    <div className="input-icon-absolute pointer-events-none"><User className="w-5 h-5 text-icon-muted dark:text-dark-text-muted icon-current" /></div>
+                    <div className="input-icon-absolute pointer-events-none"><User className="w-5 h-5 text-icon-muted dark:text-black icon-current" /></div>
                     <input
                       type="text"
                       value={username}
@@ -162,7 +162,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                     {t('login.password')}
                   </label>
                   <div className="relative">
-                    <div className="input-icon-absolute pointer-events-none"><Lock className="w-5 h-5 text-icon-muted dark:text-dark-text-muted icon-current" /></div>
+                    <div className="input-icon-absolute pointer-events-none"><Lock className="w-5 h-5 text-icon-muted dark:text-black icon-current" /></div>
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={password}

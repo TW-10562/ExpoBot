@@ -65,7 +65,7 @@ export default function AnalyticsDashboard() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
+        <RefreshCw className="w-8 h-8 text-accent animate-spin" />
       </div>
     );
   }
@@ -73,25 +73,25 @@ export default function AnalyticsDashboard() {
   if (!data) return null;
 
   return (
-    <div className="space-y-6 p-6 min-h-screen bg-[#F6F6F6] dark:bg-[#0f0f23] mac-tab-animate">
+    <div className="space-y-6 p-6 min-h-screen bg-app mac-tab-animate">
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-[#1d2089] dark:bg-[#2563eb] rounded-xl transition-colors">
-            <BarChart3 className="w-6 h-6 text-white" />
+          <div className="p-2 bg-accent rounded-xl transition-colors">
+            <BarChart3 className="w-6 h-6 text-on-accent" />
           </div>
-          <h2 className="text-2xl font-bold text-[#232333] dark:text-white transition-colors">{t('analytics.title')}</h2>
+          <h2 className="text-2xl font-bold text-foreground dark:text-white transition-colors">{t('analytics.title')}</h2>
         </div>
 
-        <div className="flex gap-1 bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl p-1 shadow-sm transition-colors">
+        <div className="flex gap-1 bg-surface dark:bg-dark-surface border border-default rounded-xl p-1 shadow-sm transition-colors">
           {(['7d', '30d', '90d'] as const).map(r => (
             <button
               key={r}
               onClick={() => setTimeRange(r)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 timeRange === r
-                  ? 'bg-[#1d2089] dark:bg-[#2563eb] text-white'
-                  : 'text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-surface hover:text-[#232333] dark:hover:text-dark-text'
+                  ? 'btn-primary text-on-accent'
+                  : 'text-muted dark:text-dark-text-muted hover:bg-surface-alt dark:hover:bg-dark-border hover:text-foreground dark:hover:text-dark-text'
               }`}
             >
               {r.toUpperCase()}
@@ -127,7 +127,7 @@ export default function AnalyticsDashboard() {
         {/* FEEDBACK DISTRIBUTION */}
         <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm transition-colors">
           <h3 className="text-[#232333] dark:text-dark-text font-semibold mb-4 flex items-center gap-2 transition-colors">
-            <PieChart className="w-5 h-5 text-[#1d2089] dark:text-[#60a5fa] transition-colors" />{t('analytics.feedbackQuality')}
+            <PieChart className="w-5 h-5 text-accent transition-colors icon-current" />{t('analytics.feedbackQuality')}
           </h3>
 
           <div className="space-y-4">
@@ -212,15 +212,15 @@ function Metric({
   color: 'blue' | 'green' | 'yellow';
 }) {
   const iconBg: any = {
-    blue: 'bg-[#F0F4FF]',
+    blue: 'bg-accent/10',
     green: 'bg-green-50',
     yellow: 'bg-amber-50',
   };
 
   const iconColor: any = {
-    blue: 'text-[#1d2089]',
-    green: 'text-green-600',
-    yellow: 'text-amber-500',
+    blue: 'text-accent icon-current',
+    green: 'text-green-600 icon-current',
+    yellow: 'text-amber-500 icon-current',
   };
 
   return (

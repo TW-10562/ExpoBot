@@ -159,6 +159,7 @@
   },
   "userManagement": {
     "title": "User Management",
+    "uploadCsv": "Upload CSV",
     "addUser": "Add User",
     "table": {
       "firstName": "First Name",
@@ -175,6 +176,8 @@
     "form": {
       "addUserTitle": "Add User",
       "editUserTitle": "Edit User",
+      "selectJobRole": "Select job role",
+      "selectAreaOfWork": "Select area of work",
       "save": "Save",
       "cancel": "Cancel",
       "delete": "Delete",
@@ -198,6 +201,31 @@
       "invalidPassword": "Password must be at least 6 characters"
     },
     "empty": "No users found. Click 'Add User' to create one."
+  },
+  "user": {
+    "jobRole": {
+      "ai_engineer": "AI Engineer",
+      "system_engineer": "System Engineer",
+      "it_manager": "IT Manager",
+      "tl": "TL",
+      "hr": "HR",
+      "sales_manager": "Sales Manager",
+      "sales_person": "Sales Person",
+      "tester": "Tester",
+      "factory_worker": "Factory Worker",
+      "call_center_agent": "Call Center Agent"
+    },
+    "area": {
+      "ayase": "Ayase",
+      "ebina": "Ebina",
+      "akihabara_main": "Akihabara Main Building",
+      "akihabara_daidoh": "Akihabara Daidoh Building",
+      "hiratsuka": "Hiratsuka"
+    },
+    "role": {
+      "user": "User",
+      "admin": "Admin"
+    }
   },
    "broadcast": {
     "title": "Contact Users",
@@ -273,7 +301,16 @@
     "good": "Good response",
     "bad": "Bad response",
     "share": "Share",
-    "regenerate": "Regenerate response"
+    "regenerate": "Regenerate response",
+    "shareTitle": "Share response",
+    "shareMessage": "Send this answer to someone else",
+    "sharePreview": "Preview",
+    "shareRecipient": "Share via",
+    "shareEmail": "Email",
+    "shareTeams": "Teams",
+    "shareClipboard": "Copy to clipboard",
+    "shareSubject": "Shared HR Bot response",
+    "cancelButton": "Close"
   },
 
   "languageView": {
@@ -406,4 +443,3 @@
  
   
 }
-

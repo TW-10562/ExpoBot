@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Send, Bot, User, Globe, Languages, Copy, ThumbsUp, ThumbsDown,
-  RefreshCw, Check, Share2, Plus, Trash2, StopCircle,
-  Download, X
+  RefreshCw, Check, Plus, Trash2, StopCircle,
+  Download
 } from 'lucide-react';
 import { Message } from '../../types';
 import { useLang } from '../../context/LanguageContext';
@@ -199,9 +199,7 @@ interface MessageActionsProps {
 function MessageActions({ content, messageId, onFeedback, onRegenerate }: MessageActionsProps) {
   const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState<'like' | 'dislike' | null>(null);
-  const [showShareModal, setShowShareModal] = useState(false);
   const { t } = useLang();
-  const toast = useToast();
 
   const handleCopy = async () => {
     const parsed = parseDualLanguageContent(content);
@@ -217,33 +215,6 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
   const handleFeedback = (type: 'like' | 'dislike') => {
     setFeedback(type);
     onFeedback?.(messageId, type);
-  };
-
-  const handleShare = async () => setShowShareModal(true);
-
-  const handleShareAction = async (method: 'email' | 'teams' | 'outlook' | 'clipboard') => {
-    const parsed = parseDualLanguageContent(content);
-    const textToShare = parsed.isDualLanguage
-      ? (parsed.translated || parsed.japanese || parsed.rawContent)
-      : parsed.rawContent;
-
-    if (method === 'clipboard') {
-      await navigator.clipboard.writeText(textToShare);
-      toast.success(t('chatActions.copied'));
-    } else if (method === 'email') {
-      const subject = encodeURIComponent(t('chatActions.shareSubject'));
-      const body = encodeURIComponent(`${t('chatActions.shareMessage')}\n\n${textToShare}`);
-      window.location.href = `mailto:?subject=${subject}&body=${body}`;
-    } else if (method === 'teams') {
-      const msg = `${t('chatActions.shareMessage')}\n\n${textToShare}`;
-      await navigator.clipboard.writeText(msg);
-      toast.success(t('chatActions.shareSubject'));
-    } else if (method === 'outlook') {
-      const subject = encodeURIComponent(t('chatActions.shareSubject'));
-      const body = encodeURIComponent(`${t('chatActions.shareMessage')}\n\n${textToShare}`);
-      window.location.href = `mailto:?subject=${subject}&body=${body}`;
-    }
-    setShowShareModal(false);
   };
 
   return (
@@ -269,62 +240,10 @@ function MessageActions({ content, messageId, onFeedback, onRegenerate }: Messag
           <ThumbsDown className="w-4 h-4" />
         </button>
 
-        <button onClick={handleShare} className="mac-iconbtn" title={t('chatActions.share')}>
-          <Share2 className="w-4 h-4" />
-        </button>
-
         <button onClick={onRegenerate} className="mac-iconbtn" title={t('chatActions.regenerate')}>
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
-
-      {showShareModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowShareModal(false)} />
-          <div className="relative mac-modal w-full max-w-md overflow-hidden">
-            <div className="mac-modal-header">
-              <h2 className="text-[15px] font-semibold text-slate-900 dark:text-white">
-                {t('chatActions.shareTitle')}
-              </h2>
-              <button onClick={() => setShowShareModal(false)} className="mac-iconbtn" aria-label="Close">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div>
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">
-                  {t('chatActions.sharePreview')}:
-                </p>
-                <div className="mac-panel p-3 max-h-24 overflow-y-auto text-xs text-slate-800 dark:text-slate-200">
-                  {parseDualLanguageContent(content).rawContent.substring(0, 200)}...
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                  {t('chatActions.shareRecipient')}
-                </p>
-                <button onClick={() => handleShareAction('email')} className="mac-menuitem">
-                  📧 {t('chatActions.shareEmail')}
-                </button>
-                <button onClick={() => handleShareAction('teams')} className="mac-menuitem">
-                  💬 {t('chatActions.shareTeams')}
-                </button>
-                <button onClick={() => handleShareAction('clipboard')} className="mac-menuitem">
-                  📋 {t('chatActions.shareEmail')}
-                </button>
-              </div>
-            </div>
-
-            <div className="p-4 border-t border-black/10 dark:border-white/10">
-              <button onClick={() => setShowShareModal(false)} className="mac-primary w-full">
-                {t('chatActions.cancelButton')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

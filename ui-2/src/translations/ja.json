@@ -164,6 +164,7 @@
   },
   "userManagement": {
     "title": "ユーザー管理",
+    "uploadCsv": "CSVをアップロード",
     "addUser": "ユーザーを追加",
     "table": {
       "firstName": "名前",
@@ -180,6 +181,8 @@
     "form": {
       "addUserTitle": "ユーザーを追加",
       "editUserTitle": "ユーザーを編集",
+      "selectJobRole": "職務を選択",
+      "selectAreaOfWork": "業務範囲を選択",
       "save": "保存",
       "cancel": "キャンセル",
       "delete": "削除",
@@ -203,6 +206,31 @@
       "invalidPassword": "パスワードは最低6文字である必要があります"
     },
     "empty": "ユーザーが見つかりません。「ユーザーを追加」をクリックして作成してください。"
+  },
+  "user": {
+    "jobRole": {
+      "ai_engineer": "AIエンジニア",
+      "system_engineer": "システムエンジニア",
+      "it_manager": "ITマネージャー",
+      "tl": "TL",
+      "hr": "人事",
+      "sales_manager": "営業マネージャー",
+      "sales_person": "営業担当",
+      "tester": "テスター",
+      "factory_worker": "工場作業員",
+      "call_center_agent": "コールセンター担当"
+    },
+    "area": {
+      "ayase": "綾瀬",
+      "ebina": "海老名",
+      "akihabara_main": "秋葉原本館",
+      "akihabara_daidoh": "秋葉原大同ビル",
+      "hiratsuka": "平塚"
+    },
+    "role": {
+      "user": "ユーザー",
+      "admin": "管理者"
+    }
   },
    "broadcast": {
     "title": "ユーザーへの連絡",
@@ -276,7 +304,16 @@
     "good": "良い回答",
     "bad": "悪い回答",
     "share": "共有",
-    "regenerate": "再生成"
+    "regenerate": "再生成",
+    "shareTitle": "回答を共有",
+    "shareMessage": "この回答を送信します",
+    "sharePreview": "プレビュー",
+    "shareRecipient": "共有先",
+    "shareEmail": "メール",
+    "shareTeams": "Teams",
+    "shareClipboard": "クリップボードにコピー",
+    "shareSubject": "HRボットの回答を共有",
+    "cancelButton": "閉じる"
   },
 
 "languageView": {
@@ -408,5 +445,3 @@
   }
 
 }
-
-

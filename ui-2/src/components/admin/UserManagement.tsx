@@ -133,6 +133,34 @@ export default function UserManagement() {
   });
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [adminPassword, setAdminPassword] = useState('');
+  const [editAdminPassword, setEditAdminPassword] = useState('');
+
+  const getI18nLabel = (key: string, fallback: string) => {
+    const translated = t(key);
+    return translated === key ? fallback : translated;
+  };
+
+  const getJobRoleLabel = (roleKey: string) => {
+    const fallback = JOB_ROLE_OPTIONS.find((option) => option.key === roleKey)?.label || roleKey;
+    return getI18nLabel(`user.jobRole.${roleKey}`, fallback);
+  };
+
+  const getAreaLabel = (areaKey: string) => {
+    const fallback = AREA_OF_WORK_OPTIONS.find((option) => option.key === areaKey)?.label || areaKey;
+    return getI18nLabel(`user.area.${areaKey}`, fallback);
+  };
+
+  const getI18nOrFallback = (key: string, fallback: string) => getI18nLabel(key, fallback);
+
+  const selectJobRoleLabel = getI18nOrFallback('userManagement.form.selectJobRole', 'Select job role');
+  const selectAreaLabel = getI18nOrFallback('userManagement.form.selectAreaOfWork', 'Select area of work');
+  const firstNameLabel = getI18nOrFallback('userManagement.table.firstName', 'First name');
+  const lastNameLabel = getI18nOrFallback('userManagement.table.lastName', 'Last name');
+  const employeeIdLabel = getI18nOrFallback('userManagement.table.employeeId', 'Employee ID');
+  const passwordLabel = getI18nOrFallback('userManagement.table.password', 'Password');
+
+  const uploadCsvLabel = getI18nLabel('userManagement.uploadCsv', 'Upload CSV');
+  const addUserLabel = getI18nLabel('userManagement.form.addUserTitle', 'Add User');
 
   // CSV Upload Handler - accepts both stable keys and display labels
   // e.g., can accept either 'ai_engineer' or 'AI Engineer' and normalizes to 'ai_engineer'
@@ -262,7 +290,7 @@ export default function UserManagement() {
   };
 
   const confirmSaveEdit = () => {
-    if (editingUser) {
+    if (editingUser && editAdminPassword.trim()) {
       setUsers(
         users.map((u) =>
           u.id === editingUser
@@ -272,6 +300,7 @@ export default function UserManagement() {
       );
       setEditingUser(null);
       setShowConfirmSave(false);
+      setEditAdminPassword('');
       setFormData({
         firstName: '',
         lastName: '',
@@ -286,6 +315,7 @@ export default function UserManagement() {
 
   const handleCancelEdit = () => {
     setEditingUser(null);
+    setEditAdminPassword('');
     setFormData({
       firstName: '',
       lastName: '',
@@ -344,10 +374,10 @@ export default function UserManagement() {
               disabled={csvLoading}
               data-state={csvLoading ? 'loading' : 'idle'}
               className="flex items-center gap-2 px-4 py-2 rounded-lg btn-success disabled:opacity-50 disabled:cursor-not-allowed text-on-accent text-sm font-medium transition-colors"
-              title={t('userManagement.uploadCsv') || 'Upload CSV'}
+              title={uploadCsvLabel}
             >
               <Upload className={`w-4 h-4 icon-current ${csvLoading ? 'animate-pulse text-accent-strong' : ''}`} />
-              {csvLoading ? t('common.loading') : t('userManagement.uploadCsv')}
+              {csvLoading ? t('common.loading') : uploadCsvLabel}
             </button>
             {/* Add User Button */}
             <button
@@ -355,7 +385,7 @@ export default function UserManagement() {
               className="flex items-center gap-2 px-4 py-2 rounded-lg btn-primary text-on-accent text-sm font-medium transition-colors"
             >
               <Plus className="w-4 h-4 icon-current" />
-              {t('userManagement.form.addUserTitle')}
+              {addUserLabel}
             </button>
           </div>
         )}
@@ -455,10 +485,10 @@ export default function UserManagement() {
                           }
                           className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
                         >
-                          <option value="">{t('userManagement.form.selectJobRole')}</option>
+                        <option value="">{selectJobRoleLabel}</option>
                           {JOB_ROLE_OPTIONS.map((option) => (
                             <option key={option.key} value={option.key}>
-                              {t(`user.jobRole.${option.key}`)}
+                              {getJobRoleLabel(option.key)}
                             </option>
                           ))}
                         </select>
@@ -471,10 +501,10 @@ export default function UserManagement() {
                           }
                           className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
                         >
-                          <option value="">{t('userManagement.form.selectAreaOfWork')}</option>
+                        <option value="">{selectAreaLabel}</option>
                           {AREA_OF_WORK_OPTIONS.map((option) => (
                             <option key={option.key} value={option.key}>
-                              {t(`user.area.${option.key}`)}
+                              {getAreaLabel(option.key)}
                             </option>
                           ))}
                         </select>
@@ -490,8 +520,8 @@ export default function UserManagement() {
                           }
                           className="w-full bg-surface dark:bg-dark-surface border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         >
-                          <option value="user">{t('user.role.user')}</option>
-                          <option value="admin">{t('user.role.admin')}</option>
+                          <option value="user">{getI18nLabel('user.role.user', 'User')}</option>
+                          <option value="admin">{getI18nLabel('user.role.admin', 'Admin')}</option>
                         </select>
                       </td>
                       <td className="px-4 py-3">
@@ -535,10 +565,10 @@ export default function UserManagement() {
                       </td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.employeeId}</td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                        {t(`user.jobRole.${user.userJobRole}`)}
+                        {getJobRoleLabel(user.userJobRole)}
                       </td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                        {t(`user.area.${user.areaOfWork}`)}
+                        {getAreaLabel(user.areaOfWork)}
                       </td>
                       <td className="px-4 py-3">
                         <span
@@ -548,7 +578,7 @@ export default function UserManagement() {
                               : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                           } transition-colors`}
                         >
-                          {t(`user.role.${user.role}`)}
+                          {getI18nLabel(`user.role.${user.role}`, user.role === 'admin' ? 'Admin' : 'User')}
                         </span>
                       </td>
                       <td className="px-4 py-3 flex items-center gap-2">
@@ -610,7 +640,7 @@ export default function UserManagement() {
             <div className="space-y-3">
               <input
                 type="text"
-                placeholder={t('userManagement.table.firstName')}
+                placeholder={firstNameLabel}
                 value={formData.firstName}
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
@@ -619,7 +649,7 @@ export default function UserManagement() {
               />
               <input
                 type="text"
-                placeholder={t('userManagement.table.lastName')}
+                placeholder={lastNameLabel}
                 value={formData.lastName}
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
@@ -628,7 +658,7 @@ export default function UserManagement() {
               />
               <input
                 type="text"
-                placeholder={t('userManagement.table.employeeId')}
+                placeholder={employeeIdLabel}
                 value={formData.employeeId}
                 onChange={(e) =>
                   setFormData({ ...formData, employeeId: e.target.value })
@@ -642,10 +672,10 @@ export default function UserManagement() {
                 }
                 className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
               >
-                <option value="">{t('userManagement.form.selectJobRole')}</option>
+                <option value="">{selectJobRoleLabel}</option>
                 {JOB_ROLE_OPTIONS.map((option) => (
                   <option key={option.key} value={option.key}>
-                    {t(`user.jobRole.${option.key}`)}
+                    {getJobRoleLabel(option.key)}
                   </option>
                 ))}
               </select>
@@ -656,10 +686,10 @@ export default function UserManagement() {
                 }
                 className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
               >
-                <option value="">{t('userManagement.form.selectAreaOfWork')}</option>
+                <option value="">{selectAreaLabel}</option>
                 {AREA_OF_WORK_OPTIONS.map((option) => (
                   <option key={option.key} value={option.key}>
-                    {t(`user.area.${option.key}`)}
+                    {getAreaLabel(option.key)}
                   </option>
                 ))}
               </select>
@@ -673,12 +703,12 @@ export default function UserManagement() {
                 }
                 className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
               >
-                <option value="user">{t('user.role.user')}</option>
-                <option value="admin">{t('user.role.admin')}</option>
+                <option value="user">{getI18nLabel('user.role.user', 'User')}</option>
+                <option value="admin">{getI18nLabel('user.role.admin', 'Admin')}</option>
               </select>
               <input
                 type="text"
-                placeholder={t('userManagement.table.password')}
+                placeholder={passwordLabel}
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
@@ -716,15 +746,27 @@ export default function UserManagement() {
               {t('userManagement.form.editUserTitle')}
             </p>
 
+            <input
+              type="password"
+              placeholder={t('userManagement.delete.adminPassword')}
+              value={editAdminPassword}
+              onChange={(e) => setEditAdminPassword(e.target.value)}
+              className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
+            />
+
             <div className="flex gap-3 justify-end pt-4 border-t border-default dark:border-default transition-colors">
               <button
-                onClick={() => setShowConfirmSave(false)}
+                onClick={() => {
+                  setShowConfirmSave(false);
+                  setEditAdminPassword('');
+                }}
                 className="px-4 py-2 rounded-lg bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.cancel')}
               </button>
               <button
                 onClick={confirmSaveEdit}
+                disabled={!editAdminPassword.trim()}
                 className="px-4 py-2 rounded-lg btn-success text-on-accent text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.save')}
