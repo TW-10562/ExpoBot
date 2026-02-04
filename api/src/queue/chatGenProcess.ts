@@ -15,7 +15,6 @@ import { getNextApiUrl } from '../utils/redis';
 import { loadRagProcessor } from '@/service/loadRagProcessor';
 import { loadCacheProcessor } from '@/service/loadCacheProcessor';
 import {
-  detectLanguage,
   formatSingleLanguageOutput,
   translateText,
   LanguageCode,
@@ -308,15 +307,25 @@ export const chatGenProcess = async (job) => {
       return { outputId, isOk: false, content: '' };
     }
 
+    if (typeof data.originalQuery !== 'string' || data.originalQuery.trim().length === 0) {
+      const errorMessage = '[CHAT PROCESS] Missing required metadata.originalQuery. Failing fast.';
+      console.error(errorMessage, { outputId, taskId, metadata: data });
+      return { outputId, isOk: false, content: errorMessage };
+    }
+    if (data.userLanguage !== 'en' && data.userLanguage !== 'ja') {
+      const errorMessage = '[CHAT PROCESS] Missing or invalid metadata.userLanguage. Failing fast.';
+      console.error(errorMessage, { outputId, taskId, metadata: data });
+      return { outputId, isOk: false, content: errorMessage };
+    }
+
     let prompt = data.prompt;
     
-    // Step 1: Detect language and branch pipeline
-    console.log(`\n[STEP 1] Language Detection`);
-    console.log(`[STEP 1] Original prompt: "${data.prompt}"`);
-    const userLanguage = detectLanguage(data.prompt);
+    // Step 1: Use single detection result (from task metadata) and branch pipeline
+    console.log(`\n[STEP 1] Language Determination (single source)`);
+    console.log(`[STEP 1] Original query (metadata): "${data.originalQuery}"`);
+    const userLanguage: LanguageCode = data.userLanguage;
     kpiMetrics.userLanguage = userLanguage;
-    console.log(`[STEP 1] Language detected: ${userLanguage}`);
-    console.log(`[STEP 1] Will respond in: ${userLanguage === 'ja' ? 'Japanese' : 'English'}`);
+    console.log(`[STEP 1] Using userLanguage from metadata: ${userLanguage}`);
 
     let queryForRAG = data.prompt;
     let content = '';

@@ -9,7 +9,7 @@ interface IChatTaskFormData {
   allFileSearch: boolean;
   useMcp: boolean;
   processingPath?: string;
-  detectedLanguage?: string;
+  userLanguage?: 'en' | 'ja';
   ragTriggered?: boolean;
   dualLanguageEnabled?: boolean;
   originalQuery?: string;
@@ -28,7 +28,7 @@ const chatTask = async (formData: IChatTaskFormData) => {
           allFileSearch: Joi.boolean().required(),
           useMcp: Joi.boolean().required(),
           processingPath: Joi.string().optional(),
-          detectedLanguage: Joi.string().optional(),
+          userLanguage: Joi.string().valid('en', 'ja').optional(),
           ragTriggered: Joi.boolean().optional(),
           dualLanguageEnabled: Joi.boolean().optional(),
           originalQuery: Joi.string().optional(),
@@ -43,7 +43,7 @@ const chatTask = async (formData: IChatTaskFormData) => {
           allFileSearch: Joi.boolean().required(),
           useMcp: Joi.boolean().required(),
           processingPath: Joi.string().optional(),
-          detectedLanguage: Joi.string().optional(),
+          userLanguage: Joi.string().valid('en', 'ja').optional(),
           ragTriggered: Joi.boolean().optional(),
           dualLanguageEnabled: Joi.boolean().optional(),
           originalQuery: Joi.string().optional(),
@@ -51,11 +51,21 @@ const chatTask = async (formData: IChatTaskFormData) => {
           usedFileIds: Joi.array().items(Joi.number()).optional(),
         }).unknown(true);
   await judge.validateAsync(formData);
+  if (formData.prompt.trim().length > 0 && (!formData.originalQuery || !formData.userLanguage)) {
+    throw new Error('CHAT metadata invariant violation: originalQuery and userLanguage are required for non-empty prompts');
+  }
   const data = JSON.stringify({
     prompt: formData.prompt,
     fileId: formData.fileId,
     allFileSearch: formData.allFileSearch,
     useMcp: formData.useMcp,
+    processingPath: formData.processingPath,
+    userLanguage: formData.userLanguage,
+    originalQuery: formData.originalQuery,
+    queryForRAG: formData.queryForRAG,
+    ragTriggered: formData.ragTriggered,
+    dualLanguageEnabled: formData.dualLanguageEnabled,
+    usedFileIds: formData.usedFileIds,
   });
   return [{ metadata: data, sort: formData.fieldSort } as PrepareOutput];
 };

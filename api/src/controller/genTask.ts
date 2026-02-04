@@ -10,8 +10,8 @@ import { Op } from 'sequelize';
 
 import { queryConditionsData } from '@/service';
 import { handleAddGenTask } from '@/service/genTaskService';
-import { classifyQuery, detectLanguage } from '@/service/queryClassificationService';
-import { translateENtoJA, translateJAtoEN } from '@/service/translationService';
+import { detectLanguage } from '@/service/queryClassificationService';
+import { translateENtoJA } from '@/service/translationService';
 
 export const getAddMid = async (ctx: any, next: () => Promise<void>) => {
   try {
@@ -30,7 +30,7 @@ export const getAddMid = async (ctx: any, next: () => Promise<void>) => {
 
     let enhancedContent = addContent;
     let ragContext = null;
-    let detectedLanguage = 'en';
+    let userLanguage: 'en' | 'ja' = 'en';
     let isCompanyQuery = false;
     let processingPath = 'GENERAL';
 
@@ -51,9 +51,9 @@ export const getAddMid = async (ctx: any, next: () => Promise<void>) => {
       try {
         // ===== STEP 1: LANGUAGE DETECTION =====
         console.log('\n--- STEP 1: LANGUAGE DETECTION ---');
-        detectedLanguage = detectLanguage(userQuery);
+        userLanguage = detectLanguage(userQuery);
         console.log('✅ [GenTask] Language detected:', {
-          language: detectedLanguage === 'ja' ? 'Japanese (日本語)' : 'English (EN)',
+          language: userLanguage === 'ja' ? 'Japanese (日本語)' : 'English (EN)',
           confidence: 'High',
         });
 
@@ -67,7 +67,7 @@ export const getAddMid = async (ctx: any, next: () => Promise<void>) => {
         console.log('📊 [GenTask] RAG Processing:', {
           isCompanyQuery: true,
           path: 'COMPANY (RAG Always Enabled)',
-          language: detectedLanguage === 'ja' ? 'Japanese' : 'English',
+          language: userLanguage === 'ja' ? 'Japanese' : 'English',
           ragEnabled: true,
           reason: 'All queries use RAG to retrieve answers from uploaded documents',
         });
@@ -79,7 +79,7 @@ export const getAddMid = async (ctx: any, next: () => Promise<void>) => {
         let queryForRAG = userQuery;
 
         // Translate EN to JA if needed for better RAG matching
-        if (detectedLanguage === 'en') {
+        if (userLanguage === 'en') {
           console.log('🌐 [GenTask] Query is in English - translating to Japanese for RAG...');
           try {
             queryForRAG = await translateENtoJA(userQuery);
@@ -141,7 +141,7 @@ ${ragContext.content}
               ...chatFormData,
               prompt: ragEnhancedPrompt,
               processingPath: 'COMPANY',
-              detectedLanguage: detectedLanguage,
+              userLanguage,
               originalQuery: userQuery,
               queryForRAG: queryForRAG,
               ragTriggered: true,
@@ -152,7 +152,7 @@ ${ragContext.content}
 
           console.log('✨ [GenTask] RAG path prepared with documents:', {
             processingPath: 'COMPANY',
-            userLanguage: detectedLanguage,
+            userLanguage,
             ragRequired: true,
             filesUsed: ragContext.files.length,
             dualLanguageFormat: 'Enabled with citations',
@@ -167,7 +167,8 @@ ${ragContext.content}
               ...chatFormData,
               prompt: userQuery,
               processingPath: 'COMPANY',
-              detectedLanguage: detectedLanguage,
+              userLanguage,
+              originalQuery: userQuery,
               ragTriggered: false,
               dualLanguageEnabled: false,
             },
@@ -186,7 +187,8 @@ ${ragContext.content}
             ...chatFormData,
             prompt: userQuery,
             processingPath: 'COMPANY_FALLBACK',
-            detectedLanguage: detectedLanguage,
+            userLanguage,
+            originalQuery: userQuery,
             ragTriggered: false,
             dualLanguageEnabled: true,
           },
@@ -202,7 +204,7 @@ ${ragContext.content}
       taskId: result.taskId,
       type: addContent.type,
       processingPath: processingPath,
-      detectedLanguage: detectedLanguage,
+      userLanguage,
       ragEnabled: ragContext ? 'YES' : 'NO',
       filesUsed: ragContext ? ragContext.files.length : 0,
     });
@@ -212,7 +214,8 @@ ${ragContext.content}
       task: result.task,
       metadata: {
         processingPath: processingPath,
-        detectedLanguage: detectedLanguage,
+        userLanguage,
+        originalQuery: hasActualContent ? userQuery : '',
         isCompanyQuery: isCompanyQuery,
         ragTriggered: ragContext ? true : false,
         usedFiles: ragContext ? ragContext.files : null,

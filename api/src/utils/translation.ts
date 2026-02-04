@@ -21,6 +21,24 @@ export function detectLanguage(text: string): LanguageCode {
   if (!text || text.trim().length === 0) {
     return 'en'; // Default to English for empty text
   }
+  // Guard: warn if input appears to contain RAG/system/document content
+  const ragMarkers = [
+    'Document content for reference',
+    '--- Document:',
+    'Document:',
+    '出典',
+    'ページ:',
+    'Page:',
+    'You are a helpful assistant',
+    'Conversation:',
+    'Question:',
+    'Answer:',
+  ];
+  const fileExtRegex = /\.(pdf|docx|doc|txt|xlsx|pptx)\b/i;
+  const containsRagMarker = ragMarkers.some(m => text.includes(m)) || fileExtRegex.test(text);
+  if (containsRagMarker) {
+    console.warn('[detectLanguage] Warning: detectLanguage called with input that appears to include RAG/system/document content. This function should be called only on the raw user query.');
+  }
   
   // Count different character types
   const hiraganaMatch = text.match(/[\u3040-\u309F]/g);
