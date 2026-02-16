@@ -91,13 +91,21 @@ export async function request<T = any>(url: string, options: RequestOptions = {}
     // Try to parse JSON, but fallback to text for non-JSON responses
     let result: any;
     try {
-      result = await response.json();
-    } catch (e) {
       const text = await response.text();
-      // Normalize Not Found to a JSON error shape
+      // Try to parse as JSON
+      try {
+        result = JSON.parse(text);
+      } catch {
+        // If JSON parsing fails, use raw text
+        result = {
+          code: response.status,
+          message: text || response.statusText || 'Request failed',
+        };
+      }
+    } catch (e) {
       result = {
         code: response.status,
-        message: text || response.statusText || 'Request failed',
+        message: response.statusText || 'Request failed',
       };
     }
 

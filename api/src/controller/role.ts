@@ -10,6 +10,22 @@ import { Context } from 'koa';
 import { Op } from 'sequelize';
 import { updateUserInfo } from '@/utils/redis';
 
+const markUsersForRoleRefresh = async (roleIds: number[]) => {
+  const normalizedRoleIds = Array.from(new Set(roleIds.map((id) => Number(id)).filter((id) => Number.isInteger(id) && id > 0)));
+  if (normalizedRoleIds.length === 0) {
+    return;
+  }
+
+  const userRows = (await queryConditionsData(UserRole, {
+    role_id: { [Op.in]: normalizedRoleIds },
+  })) as Array<{ user_id: number }>;
+  const userIds = Array.from(new Set(userRows.map((row) => Number(row.user_id)).filter((id) => Number.isInteger(id) && id > 0)));
+
+  if (userIds.length > 0) {
+    await updateUserInfo('update_userInfo', userIds);
+  }
+};
+
 export const getList = async (ctx: Context, next: () => Promise<void>) => {
   try {
     const { pageNum, pageSize, ...params } = ctx.query as unknown as IroleQueryType;
@@ -71,6 +87,7 @@ export const add = async (ctx: Context, next: () => Promise<void>) => {
       });
     });
     await addAllMapper(RoleMenu, rm);
+    await markUsersForRoleRefresh([Number(res.role_id)]);
     await next();
   } catch (error) {
     console.error(error);
@@ -162,10 +179,8 @@ export const put = async (ctx: Context, next: () => Promise<void>) => {
       });
     });
     await addAllMapper(RoleMenu, rm);
+    await markUsersForRoleRefresh([Number(role_id)]);
     await next();
-    const userIds = (await queryConditionsData(UserRole, { role_id })).map((item) => item.user_id);
-
-    updateUserInfo('update_userInfo', userIds);
   } catch (error) {
     console.error(error);
     return ctx.app.emit('error', {
@@ -181,7 +196,7 @@ export const updateRoleStatus = async (ctx: Context, next: () => Promise<void>) 
     const { id, status } = ctx.request.body as { status: string; id: number };
 
     await putMapper<IroleSer>(Role, { role_id: id }, { status, update_by: userName });
-
+    await markUsersForRoleRefresh([Number(id)]);
     await next();
   } catch (error) {
     console.error(error);
@@ -235,6 +250,7 @@ export const addUserRole = async (ctx: Context, next: () => Promise<void>) => {
     });
 
     await addAllMapper(UserRole, addRoleUser);
+    await markUsersForRoleRefresh([Number(data.roleId)]);
     await next();
   } catch (error) {
     console.error(error);

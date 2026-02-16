@@ -4,6 +4,7 @@ import { IUserInfoType, userType } from '@/types';
 import { Op } from 'sequelize';
 import { formatHumpLineTransfer } from '.';
 import { getAllUserInfoSer, getUserRoleSer } from '../service/user';
+import { resolvePermissionsForRoleIds } from './permissionResolver';
 
 export const getFullUserInfo = async (userId: number) => {
   const { password, ...res } = await getAllUserInfoSer({ userId });
@@ -13,9 +14,9 @@ export const getFullUserInfo = async (userId: number) => {
   res.roles = await queryConditionsData(Role, { role_id: { [Op.in]: ids } });
   const userInfo = formatHumpLineTransfer(res) as userType;
 
-  const roles = [];
-  const permissionsIds = [];
-  const permissions = [];
+  const roles: string[] = [];
+  const permissionRoleIds: number[] = [];
+  const permissions: string[] = [];
 
   userInfo.roles.forEach((item) => {
     if (item.roleKey === 'admin') {
@@ -23,13 +24,18 @@ export const getFullUserInfo = async (userId: number) => {
       roles.push('admin');
     } else {
       roles.push(item.roleKey);
-      permissionsIds.push(item.roleId);
+      permissionRoleIds.push(item.roleId);
     }
   });
+
+  if (!permissions.includes('*|*') && permissionRoleIds.length > 0) {
+    const resolvedPermissions = await resolvePermissionsForRoleIds(permissionRoleIds);
+    permissions.push(...resolvedPermissions);
+  }
 
   return {
     userInfo,
     roles,
-    permissions,
+    permissions: Array.from(new Set(permissions)),
   } as IUserInfoType;
 };

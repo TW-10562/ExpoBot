@@ -3,6 +3,7 @@
  */
 import { solrService } from './solrService';
 import { llmService } from './llmService';
+import redis from '@/clients/redis';
 
 export interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -79,7 +80,7 @@ class HealthCheckService {
   private async checkDatabase(): Promise<ServiceHealth> {
     const start = Date.now();
     try {
-      const sequelize = (await import('@/mysql/index')).default;
+      const sequelize = (await import('@/mysql/db/seq.db')).default;
       await sequelize.authenticate();
       return {
         status: 'up',
@@ -134,10 +135,7 @@ class HealthCheckService {
   private async checkRedis(): Promise<ServiceHealth> {
     const start = Date.now();
     try {
-      const Redis = (await import('ioredis')).default;
-      const redis = new Redis({ maxRetriesPerRequest: 1 });
       await redis.ping();
-      await redis.quit();
       return {
         status: 'up',
         latency: Date.now() - start,

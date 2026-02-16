@@ -259,6 +259,47 @@ Project Ports
 - Redis: 6379
 - Solr: 8983
 
+## Aviary Integration (api)
+
+### New backend endpoints
+- `GET /api/health` - lightweight health status
+- `POST /api/chat/stream` - SSE token streaming (Ollama NDJSON pass-through)
+- `POST /api/task` - enqueue async task
+- `GET /api/task/:id` - async task status/result
+- BullBoard remains at `http://localhost:9999`
+
+### Environment overrides
+The API still reads `config/default.yml`, plus these optional runtime overrides:
+- `OLLAMA_BASE_URL` (single URL or comma-separated URLs)
+- `OLLAMA_MODEL`
+
+Example:
+```bash
+export OLLAMA_BASE_URL="http://localhost:11435,http://localhost:11436"
+export OLLAMA_MODEL="gpt-oss:120b"
+```
+
+### RBAC behavior
+- Permissions are resolved from `user_role -> role_menu -> sys_menu.perms` (comma-separated perms supported).
+- Computed permissions are stored in Redis session at login and refreshed when `update_userInfo` is triggered.
+- Admin wildcard `*|*` bypasses checks.
+- Permission checks support exact (`R|role`) and typed (`R` + `type=role`) matching.
+- File-level RBAC is enforced with `useFilePermission(...)` via `file_role` mapping (deny by default).
+
+### RBAC verification script
+```bash
+cd api
+pnpm install
+pnpm verify:rbac
+```
+
+### Run commands
+```bash
+cd api
+pnpm dev         # API server
+pnpm worker      # Bull worker processors
+```
+
 Database Initialization (MySQL)
 - Compose mounts api/src/mysql/scripts to /docker-entrypoint-initdb.d
 - Creates core tables (user, group, roles, files, messages, support_tickets, notifications, etc.)

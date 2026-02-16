@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsnd -r tsconfig-paths/register --respawn src/main.ts",
     "worker": "cross-env NODE_ENV=development tsnd -r tsconfig-paths/register --respawn src/queue/worker.ts",
+    "verify:rbac": "node scripts/verify-rbac.js",
     "lint": "npx eslint src/** --fix"
   },
   "dependencies": {

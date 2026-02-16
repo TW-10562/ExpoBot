@@ -20,8 +20,10 @@ interface IEscalationInput {
   original_query: string;
   bot_answer: string;
   source_documents: any[];
-  department: 'HR' | 'GA' | 'OTHER';
+  department?: 'HR' | 'GA' | 'OTHER';
+  department_id?: number;
   reason?: string;
+  created_by?: bigint;
   ipAddress?: string;
   userAgent?: string;
 }
@@ -34,13 +36,21 @@ export async function createEscalationTicket(
   input: IEscalationInput
 ): Promise<IEscalationTicket> {
   try {
-    // Get department ID
+    if (!input.department && !input.department_id) {
+      throw new Error('Either department or department_id is required');
+    }
+
+    // Resolve target department by code or id.
     const department = await Department.findOne({
-      where: { code: input.department, is_active: true },
+      where: input.department
+        ? { code: input.department, is_active: true }
+        : { id: input.department_id, is_active: true },
     });
 
     if (!department) {
-      throw new Error(`Invalid department: ${input.department}`);
+      throw new Error(
+        `Invalid department: ${input.department || input.department_id}`
+      );
     }
 
     const departmentId = (department as any).id;

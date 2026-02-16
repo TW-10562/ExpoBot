@@ -11,9 +11,21 @@ export default defineConfig({
     port: 7001, // UI2 runs on different port than UI1
     proxy: {
       '/dev-api': {
-        target: 'http://localhost:9090',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/dev-api/, ''),
+      },
+      '/auth': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+      '/user': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
       },
     },
   },

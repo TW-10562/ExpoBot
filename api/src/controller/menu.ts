@@ -7,10 +7,41 @@ import { MenuParamsType, menusSqlType, menusType, RouteType, userType } from '@/
 import { Context } from 'koa';
 import { Op } from 'sequelize';
 import RoleMenu from '@/mysql/model/role_menu.model';
+import UserRole from '@/mysql/model/user_role.model';
 import { addJudg, putJudg } from '@/routes/role';
 import Menu from '@/mysql/model/menu.model';
 import { queryConditionsData } from '@/service';
 import { add, del, getDetail, put } from '@/utils/mapper';
+import { updateUserInfo } from '@/utils/redis';
+
+const markUsersForMenuRefresh = async (menuIds: number[]) => {
+  const normalizedMenuIds = Array.from(
+    new Set(menuIds.map((id) => Number(id)).filter((id) => Number.isInteger(id) && id > 0)),
+  );
+  if (normalizedMenuIds.length === 0) {
+    return;
+  }
+
+  const roleRows = (await queryConditionsData(RoleMenu, {
+    menu_id: { [Op.in]: normalizedMenuIds },
+  })) as Array<{ role_id: number }>;
+  const roleIds = Array.from(
+    new Set(roleRows.map((row) => Number(row.role_id)).filter((id) => Number.isInteger(id) && id > 0)),
+  );
+  if (roleIds.length === 0) {
+    return;
+  }
+
+  const userRows = (await queryConditionsData(UserRole, {
+    role_id: { [Op.in]: roleIds },
+  })) as Array<{ user_id: number }>;
+  const userIds = Array.from(
+    new Set(userRows.map((row) => Number(row.user_id)).filter((id) => Number.isInteger(id) && id > 0)),
+  );
+  if (userIds.length > 0) {
+    await updateUserInfo('update_userInfo', userIds);
+  }
+};
 
 export const conversionCtl = async (ctx: Context, next: () => Promise<void>) => {
   try {
@@ -172,6 +203,7 @@ export const addMenuCtl = async (ctx: Context, next: () => Promise<void>) => {
 export const delMenuCtl = async (ctx: Context, next: () => Promise<void>) => {
   try {
     const ids = ctx.state.ids as string[];
+    const menuIds = ids.map((id) => Number(id)).filter((id) => Number.isInteger(id) && id > 0);
 
     if ((await bindCheck(Menu, { parent_id: ids })).length > 0) {
       ctx.body = {
@@ -185,6 +217,7 @@ export const delMenuCtl = async (ctx: Context, next: () => Promise<void>) => {
       };
     } else {
       await del(Menu, { menu_id: ids });
+      await markUsersForMenuRefresh(menuIds);
       await next();
     }
   } catch (error) {
@@ -217,7 +250,7 @@ export const putCtl = async (ctx: Context, next: () => Promise<void>) => {
     const menu = formatHumpLineTransfer(res, 'line') as unknown as menusSqlType;
     const { menu_id, ...data } = menu;
     await put(Menu, { menu_id }, { ...data, update_by: userName });
-
+    await markUsersForMenuRefresh([Number(menu_id)]);
     await next();
   } catch (error) {
     return ctx.app.emit('error', {

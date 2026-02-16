@@ -11,7 +11,7 @@ export const formatHandle = async (ctx: Context, next: () => Promise<void>) => {
 export const verifyMid =
   (sqlNames: string[], Model: ModelStatic<any>, judge?: string) => async (ctx: Context, next: () => Promise<void>) => {
     try {
-      const { body } = ctx.request;
+      const { body } = (ctx.request as any);
 
       const res = formatHumpLineTransfer(body, 'line');
       const whereOpt = {};
@@ -33,7 +33,7 @@ export const verifyMid =
       });
 
       if (isRepeat) {
-        console.error(ctx.request.body);
+        console.error((ctx.request as any).body);
         ctx.app.emit(
           'error',
           {

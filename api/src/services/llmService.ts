@@ -2,7 +2,7 @@
  * LLM Service - Clean abstraction for language model interactions
  */
 import axios from 'axios';
-import { config } from '@/config/index';
+import { aiGateway } from './aiGateway';
  
 export interface Message {
   role: 'system' | 'user' | 'assistant';
@@ -15,17 +15,6 @@ export interface LLMResponse {
 }
  
 class LLMService {
-  private baseUrl: string;
-  private model: string;
- 
-  constructor() {
-    const url = config.Ollama?.url;
-    this.baseUrl = Array.isArray(url) ? url[0] : (url || 'http://127.0.0.1:11435');
-    // Normalize trailing slashes
-    this.baseUrl = this.baseUrl.replace(/\/+$/, '');
-    this.model = config.Ollama?.model || 'gpt-oss:120b';
-  }
- 
   /**
    * Generate a response from the LLM
    */
@@ -36,21 +25,10 @@ class LLMService {
     const { temperature = 0.1, maxTokens = 2048 } = options;
  
     try {
-      const response = await axios.post(
-        `${this.baseUrl}/api/chat`,
-        {
-          model: this.model,
-          messages,
-          stream: false,
-          options: {
-            temperature,
-            num_predict: maxTokens,
-          },
-        },
-        { timeout: 120000 }
-      );
- 
-      const content = response.data?.message?.content || '';
+      const content = await aiGateway.chat(messages, {
+        temperature,
+        maxTokens,
+      });
       return { content, tokensUsed: content.length / 4 }; // Rough estimate
     } catch (error: any) {
       console.error(`[LLMService] Generation failed:`, error.message);
@@ -116,7 +94,8 @@ Return ONLY the translation, nothing else. No explanations, no markers, no forma
    */
   async ping(): Promise<boolean> {
     try {
-      await axios.get(`${this.baseUrl}/api/tags`, { timeout: 5000 });
+      const baseUrl = process.env.OLLAMA_BASE_URL?.split(',')[0]?.trim() || 'http://127.0.0.1:11435';
+      await axios.get(`${baseUrl.replace(/\/+$/, '')}/api/tags`, { timeout: 5000 });
       return true;
     } catch {
       return false;

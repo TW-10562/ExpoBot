@@ -21,6 +21,9 @@ Redis:
   database: 0
 
 Ollama:
+  # Runtime overrides:
+  # OLLAMA_BASE_URL="http://localhost:11435,http://localhost:11436"
+  # OLLAMA_MODEL="gpt-oss:120b"
   url:
     - http://localhost:11435
   model: gpt-oss:120b  # Run: ollama pull gpt-oss:120b

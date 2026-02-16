@@ -8,6 +8,8 @@ import { IFileQuerySerType } from '@/types/file';
 import { queryPage } from '@/utils/mapper';
 import Tag from '@/mysql/model/file_tag.model';
 import { postNewTag } from '@/service/file';
+import { aiGateway } from '@/services/aiGateway';
+import { getTaskRecord, updateAsyncTask } from '@/services/asyncTaskService';
 
 // count login job
 jobQueue.process('countLoginJob', async (job) => {
@@ -162,6 +164,58 @@ jobQueue.process('fileUploadJob', async (job) => {
 
   } catch (error) {
     console.error('Error processing file upload job:', error);
+  }
+});
+
+jobQueue.process('aviaryAsyncTask', async (job) => {
+  const { taskId, type, payload } = job.data as {
+    taskId: string;
+    type: string;
+    payload: Record<string, any>;
+  };
+
+  const existing = await getTaskRecord(taskId);
+  if (!existing) {
+    return;
+  }
+
+  await updateAsyncTask(taskId, { status: 'PROCESSING' });
+
+  try {
+    if (type === 'CHAT') {
+      const prompt = String(payload.prompt || payload.message || '').trim();
+      if (!prompt) {
+        throw new Error('CHAT payload.prompt is required');
+      }
+
+      const content = await aiGateway.chat([{ role: 'user', content: prompt }], {
+        model: payload.model,
+        temperature: payload.temperature,
+        maxTokens: payload.maxTokens,
+      });
+
+      await updateAsyncTask(taskId, {
+        status: 'SUCCESS',
+        result: {
+          content,
+        },
+      });
+      return;
+    }
+
+    // Generic passthrough for unsupported task types.
+    await updateAsyncTask(taskId, {
+      status: 'SUCCESS',
+      result: {
+        message: `Task type ${type} completed`,
+        payload,
+      },
+    });
+  } catch (error) {
+    await updateAsyncTask(taskId, {
+      status: 'FAILED',
+      error: error instanceof Error ? error.message : 'Unknown task error',
+    });
   }
 });
 

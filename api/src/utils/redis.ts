@@ -67,7 +67,11 @@ export const getNextApiUrl = async (modelName: string) => {
 };
 
 export const updateUserInfo = async (key: string, ids: number[]) => {
-  await redis.sadd(key, ids);
+  const userIds = ids.map((id) => String(id)).filter(Boolean);
+  if (userIds.length === 0) {
+    return;
+  }
+  await redis.sadd(key, ...userIds);
 };
 
 export const recordNum = async (type: string) => {

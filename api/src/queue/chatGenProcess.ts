@@ -11,7 +11,6 @@ import OpenAI from 'openai';
 import { Op } from 'sequelize';
 import { execute } from '../service/task.dispatch';
 import { put, queryList } from '../utils/mapper';
-import { getNextApiUrl } from '../utils/redis';
 import { loadRagProcessor } from '@/service/loadRagProcessor';
 import { loadCacheProcessor } from '@/service/loadCacheProcessor';
 import {
@@ -19,6 +18,7 @@ import {
   translateText,
   LanguageCode,
 } from '@/utils/translation';
+import { aiGateway } from '@/services/aiGateway';
 
 dns.setDefaultResultOrder('ipv4first');
 
@@ -49,112 +49,45 @@ const openai = new OpenAI({
 const callLLM = async (messages: any[], temperature = 0.5, outputId?: number): Promise<string> => {
   try {
     if (outputId) {
-      const url = await getNextApiUrl('ollama');
       const model = getChatModelName();
-      
+
       console.log(`[LLM] Initializing LLM call with model: ${model}`);
-      console.log(`[LLM] Ollama URL: ${url}`);
       console.log(`[LLM] Message count: ${messages.length}`);
       console.log(`[LLM] Temperature: ${temperature}`);
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => {
-        console.error(`[LLM] Request timeout after 120s, aborting`);
-        controller.abort();
-      }, 120000); // 120 second timeout
-      
-      const response = await fetch(`${url.replace(/\/+$/, '')}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stream: true, model, messages, options: { temperature, repeat_penalty: 1.5 } }),
-        signal: controller.signal,
-      });
-      
-      if (!response.ok) {
-        clearTimeout(timeoutId);
-        console.error(`[LLM] Ollama API error: ${response.status} ${response.statusText}`);
-        const errorText = await response.text();
-        console.error(`[LLM] Error details: ${errorText}`);
-        throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
-      }
-      
-      const reader = response.body!.getReader();
-      const decoder = new TextDecoder();
       let content = '';
-      let buffer = '';
-      let chunkCount = 0;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          console.log(`[LLM] Stream complete. Total chunks: ${chunkCount}, content length: ${content.length}`);
-          clearTimeout(timeoutId);
-          break;
-        }
-        
-        chunkCount++;
-        let [curOutput] = await queryList(KrdGenTaskOutput, { id: { [Op.eq]: outputId } });
-        if (!curOutput) {
-          console.error(`[LLM] Output with ID ${outputId} not found.`);
-          break;
-        }
-        if (curOutput.status === 'CANCEL') {
-          console.log(`[LLM] Generation cancelled by user`);
-          await reader.cancel().catch(() => { });
-          await put<IGenTaskOutputSer>(
-            KrdGenTaskOutput,
-            { id: outputId },
-            { status: 'CANCEL', update_by: 'JOB' },
-          );
-          clearTimeout(timeoutId);
-          break;
-        }
+      await aiGateway.streamChat(
+        messages,
+        async (chunkText: string) => {
+          const [curOutput] = await queryList(KrdGenTaskOutput, { id: { [Op.eq]: outputId } });
+          if (!curOutput) {
+            throw new Error(`Output with ID ${outputId} not found.`);
+          }
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop()!;
-
-        for (const line of lines) {
-          [curOutput] = await queryList(KrdGenTaskOutput, { id: { [Op.eq]: outputId } });
           if (curOutput.status === 'CANCEL') {
-            await reader.cancel().catch(() => { });
-            content = '';
             await put<IGenTaskOutputSer>(
               KrdGenTaskOutput,
               { id: outputId },
-              { content, status: 'CANCEL', update_by: 'JOB' },
+              { content: '', status: 'CANCEL', update_by: 'JOB' },
             );
-            break;
+            throw new Error('LLM generation cancelled');
           }
-          if (!line.trim()) continue;
-          try {
-            const pkg = JSON.parse(line);
-            if (pkg.message && pkg.message.content) {
-              const chunkText = pkg.message.content;
-              content += chunkText;
-              await put<IGenTaskOutputSer>(
-                KrdGenTaskOutput,
-                { id: outputId },
-                { content, update_by: 'JOB' },
-              );
-            }
-          } catch (e) {
-            console.error('LLM stream parse error:', e);
-          }
-        }
-      }
+
+          content += chunkText;
+          await put<IGenTaskOutputSer>(
+            KrdGenTaskOutput,
+            { id: outputId },
+            { content, update_by: 'JOB' },
+          );
+        },
+        { model, temperature },
+      );
+
+      console.log(`[LLM] Stream complete, content length: ${content.length}`);
       return content || '';
-    } else {
-      const url = await getNextApiUrl('ollama');
-      const model = getChatModelName();
-      const response = await fetch(`${url.replace(/\/+$/, '')}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stream: false, model, messages, options: { temperature } }),
-      });
-      const res = await response.json();
-      return res.message?.content || '';
     }
+
+    return aiGateway.chat(messages, { model: getChatModelName(), temperature });
   } catch (error) {
     console.error('[LLM] callLLM error:', error);
     throw error;

@@ -83,15 +83,12 @@ const AuditLog = seq.define(
     indexes: [
       {
         fields: ['user_id', 'created_at'],
-        comment: 'For user activity queries',
       },
       {
         fields: ['department_id', 'created_at'],
-        comment: 'For department audit queries',
       },
       {
         fields: ['action_type', 'created_at'],
-        comment: 'For action type queries',
       },
     ],
     comment: 'Comprehensive audit trail for security and compliance',

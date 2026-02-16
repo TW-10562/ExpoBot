@@ -31,7 +31,7 @@ router.post(
   formatHandle,
   async (ctx) => {
     try {
-      const { title, content, recipient_department_id, is_pinned, expires_at } = ctx.request.body as any;
+      const { title, content, recipient_department_id, is_pinned, expires_at } = (ctx.request as any).body as any;
       
       if (!title || !content) {
         ctx.status = 400;
@@ -43,7 +43,7 @@ router.post(
       const mentions = extractMentions(content);
 
       const message = await sendBroadcastMessage({
-        sender_admin_id: ctx.session?.userId,
+        sender_admin_id: (ctx as any).userId,
         title,
         content,
         recipient_department_id: recipient_department_id ? parseInt(recipient_department_id) : undefined,
@@ -82,7 +82,7 @@ router.post(
   formatHandle,
   async (ctx) => {
     try {
-      const { recipient_user_id, title, content } = ctx.request.body as any;
+      const { recipient_user_id, title, content } = (ctx.request as any).body as any;
       
       if (!recipient_user_id || !title || !content) {
         ctx.status = 400;
@@ -94,7 +94,7 @@ router.post(
       const mentions = extractMentions(content);
 
       const message = await sendDirectMessage({
-        sender_admin_id: ctx.session?.userId,
+        sender_admin_id: (ctx as any).userId,
         recipient_user_id: BigInt(recipient_user_id),
         title,
         content,
@@ -132,7 +132,7 @@ router.get(
       const { limit = 20 } = ctx.query;
       
       const messages = await getMessagesForUser(
-        ctx.session?.userId,
+        (ctx as any).userId,
         parseInt(limit as string)
       );
 
