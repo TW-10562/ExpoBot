@@ -1,0 +1,44 @@
+version: "3.8"
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/volumes/data/redis-data:/data
+      - ./data/volumes/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - avairy-network
+    command: redis-server /usr/local/etc/redis/redis.conf --appendonly yes --requirepass "${REDIS_PASSWORD:-abcd1234}"
+
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "${PG_DATABASE:-qa_db}"
+      POSTGRES_USER: "${PG_USER:-twave_01}"
+      POSTGRES_PASSWORD: "${PG_PASSWORD:-twave_01password}"
+      TZ: "Asia/Tokyo"
+    volumes:
+      - ./data/volumes/data/postgres-data:/var/lib/postgresql/data
+    networks:
+      - avairy-network
+
+  solr:
+    image: solr:9.8.1
+    ports:
+      - "8983:8983"
+    environment:
+      - SOLR_MODULES=extraction
+    volumes:
+      - ./data/volumes/data/solr-data:/var/solr/data
+    user: "0:0"
+    command: >
+      bash -lc "
+        chown -R 8983:8983 /var/solr &&
+        exec gosu solr solr-precreate mycore /opt/solr/server/solr/configsets/sample_techproducts_configs
+      "
+
+networks:
+  avairy-network:

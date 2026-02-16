@@ -1,0 +1,445 @@
+{
+  "common": {
+    "language": "Language",
+    "english": "English",
+    "japanese": "Japanese",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "notifications": "Notifications",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save",
+    "close": "Close",
+    "search": "Search",
+    "loading": "Loading...",
+    "deleteAll": "Delete All",
+    "warning": "Warning:"
+  },
+   "nav": {
+    "chat": "Assistant",
+    "history": "History",
+    "contact": "Contact",
+    "analytics": "Analytics",
+    "documents": "Documents",
+    "users": "Users",
+    "activity": "Activity"
+  },
+   "messages": {
+    "deleteTitle": "Delete Messages",
+    "deleteDescription": "This is a destructive action that will permanently delete messages from the database. This action cannot be undone.",
+    "destructiveAction": "destructive action",
+    "usersLabel": "Messages sent by users",
+    "usersHelp": "Delete all messages sent by users to admins",
+    "adminsLabel": "Messages sent by admins",
+    "adminsHelp": "Delete all messages sent by admins (replies and broadcasts)",
+    "deleteButton": "Delete Messages",
+    "selectOneError": "Please select at least one option",
+     "deleteTitlePopup": "Delete Messages Permanently",
+    "deleteDescriptionPopup": "This action will permanently delete all selected messages from the database. This cannot be undone.",
+    "aboutToDelete": "You are about to delete:",
+    "deleteUsers": "All messages sent by users",
+    "deleteAdmins": "All messages sent by admins",
+    "confirmLabel": "Type DELETE ALL MESSAGES to confirm:",
+    "confirmPlaceholder": "Type confirmation text here",
+    "deleting": "Deleting...",
+    "deleted": "Deleted",
+    "deletePermanently": "Delete Permanently",
+    "confirmText": "DELETE ALL MESSAGES",
+     "deleteSuccess": "Successfully deleted {{count}} messages",
+     "deleteWarning": "This is a destructive action. Once deleted, messages cannot be recovered.",
+     "permanentDeleteTitle": "Permanently delete message history"
+  },
+
+  "login": {
+    "welcome": "Welcome",
+    "signIn": "Sign in to access HR Policy System",
+    "username": "Username",
+    "password": "Password",
+    "signInButton": "Sign In",
+    "forgotPassword": "Forgot Password?",
+    "invalidCredentials": "Invalid username or password",
+    "pleaseLogin": "Please fill in all fields",
+    "connectionError": "Connection error. Please try again.",
+
+    "forgotPasswordTitle": "Forgot Password",
+    "forgotPasswordMessage": "Please contact your HR department to reset your password.",
+    "backToLogin": "Back to Login"
+  },
+   
+  
+  "hrContact": {
+    "title": "HR Contact Information:",
+    "email": "Email",
+    "phone": "Phone",
+    "office": "Office",
+    "officeLocation": "HR Department - Building A"
+  },
+ 
+  "brand": {
+    "name": "Thirdwave"
+  },
+  "language": {
+    "switchToEnglish": "Switch to English",
+    "switchToJapanese": "Switch to Japanese"
+  },
+  
+  "chatExport": {
+    "title": "Export Chat",
+    "messagesCount": "{{count}} messages",
+    "description": "Choose a format to export your conversation:",
+    "plainText": {
+      "title": "Plain Text (.txt)",
+      "desc": "Simple text format, readable anywhere"
+    },
+    "markdown": {
+      "title": "Markdown (.md)",
+      "desc": "Formatted text with styling"
+    },
+    "json": {
+      "title": "JSON (.json)",
+      "desc": "Structured data for developers"
+    },
+    "or": "or",
+    "copy": "Copy to Clipboard",
+    "copied": "Copied!",
+    "you": "You",
+    "assistant": "AI Assistant",
+    "exportedOn": "Exported on"
+  },
+
+"documentTable": {
+    "documentName": "Document Name",
+    "size": "Size",
+    "uploadedBy": "Uploaded By",
+    "uploadDate": "Upload Date",
+    "status": "Status",
+    "action": "Action",
+    "active": "Active",
+    "delete": "Delete",
+    "system": "System",
+    "noDocuments": "📁 No documents uploaded yet. Upload your first document above!",
+    "title": "Document Management",
+    "manage": "Manage existing documents",
+    "deleteTitle": "Delete Document",
+    "deleteWarning": "This action cannot be undone",
+    "deleteSelectedTitle": "Delete Selected Documents",
+    "deleteSelected": "Delete Selected",
+    "searchPlaceholder": "Search documents...",
+    "upload": "Upload",
+    "deleteSuccess": "File \"{{filename}}\" has been deleted successfully",
+    "deleteError": "Error deleting file. Please try again.",
+    "skippedExisting": "Skipped existing: {{files}}",
+    "pipelineTitle": "Upload Pipeline",
+    "pipelineStatusDone": "Done",
+    "uploadSuccess": "{{count}} file(s) uploaded successfully. Category: {{category}}",
+    "pipelineStatusProcessing": "Processing...",
+    "nextContinue": "Next / Continue",
+    "defaultCategory": "Default Category",
+    "removeSelected": "Remove Selected",
+    "categoryLabel": "Category",
+    "selectedCount": "{{count}} selected",
+    "category": {
+      "companyPolicy": "📋 Company Policy",
+      "internalGuide": "📖 Internal Guide",
+      "procedure": "⚙️ Procedure",
+      "faq": "❓ FAQ"
+    },
+    "filesSelected": "📄 {{count}} file(s) selected",
+    "totalSize": "Total: {{size}} MB",
+    "pipeline": {
+      "fileUpload": "File Upload",
+      "contentExtraction": "Content Extraction",
+      "embeddingIndexing": "Embedding & Indexing",
+      "ragIntegration": "RAG Integration",
+      "start": "🚀 Start Upload Pipeline",
+      "processing": "Processing..."
+    
+    }
+  },
+  "userManagement": {
+    "title": "User Management",
+    "uploadCsv": "Upload CSV",
+    "addUser": "Add User",
+    "table": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "employeeId": "Employee ID",
+      "userJobRole": "User Job Role",
+      "areaOfWork": "Area of Work",
+      "role": "Role",
+      "username": "Username",
+      "password": "Password",
+      "lastUpdated": "Last Updated",
+      "actions": "Actions"
+    },
+    "form": {
+      "addUserTitle": "Add User",
+      "editUserTitle": "Edit User",
+      "selectJobRole": "Select job role",
+      "selectAreaOfWork": "Select area of work",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit"
+    },
+    "password": {
+      "show": "Show Password",
+      "hide": "Hide Password"
+    },
+    "delete": {
+      "adminPassword": "Enter Admin Password",
+      "confirmTitle": "Confirm Save",
+      "confirmMessage": "Are you sure you want to save this change?",
+      "confirmButton": "Delete",
+      "deleting": "Deleting...",
+      "deleted": "Deleted"
+    },
+    "validation": {
+      "required": "This field is required",
+      "usernameExists": "Username already exists",
+      "invalidPassword": "Password must be at least 6 characters"
+    },
+    "empty": "No users found. Click 'Add User' to create one."
+  },
+  "user": {
+    "jobRole": {
+      "ai_engineer": "AI Engineer",
+      "system_engineer": "System Engineer",
+      "it_manager": "IT Manager",
+      "tl": "TL",
+      "hr": "HR",
+      "sales_manager": "Sales Manager",
+      "sales_person": "Sales Person",
+      "tester": "Tester",
+      "factory_worker": "Factory Worker",
+      "call_center_agent": "Call Center Agent"
+    },
+    "area": {
+      "ayase": "Ayase",
+      "ebina": "Ebina",
+      "akihabara_main": "Akihabara Main Building",
+      "akihabara_daidoh": "Akihabara Daidoh Building",
+      "hiratsuka": "Hiratsuka"
+    },
+    "role": {
+      "user": "User",
+      "admin": "Admin"
+    }
+  },
+   "broadcast": {
+    "title": "Contact Users",
+    "subtitle": "Broadcast a message to all users",
+    "success": "Message sent to all users",
+    "sentTitle": "Broadcast Sent!",
+    "sentMessage": "Message sent to all users.",
+    "sentMessages": "Sent Messages",
+    "sentCount": "{{count}} messages sent",
+    "emptySentTitle": "No messages sent yet",
+    "emptySentSubtitle": "Your broadcast messages will appear here",
+    "deleteTitle": "Delete Message",
+    "deleteWarning": "This action cannot be undone",
+    "deleteSuccess": "Message deleted",
+    "deleteError": "Failed to delete",
+    "subjectLabel": "Subject (Optional)",
+    "subjectPlaceholder": "Announcement subject",
+    "messageLabel": "Message *",
+    "messagePlaceholder": "Write your message to all users...",
+    "send": "Send Broadcast",
+    "sending": "Sending...",
+    "defaultSubject": "Broadcast Message"
+  },
+  "activity": {
+    "admin": "Admin",
+    "documentUploaded": "Document uploaded",
+    "chatQuery": "Chat query",
+    "chatDetail": "Asked about documents",
+    "title": "Activity Log"
+  },
+
+    
+
+  "home": {
+    "askHRBot": "Ask HR Bot",
+    "history": "History",
+    "notifications": "Notifications",
+    "documents": "Documents",
+    "admin": "Admin Dashboard",
+    "contactAdmin": "Contact Admin",
+    "message": "Message",
+    "welcomeBack": "Welcome",
+    "whatToDo": "What would you like to do today?"
+  },
+
+  "chat": {
+    "title": "Ask HR Bot",
+    "subtitle": "Ask questions inline",
+    "askQuestion": "Ask a question...",
+    "send": "Send",
+    "stop": "Stop",
+    "loading": "Loading...",
+    "noResults": "No results found",
+    "newChat": "New Chat",
+    "chatHistory": "Chat History",
+    "clearHistory": "Clear History",
+    "exportChat": "Export Chat",
+    "deleteChat": "Delete Chat",
+    "chatSaved": "Chat saved to history",
+    "noChats": "No chat history yet",
+    "startConversation": "Start a new conversation",
+    "welcomeMessage": "Hello! I'm your HR Policy Assistant. I can help you with questions about company policies, benefits, leave, remote work, and more. You can ask in English or Japanese (日本語でも質問できます).",
+    "assistant": "Assistant",
+    "statusOnline": "Online",
+    "generationStopped": "⏹️ Generation stopped by user.",
+    "generation": "Generation stopped",
+    "like": "Thanks for your feedback!",
+    "dislike": "We'll improve!",
+    "regen": "Regenerating..."
+  },
+  "chatActions": {
+    "copy": "Copy",
+    "good": "Good response",
+    "bad": "Bad response",
+    "share": "Share",
+    "regenerate": "Regenerate response",
+    "shareTitle": "Share response",
+    "shareMessage": "Send this answer to someone else",
+    "sharePreview": "Preview",
+    "shareRecipient": "Share via",
+    "shareEmail": "Email",
+    "shareTeams": "Teams",
+    "shareClipboard": "Copy to clipboard",
+    "shareSubject": "Shared HR Bot response",
+    "cancelButton": "Close"
+  },
+
+  "languageView": {
+    "bothLanguages": "Both Languages",
+    "primaryOnly": "{{lang}} Only",
+    "showBothTitle": "Show both languages",
+    "showPrimaryTitle": "Show only your language"
+  },
+
+    "inputTips": {
+    "send": "to send",
+    "newline": "for new line",
+    "stop": "stop"
+  },
+
+  "keyboard": {
+    "enter": "Enter",
+    "shiftEnter": "Shift+Enter",
+    "esc": "Esc"
+  },
+
+  "history": {
+    "title": "Conversation History",
+    "empty": "No conversation history yet",
+    "noResults": "No results found",
+    "searchPlaceholder": "Search your conversation history...",
+    "tryDifferent": "Try different keywords",
+    "yourConversations": "Your conversations will appear here",
+    "daysAgo": "days ago",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "source": "Source",
+    "page": "Page"
+  },
+
+  "settings": {
+    "title": "Settings",
+    "managePreferences": "Manage your preferences and account settings",
+    "language": "Language",
+    "chooseLanguage": "Choose your preferred language"
+  },
+
+  "admin": {
+    "title": "Admin Dashboard",
+    "documents": "Documents",
+    "users": "Users",
+    "activity": "Activity",
+    "notifications": "Notifications",
+    "analytics": "Analytics",
+    "chat": "Ask HR Bot",
+    "contact": "Contact Users",
+    "messages": "Delete Messages",
+    "sendNotification": "Send Notification",
+    "notificationTitle": "Notification Title",
+    "notificationMessage": "Notification Message",
+    "send": "Send"
+  },
+  "profile": {
+    "title": "Profile Information",
+    "name": "Name",
+    "email": "Email",
+    "department": "Department",
+    "role": "Role",
+    "employeeId": "Employee ID",
+    "lastLogin": "Last Login",
+    "signOut": "Sign out",
+    "changePassword":" Change Password",
+    "actions": "Account actions",
+    "info":" Profile Information",
+    "administrator": "Administrator",
+    "updatePassword":"Update your account password"
+  },
+  "contactHR": {
+    "changePasswordTitle": "Change Password",
+    "changePasswordMessage": "Please contact your HR department to change your password."
+  },
+   "app": {
+    "version": "Thirdwave Digital Twin v1.0.0"
+  },
+  "inlineContactAdmin": {
+    "title": "Send Message to Admin",
+    "description": "Use this form to contact the admin team",
+    "successMessage": "Message sent. Admin will respond shortly.",
+    "yourMessage": "Your message",
+    "subject": "Subject",
+    "subjectLabel": "Subject (Optional)",
+    "subjectPlaceholder": "e.g., Leave Request, Salary Query...",
+    "contentLabel": "Your Message *",
+    "contentPlaceholder": "Please describe your question or concern in detail...",
+    "charactersCount": "{{count}} characters",
+    "minCharacters": "Min. 1 character required",
+    "sending": "Sending...",
+    "sendButton": "Send Message",
+    "you": "You",
+    "defaultSubject": "User message"
+  },
+   "notificationsPanel": {
+    "title": "Notifications",
+    "searchPlaceholder": "Search notifications...",
+    "loading": "Loading notifications...",
+    "noNotifications": "No notifications yet",
+    "noResults": "No results for \"{{searchTerm}}\"",
+    "new": "New",
+    "markAsRead": "Mark as read",
+    "read": "Read",
+    "clickToCollapse": "Click to collapse",
+    "clickToExpand": "Click to expand",
+    "noTitle": "Untitled",
+    "noContent": "No content",
+    "toggle": "Toggle notifications"
+  },
+
+ "analytics": {
+    "title": "Analytics Dashboard",
+    "feedbackQuality": "Feedback Quality",
+     "errorFailureRate": "Error & Failure Rate",
+     "failedRequests": "Failed Requests",
+     "errorRate": "Error Rate",
+     "errorRateDescription": "Indicates percentage of requests resulting in errors or failures",
+     "systemHealth": "System Health",
+     "systemStatus": "All services operational · Error rate within acceptable threshold",
+     "totalQueries": "Total Queries",
+    "activeUsers": "Active Users",
+    "avgResponseTime": "Avg Response Time",
+    "feedback": {
+      "positive": "Positive",
+      "negative": "Negative"
+    }
+      }
+ 
+  
+}
