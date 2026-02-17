@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { User, Building, Calendar, Key, LogOut, Shield } from 'lucide-react';
-import { User as UserType } from '../types';
-import { useLang } from '../context/LanguageContext';
+import { User as UserType } from '../../types';
+import { useLang } from '../../context/LanguageContext';
 import ContactHRPopup from './ContactHRPopup';
  
 interface ProfilePopupProps {
@@ -14,10 +14,10 @@ export default function ProfilePopup({ user, onLogout }: ProfilePopupProps) {
   const [showContactHR, setShowContactHR] = useState(false);
  
   return (
-    <div className="p-6 h-full overflow-y-auto bg-[#F6F6F6] dark:bg-dark-surface transition-colors">
+    <div className="p-6 h-full overflow-y-auto bg-[#E8E8E8] dark:bg-dark-surface transition-colors">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-24 h-24 bg-[#1d2089] dark:bg-gradient-to-r dark:from-[#60a5fa] dark:to-[#a78bfa] rounded-full flex items-center justify-center mb-4 shadow-lg transition-colors">
+          <div className="w-24 h-24 bg-[#1e228a] dark:bg-[#00CCFF] rounded-full flex items-center justify-center mb-4 shadow-lg transition-colors">
             <User className="w-12 h-12 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-[#232333] dark:text-dark-text mb-1 transition-colors">{user.name}</h2>
@@ -34,9 +34,9 @@ export default function ProfilePopup({ user, onLogout }: ProfilePopupProps) {
           <h3 className="text-lg font-semibold text-[#232333] dark:text-dark-text mb-4 transition-colors">{t('profile.info') || 'Profile Information'}</h3>
 
           <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-[#F6F6F6] dark:bg-dark-surface rounded-xl transition-colors">
-              <div className="w-10 h-10 bg-[#F0F4FF] dark:bg-blue-900/30 rounded-xl flex items-center justify-center transition-colors">
-                <User className="w-5 h-5 text-[#1d2089] dark:text-[#60a5fa] transition-colors" />
+            <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 rounded-xl transition-colors">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center transition-colors">
+                <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1">
                 <p className="text-xs text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('profile.employeeId') || 'Employee ID'}</p>
@@ -44,8 +44,8 @@ export default function ProfilePopup({ user, onLogout }: ProfilePopupProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 bg-[#F6F6F6] dark:bg-dark-surface rounded-xl transition-colors">
-              <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/30 rounded-xl flex items-center justify-center transition-colors">
+            <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800/50 rounded-xl transition-colors">
+              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/40 rounded-xl flex items-center justify-center transition-colors">
                 <Building className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="flex-1">
@@ -54,8 +54,8 @@ export default function ProfilePopup({ user, onLogout }: ProfilePopupProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 bg-[#F6F6F6] dark:bg-dark-surface rounded-xl transition-colors">
-              <div className="w-10 h-10 bg-green-50 dark:bg-green-900/30 rounded-xl flex items-center justify-center transition-colors">
+            <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 rounded-xl transition-colors">
+              <div className="w-10 h-10 bg-green-100 dark:bg-green-900/40 rounded-xl flex items-center justify-center transition-colors">
                 <Calendar className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="flex-1">
@@ -70,19 +70,31 @@ export default function ProfilePopup({ user, onLogout }: ProfilePopupProps) {
 
         <div className="bg-white dark:bg-dark-bg-primary border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 space-y-3 shadow-sm transition-colors">
           <h3 className="text-lg font-semibold text-[#232333] dark:text-dark-text mb-4 transition-colors">{t('profile.actions') || 'Account Actions'}</h3>
+<button
+  onClick={() => setShowContactHR(true)}
+  className="w-full flex items-center gap-3 px-4 py-3 
+             bg-amber-50 dark:bg-amber-900/30 
+             hover:bg-amber-100 dark:hover:bg-amber-800/40
+             border border-amber-200 dark:border-amber-500/40 
+             rounded-xl transition-colors group"
+>
+  <div className="w-10 h-10 
+                  bg-amber-100 dark:bg-amber-500/40 
+                  rounded-xl flex items-center justify-center 
+                  transition-colors">
+    <Key className="w-5 h-5 text-amber-500 dark:text-amber-400" />
+  </div>
 
-          <button
-            onClick={() => setShowContactHR(true)}
-            className="w-full flex items-center gap-3 px-4 py-3 bg-[#F6F6F6] dark:bg-dark-surface hover:bg-[#E8E8E8] dark:hover:bg-dark-border border border-[#E8E8E8] dark:border-dark-border rounded-xl transition-colors group"
-          >
-            <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/30 rounded-xl flex items-center justify-center transition-colors">
-              <Key className="w-5 h-5 text-amber-500" />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-[#232333] dark:text-dark-text font-medium transition-colors">{t('profile.changePassword') || 'Change Password'}</p>
-              <p className="text-xs text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('profile.updatePassword') || 'Update your account password'}</p>
-            </div>
-          </button>
+  <div className="flex-1 text-left">
+    <p className="text-[#232333] dark:text-dark-text font-medium transition-colors">
+      {t('profile.changePassword') || 'Change Password'}
+    </p>
+    <p className="text-xs text-[#6E7680] dark:text-dark-text-muted transition-colors">
+      {t('profile.updatePassword') || 'Update your account password'}
+    </p>
+  </div>
+</button>
+
  
           <button
             onClick={onLogout}

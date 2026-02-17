@@ -31,12 +31,18 @@ function AppContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notificationBellClicked, setNotificationBellClicked] = useState(false);
 
-  // FRESH notification count logic - completely independent from old logic
-  const computeNotificationCount = (messagesList: any[], userRole: string): number => {
-    if (!Array.isArray(messagesList) || notificationBellClicked) return 0;
+  // FRESH NOTIFICATION COUNT LOGIC
+  // Count = number of messages where (from opposite actor) AND (unread)
+  const computeNotificationCount = (messagesList: any[], currentUserRole: string): number => {
+    if (!Array.isArray(messagesList) || !currentUserRole) return 0;
+    
     return messagesList.filter((msg: any) => {
-      if (userRole === 'admin') return msg.senderRole === 'user' && !msg.read;
-      return msg.senderRole === 'admin' && !msg.read;
+      // RULE 1: Is this message INCOMING? (from opposite actor)
+      const isIncoming = msg.senderRole && msg.senderRole !== currentUserRole;
+      // RULE 2: Is this message UNREAD?
+      const isUnread = msg.read === false;
+      // Count only messages that satisfy BOTH rules
+      return isIncoming && isUnread;
     }).length;
   };
 
@@ -233,7 +239,6 @@ function AppContent() {
           
           const combined = composeNotifications(user.role as any, mappedServer, inboxMapped, local);
           setNotifications(Array.isArray(combined) ? combined : []);
-          setUnreadCount(computeNotificationCount(combined, user.role));
         } catch (e) {
           console.error('Error loading notifications:', e);
           // Fallback: try to at least show inbox messages
@@ -287,7 +292,6 @@ function AppContent() {
               }
               const combined = composeNotifications(user.role as any, [], inboxMapped, local);
               setNotifications(Array.isArray(combined) ? combined : []);
-              setUnreadCount(computeNotificationCount(combined, user.role));
             } else {
               // Final fallback to localStorage only
               const storedMessages = localStorage.getItem('notifications_messages');
@@ -295,10 +299,8 @@ function AppContent() {
                 const allMessages = JSON.parse(storedMessages);
                 const combined = composeNotifications(user.role as any, [], [], allMessages);
                 setNotifications(Array.isArray(combined) ? combined : []);
-                setUnreadCount(computeNotificationCount(combined, user.role));
               } else {
                 setNotifications([]);
-                setUnreadCount(0);
               }
             }
           } catch (err) {
@@ -310,15 +312,12 @@ function AppContent() {
                 const allMessages = JSON.parse(storedMessages);
                 const combined = composeNotifications(user.role as any, [], [], allMessages);
                 setNotifications(Array.isArray(combined) ? combined : []);
-                setUnreadCount(computeNotificationCount(combined, user.role));
               } else {
                 setNotifications([]);
-                setUnreadCount(0);
               }
             } catch (finalErr) {
               console.error('Error loading notifications from localStorage:', finalErr);
               setNotifications([]);
-              setUnreadCount(0);
             }
           }
         }
@@ -413,7 +412,6 @@ function AppContent() {
 
             const combined = composeNotifications(user.role as any, mappedServer, inboxMapped, local);
             setNotifications(Array.isArray(combined) ? combined : []);
-            setUnreadCount(computeNotificationCount(combined, user.role));
           } catch (e) {
             // Silently ignore polling errors to avoid console spam
           }
@@ -423,7 +421,15 @@ function AppContent() {
       return () => clearInterval(interval);
     }
   }, [user]);
- 
+
+  // SYNC COUNT: Whenever notifications change, update unreadCount
+  useEffect(() => {
+    if (user && Array.isArray(notifications)) {
+      const count = computeNotificationCount(notifications, user.role);
+      setUnreadCount(count);
+    }
+  }, [notifications, user]);
+
   const handleLogin = (userData: User) => {
     setUser(userData);
   };
@@ -436,7 +442,6 @@ function AppContent() {
 
   const handleNotificationBellClick = () => {
     setNotificationBellClicked(true);
-    setUnreadCount(0);
     setTimeout(() => setNotificationBellClicked(false), 50);
   };
  
@@ -463,15 +468,21 @@ function AppContent() {
 
     const viewerKey = getViewerKey(user);
 
-    // Local state update for immediate UI feedback
+    // Step 1: Check if this message was actually unread (would contribute to count)
+    const wasUnread = !item.read;
+    const wasReceived = item.senderRole !== user?.role;
+
+    // Step 2: Mark as read in local state
     setNotifications((prev) =>
       prev.map((n) => (n.id === item.id ? { ...n, read: true } : n))
     );
 
-    // Update persistent read storage (scoped per-user)
+    // Step 3: Update persistent read storage (scoped per-user)
     addReadId(item.notificationId, item.messageId, viewerKey);
 
-    // Mark server-side read only for inbox messages
+
+
+    // Step 5: Mark server-side read only for inbox messages
     if (item.messageId) {
       const token = getToken();
       fetch(`/dev-api/api/messages/mark-read/${item.messageId}`, {
@@ -499,6 +510,9 @@ function AppContent() {
         time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
         date: now.toLocaleDateString('en-US'),
         timestamp: now.getTime(),
+        // CRITICAL: Messages start as UNREAD
+        // Role-based filter prevents SENDER from counting own messages
+        // RECEIVER will see this as unread until they mark it as read
         read: false,
       };
  
@@ -547,6 +561,9 @@ function AppContent() {
         time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
         date: now.toLocaleDateString('en-US'),
         timestamp: now.getTime(),
+        // CRITICAL: Messages start as UNREAD
+        // Role-based filter prevents SENDER (admin) from counting own messages
+        // RECEIVERS (users) will see this as unread until they mark it as read
         read: false,
       };
  

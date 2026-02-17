@@ -1,10 +1,12 @@
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useLang } from '../context/LanguageContext';
+import { useLang } from '../../context/LanguageContext';
+ // make sure path is correct
+
 interface PopupProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  title?: string; // optional if we use t('common.profile') by default
   children: React.ReactNode;
   maxWidth?: string;
 }
@@ -52,36 +54,64 @@ export default function Popup({
       }`}
       onClick={handleClose}
     >
+      {/* Overlay */}
       <div
-        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-all duration-300 ${
+        className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-all duration-300 ${
           isAnimating ? 'opacity-100' : 'opacity-0'
         }`}
       />
 
+      {/* Popup Container */}
       <div
-        className={`relative w-full ${maxWidth} h-[85vh] bg-white dark:bg-dark-surface rounded-2xl shadow-2xl border border-[#E8E8E8] dark:border-dark-border flex flex-col overflow-hidden transition-all duration-300 ${
-          isAnimating
-            ? 'scale-100 translate-y-0 opacity-100'
-            : 'scale-90 translate-y-8 opacity-0'
-        }`}
+        className={`relative w-full ${maxWidth} h-[85vh]
+          bg-white/80 dark:bg-black/40
+          backdrop-blur-xl
+          border border-gray-200 dark:border-white/10
+          rounded-2xl
+          shadow-2xl
+          flex flex-col overflow-hidden
+          transition-all duration-300
+          ${
+            isAnimating
+              ? 'scale-100 translate-y-0 opacity-100'
+              : 'scale-90 translate-y-8 opacity-0'
+          }`}
         style={{
-          animation: isAnimating ? 'popupBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)' : 'none',
+          animation: isAnimating
+            ? 'popupBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+            : 'none',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
-          <h2 className="text-2xl font-semibold text-[#232333] dark:text-dark-text transition-colors">
-  {t('common.profile')}
-</h2>
+        {/* Header */}
+        <div
+          className="
+            flex items-center justify-between
+            px-6 py-4
+            border-b
+            border-gray-200 dark:border-white/10
+            bg-white/60 dark:bg-black/50
+            backdrop-blur-md
+          "
+        >
+          <h2 className="text-2xl font-semibold text-black dark:text-white">
+            {title || t('common.profile')}
+          </h2>
+
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-[#E8E8E8] dark:hover:bg-dark-surface rounded-xl transition-colors group"
+            className="
+              p-2 rounded-lg transition-colors
+              hover:bg-gray-200 dark:hover:bg-white/10
+              group
+            "
           >
-            <X className="w-6 h-6 text-[#6E7680] dark:text-dark-text-muted group-hover:text-[#232333] dark:group-hover:text-dark-text transition-colors" />
+            <X className="w-6 h-6 text-gray-600 dark:text-gray-300 group-hover:text-black dark:group-hover:text-white transition-colors" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-hidden bg-white dark:bg-dark-surface transition-colors">{children}</div>
+        {/* Body */}
+        <div className="flex-1 overflow-hidden">{children}</div>
       </div>
 
       <style>{`

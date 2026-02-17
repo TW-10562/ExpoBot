@@ -1,351 +1,22 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Upload,
   FileText,
   Users,
   Activity,
   MessageSquare,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  Zap,
-  Database,
-  Brain,
-  X,
-  Trash2,
-  AlertTriangle,
   BarChart3,
-  Search,
-  Send,
 } from 'lucide-react';
-import { useLang } from '../context/LanguageContext';
-import { useToast } from '../context/ToastContext';
-import { getToken } from '../api/auth';
+import { useLang } from '../../context/LanguageContext';
+import { useToast } from '../../context/ToastContext';
+import { getToken } from '../../api/auth';
 import AnalyticsDashboard from './AnalyticsDashboard';
-import ChatInterface from './ChatInterface';
+import ChatInterface from '../chat/ChatInterface';
 import UserManagement from './UserManagement';
-interface BroadcastMessage {
-  id: number;
-  subject: string;
-  content: string;
-  created_at: string;
-}
-
-function ContactUsersPanel({
-  onOpenDeleteMessages,
-}: {
-  onOpenDeleteMessages?: () => void;
-}) {
-  const [subject, setSubject] = useState('');
-  const [content, setContent] = useState('');
-  const [sending, setSending] = useState(false);
-  const [success, setSuccess] = useState('');
-  const [sentMessages, setSentMessages] = useState<BroadcastMessage[]>([]);
-  const [pendingDeleteMsg, setPendingDeleteMsg] = useState<BroadcastMessage | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const { t } = useLang();
-  const toast = useToast();
-
-  const safeT = (key: string, fallback: string) => {
-    const value = t(key);
-    return value && value !== key ? value : fallback;
-  };
-
-  const messageLabel = safeT('broadcast.messageLabel', 'Message');
-  const messageLabelClean = messageLabel.replace(/\*/g, '').trim();
-
-  const normalizeHistoryRows = (data: any): BroadcastMessage[] => {
-    const rows =
-      data?.result?.rows ??
-      data?.result?.list ??
-      data?.result?.data ??
-      data?.result?.messages ??
-      data?.result;
-    return Array.isArray(rows) ? rows : [];
-  };
-
-  // Load sent messages on mount
-  useEffect(() => {
-    loadSentMessages();
-  }, []);
-
-  const loadSentMessages = async () => {
-    try {
-      const token = getToken();
-      const res = await fetch('/dev-api/api/messages/broadcast/history?pageNum=1&pageSize=50', {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      const data = await res.json();
-      if (data?.code === 200) {
-        const rows = normalizeHistoryRows(data);
-        if (rows.length > 0) {
-          const sorted = [...rows].sort((a, b) => {
-            const at = new Date(a.created_at || 0).getTime();
-            const bt = new Date(b.created_at || 0).getTime();
-            return bt - at;
-          });
-          setSentMessages(sorted);
-        }
-      }
-    } catch (e) {
-      // silent
-    }
-  };
-
-  const sendBroadcast = async () => {
-    if (!content.trim()) return;
-    setSending(true);
-    try {
-      const subjectToSend = subject.trim() || t('broadcast.defaultSubject');
-      const contentToSend = content.trim();
-      const token = getToken();
-      const res = await fetch('/dev-api/api/messages/broadcast', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ subject: subjectToSend, content: contentToSend }),
-      });
-      const data = await res.json();
-      if (data.code === 200) {
-        setSuccess(t('broadcast.success'));
-
-        const createdAt =
-          data?.result?.created_at ||
-          data?.result?.createdAt ||
-          data?.result?.message?.created_at ||
-          new Date().toISOString();
-        const newId =
-          data?.result?.id ||
-          data?.result?.message?.id ||
-          Date.now();
-
-        setSentMessages((prev) => [
-          {
-            id: Number(newId),
-            subject: subjectToSend,
-            content: contentToSend,
-            created_at: createdAt,
-          },
-          ...prev,
-        ]);
-
-        setSubject('');
-        setContent('');
-        setTimeout(() => setSuccess(''), 1600);
-
-        setTimeout(() => {
-          loadSentMessages();
-        }, 350);
-      }
-    } catch (e) {
-      // keep silent
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const handleDeleteMessage = async (msg: BroadcastMessage) => {
-    setDeletingId(msg.id);
-    try {
-      const token = getToken();
-      const res = await fetch(`/dev-api/api/messages/broadcast/${msg.id}`, {
-        method: 'DELETE',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      const data = await res.json();
-      if (data.code === 200) {
-        toast.success(t('broadcast.deleteSuccess', undefined, 'Message deleted'));
-        setSentMessages(prev => prev.filter(m => m.id !== msg.id));
-      } else {
-        toast.error(t('broadcast.deleteError', undefined, 'Failed to delete'));
-      }
-    } catch (e) {
-      toast.error(t('broadcast.deleteError', undefined, 'Failed to delete'));
-    } finally {
-      setDeletingId(null);
-      setPendingDeleteMsg(null);
-    }
-  };
-
-  return (
-    <>
-      {/* Delete Confirmation Modal */}
-      {pendingDeleteMsg && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl transition-colors">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950">
-                <Trash2 className="w-6 h-6 text-red-500" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">
-                  {t('broadcast.deleteTitle', undefined, 'Delete Message')}
-                </h3>
-                <p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                  {t('broadcast.deleteWarning', undefined, 'This action cannot be undone')}
-                </p>
-              </div>
-            </div>
-            <div className="bg-[#F6F6F6] dark:bg-dark-surface-alt rounded-xl p-4 transition-colors">
-              <p className="text-xs text-[#6E7680] dark:text-dark-text-muted mb-1 transition-colors">{t('broadcast.subjectLabel')}</p>
-              <p className="text-sm font-medium text-[#232333] dark:text-dark-text break-all transition-colors">{pendingDeleteMsg.subject}</p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setPendingDeleteMsg(null)}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-surface text-[#232333] dark:text-dark-text font-medium transition-colors"
-              >
-                {t('common.cancel')}
-              </button>
-              <button
-                onClick={() => handleDeleteMessage(pendingDeleteMsg)}
-                disabled={deletingId === pendingDeleteMsg.id}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium transition-colors flex items-center justify-center gap-2"
-              >
-                <Trash2 className="w-4 h-4" />
-                {deletingId === pendingDeleteMsg.id ? '...' : t('common.delete')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ✅ Wrapper to hold BOTH cards */}
-      <div className="space-y-6">
-        {/* Broadcast composer card */}
-        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
-          <div className="p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-[#1d2089] rounded-xl">
-                <Send className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">
-                  {t('broadcast.title')}
-                </h3>
-                <p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('broadcast.subtitle')}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-5 space-y-4">
-            {success && (
-              <div className="p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/40 rounded-xl text-green-600 dark:text-green-300 text-sm flex items-center gap-2 transition-colors">
-                <CheckCircle className="w-4 h-4" />
-                {success}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">
-                {t('broadcast.subjectLabel')}
-              </label>
-              <input
-                type="text"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent transition-all"
-                placeholder={t('broadcast.subjectPlaceholder')}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2">
-                {messageLabelClean} <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                rows={5}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent transition-all resize-none"
-                placeholder={t('broadcast.messagePlaceholder')}
-              />
-            </div>
-
-            <div className="flex items-center justify-between pt-2">
-              <button
-                type="button"
-                onClick={onOpenDeleteMessages}
-                className="px-4 py-2.5 rounded-xl text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 text-sm inline-flex items-center gap-2 transition-colors"
-                title={t('messages.deleteTitle')}
-              >
-                <Trash2 className="w-4 h-4" />
-                {t('messages.deleteTitle') || 'Delete Messages'}
-              </button>
-
-              <button
-                type="button"
-                onClick={sendBroadcast}
-                disabled={sending || !content.trim()}
-                className="px-6 py-2.5 rounded-xl bg-[#1d2089] hover:bg-[#161870] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm inline-flex items-center gap-2 transition-colors"
-              >
-                <Send className="w-4 h-4" />
-                {sending ? t('broadcast.sending') : t('broadcast.send')}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Sent messages card */}
-        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
-          <div className="p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-green-500 rounded-xl">
-                <CheckCircle className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">
-                  {safeT('broadcast.sentMessages', 'Sent Messages')}
-                </h3>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-5">
-            {sentMessages.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-[#F6F6F6] dark:bg-dark-surface-alt rounded-full flex items-center justify-center mx-auto mb-4 transition-colors">
-                  <Send className="w-8 h-8 text-[#9CA3AF]" />
-                </div>
-                <p className="text-[#6E7680] dark:text-dark-text-muted text-sm transition-colors">
-                  {t('broadcast.emptySentTitle', undefined, 'No messages sent yet')}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-                {sentMessages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className="relative bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl p-4 transition-colors group"
-                  >
-                    <button
-                      onClick={() => setPendingDeleteMsg(msg)}
-                      className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 text-[#9CA3AF] hover:text-red-500 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-                      title={t('common.delete') || 'Delete'}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-
-                    <h5 className="text-sm font-semibold text-[#232333] dark:text-white transition-colors mb-1 pr-8">
-                      {msg.subject}
-                    </h5>
-                    <p className="text-xs text-[#6E7680] dark:text-dark-text-muted line-clamp-2 mb-3 transition-colors">{msg.content}</p>
-                    <div className="flex items-center gap-2 text-[10px] text-[#9CA3AF] dark:text-dark-text-muted transition-colors">
-                      <Clock className="w-3 h-3" />
-                      {new Date(msg.created_at).toLocaleString()}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
+import ContactUsersPanel from './ContactUsersPanel';
+import DocumentUpload from './DocumentUpload';
+import DocumentTable from './DocumentTable';
+import ActivityLogComponent from './ActivityLog';
+import DeleteMessagesModal from './DeleteMessagesModal';
 
 
 type Tab = 'documents' | 'analytics' | 'users' | 'activity' | 'chat' | 'contact' | 'messages';
@@ -387,68 +58,36 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
   const { t } = useLang();
   const toast = useToast();
   const [activeTab, setActiveTab] = useState<Tab>(controlledTab || initialTab || 'analytics');
-    // Sync internal tab with controlled prop
-    useEffect(() => {
-      if (controlledTab && controlledTab !== activeTab) {
-        setActiveTab(controlledTab);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [controlledTab]);
-  const [uploadingFiles, setUploadingFiles] = useState<File[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<Record<string, 'pending' | 'uploading' | 'success' | 'error'>>({});
-  const [uploadCategory, setUploadCategory] = useState<string>('company_policy');
-  // Review flow state: per-file categories and selection
-  const [reviewMode, setReviewMode] = useState<boolean>(false);
-  const [fileCategories, setFileCategories] = useState<Record<string, string>>({});
-  const [selectedToRemove, setSelectedToRemove] = useState<Set<string>>(new Set());
   const [documentHistory, setDocumentHistory] = useState<DocumentHistory[]>([]);
   const [mockUsers, setMockUsers] = useState<UserItem[]>([]);
   const [mockActivity, setMockActivity] = useState<ActivityLog[]>([]);
-  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
-  const [duplicateFile, setDuplicateFile] = useState<DocumentHistory | null>(null);
-  const [deletingFileId, setDeletingFileId] = useState<number | null>(null);
-  const [pendingDelete, setPendingDelete] = useState<{ id: number; filename: string } | null>(null);
-  const [selectedDocIds, setSelectedDocIds] = useState<Set<number>>(new Set());
-  const [pendingBulkDelete, setPendingBulkDelete] = useState<DocumentHistory[] | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showContactDeleteMessages, setShowContactDeleteMessages] = useState(false);
-  const contactDeleteRef = useRef<HTMLDivElement>(null);
-  // Delete Messages state
-  const [deleteUserMessages, setDeleteUserMessages] = useState(false);
-  const [deleteAdminMessages, setDeleteAdminMessages] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [confirmationText, setConfirmationText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
-  const [pipelineSteps, setPipelineSteps] = useState<{
-  step: number;
-  status: 'pending' | 'in-progress' | 'completed' | 'error';
-  labelKey: string;
-}[]>([
-  { step: 1, status: 'pending', labelKey: 'documentTable.pipeline.fileUpload' },
-  { step: 2, status: 'pending', labelKey: 'documentTable.pipeline.contentExtraction' },
-  { step: 3, status: 'pending', labelKey: 'documentTable.pipeline.embeddingIndexing' },
-  { step: 4, status: 'pending', labelKey: 'documentTable.pipeline.ragIntegration' },
-]);
+  const [showDeleteMessages, setShowDeleteMessages] = useState(false);
+
+  // Sync internal tab with controlled prop
+  useEffect(() => {
+    if (controlledTab && controlledTab !== activeTab) {
+      setActiveTab(controlledTab);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [controlledTab]);
 
   useEffect(() => {
     const loadDocumentHistory = async () => {
       try {
         console.log('📂 [AdminDashboard] Fetching document history from database...');
-        
-        // Fetch files from /api/files endpoint
+
         const token = getToken();
         const response = await fetch('/dev-api/api/files?pageNum=1&pageSize=100', {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         });
         const data = await response.json();
-        
+
         console.log('✅ [AdminDashboard] Document history loaded:', {
           total: data.result?.rows?.length || data.data?.length || 0,
           response: data
         });
-        
-        // Handle different API response formats
+
         const files = data.result?.rows || data.data || data.rows || [];
         if (Array.isArray(files)) {
           setDocumentHistory(files);
@@ -464,8 +103,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
   // Load users and activity - use document history + static users
   useEffect(() => {
     console.log('📊 [AdminDashboard] Setting up users and activity...');
-    
-    // Create users from document creators + default admin
+
     const users: UserItem[] = [
       {
         id: '1',
@@ -476,8 +114,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
         queries: documentHistory.length + 5,
       },
     ];
-    
-    // Add unique document uploaders
+
     const uploaders = new Set<string>();
     documentHistory.forEach(doc => {
       const uploader = doc.create_by || 'admin';
@@ -493,226 +130,35 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
         });
       }
     });
-    
-    setMockUsers(users);
-    
-    // Create activity from document uploads
-    const activities: ActivityLog[] = documentHistory.slice(0, 10).map((doc, index) => ({
-  id: String(index + 1),
-  user: doc.create_by || t('activity.admin'),
-  action: t('activity.documentUploaded'),
-  detail: doc.filename,
-  timestamp: new Date(doc.created_at),
-}));
 
-activities.unshift({
-  id: 'chat-1',
-  user: t('activity.admin'),
-  action: t('activity.chatQuery'),
-  detail: t('activity.chatDetail'),
-  timestamp: new Date(),
-});
-    
+    setMockUsers(users);
+
+    const activities: ActivityLog[] = documentHistory.slice(0, 10).map((doc, index) => ({
+      id: String(index + 1),
+      user: doc.create_by
+  ? t(`activity.roles.${doc.create_by}`)
+  : t('activity.admin'),
+
+      action: t('activity.documentUploaded'),
+      detail: doc.filename,
+      timestamp: new Date(doc.created_at),
+    }));
+
+    activities.unshift({
+      id: 'chat-1',
+      user: t('activity.admin'),
+      action: t('activity.chatQuery'),
+      detail: t('activity.chatDetail'),
+      timestamp: new Date(),
+    });
+
     setMockActivity(activities);
   }, [documentHistory]);
 
-  const handleDeleteFile = async (fileId: number, filename: string) => {
-    console.log('🗑️  [AdminDashboard] Deleting file:', {
-      fileId,
-      filename,
-      timestamp: new Date().toISOString(),
-    });
-
-    setDeletingFileId(fileId);
+  const handleDeleteFile = async () => {
+    // Refresh document list
     try {
       const token = getToken();
-      const response = await fetch(`/dev-api/api/files/${fileId}`, {
-        method: 'DELETE',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-      });
-
-      if (!response.ok) {
-        throw new Error(`Delete failed with status ${response.status}`);
-      }
-
-      console.log('✅ [AdminDashboard] File deleted successfully:', {
-        fileId,
-        filename,
-      });
-
-      // Re-fetch document list from backend to reflect true state (no optimistic update)
-      try {
-        const refreshResponse = await fetch('/dev-api/api/files?pageNum=1&pageSize=100', {
-          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-        });
-        const refreshData = await refreshResponse.json();
-        const files = refreshData.result?.rows || refreshData.data || refreshData.rows || [];
-        if (Array.isArray(files)) {
-          setDocumentHistory(files);
-        }
-      } catch (refreshError) {
-        console.error('❌ [AdminDashboard] Error refreshing document list after delete:', refreshError);
-      }
-
-      toast.success(t('documentTable.deleteSuccess', {filename,}));
-    } catch (error) {
-      console.error('❌ [AdminDashboard] Error deleting file:', error);
-      toast.error(t('documentTable.deleteError'));
-    } finally {
-      setDeletingFileId(null);
-    }
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-      console.log('📎 [AdminDashboard] Files selected:', newFiles.length);
-      
-      // Check for duplicates
-      const duplicates: string[] = [];
-      const validFiles: File[] = [];
-      
-      newFiles.forEach(file => {
-        console.log('📎 [AdminDashboard] File:', {
-          name: file.name,
-          size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
-          type: file.type
-        });
-        
-        const existingFile = documentHistory.find(doc => doc.filename === file.name);
-        if (existingFile) {
-          duplicates.push(file.name);
-        } else {
-          validFiles.push(file);
-        }
-      });
-      
-      if (duplicates.length > 0) {
-        toast.info(t('documentTable.skippedExisting', {files: duplicates.join(', ')}));
-      }
-      
-      if (validFiles.length > 0) {
-        setUploadingFiles(prev => [...prev, ...validFiles]);
-        // Initialize progress for new files
-        const newProgress: Record<string, 'pending'> = {};
-        validFiles.forEach(f => { newProgress[f.name] = 'pending'; });
-        setUploadProgress(prev => ({ ...prev, ...newProgress }));
-
-        // Initialize per-file categories for review
-        setFileCategories(prev => {
-          const updated = { ...prev };
-          validFiles.forEach(f => {
-            if (!updated[f.name]) updated[f.name] = uploadCategory || 'company_policy';
-          });
-          return updated;
-        });
-        // Enter review mode on selection
-        setReviewMode(true);
-        setSelectedToRemove(new Set());
-      }
-      
-      // Reset input
-      e.target.value = '';
-    }
-  };
-
-  const handleStartUpload = async () => {
-    if (uploadingFiles.length === 0) return;
-    // End review mode and begin upload
-    setReviewMode(false);
-
-    console.log('🚀 [AdminDashboard] Starting upload pipeline...');
-    console.log('📋 [AdminDashboard] Upload details:', {
-      fileCount: uploadingFiles.length,
-      totalSize: `${(uploadingFiles.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2)} MB`,
-      category: uploadCategory,
-      timestamp: new Date().toISOString()
-    });
-
-    try {
-      // Step 1: File Upload - Actually upload the file
-      console.log('🔄 [AdminDashboard] STEP 1: File Upload - IN PROGRESS');
-      setPipelineSteps((prev) =>
-        prev.map((s) => (s.step === 1 ? { ...s, status: 'in-progress' } : s))
-      );
-
-      const formData = new FormData();
-      // Append all files - backend supports multiple files
-      uploadingFiles.forEach(file => {
-        formData.append('files', file);
-        setUploadProgress(prev => ({ ...prev, [file.name]: 'uploading' }));
-      });
-      // Backward compatibility default category
-      formData.append('category', uploadCategory);
-      // Per-file categories mapping (filename -> category)
-      try {
-        const mapping: Record<string, string> = {};
-        uploadingFiles.forEach(f => {
-          mapping[f.name] = fileCategories[f.name] || uploadCategory || 'company_policy';
-        });
-        formData.append('fileCategories', JSON.stringify(mapping));
-      } catch (err) {
-        console.warn('Could not append fileCategories mapping');
-      }
-
-      const token = getToken();
-      const uploadResponse = await fetch('/dev-api/api/files/upload', {
-        method: 'POST',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-        body: formData,
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error(`Upload failed with status ${uploadResponse.status}`);
-      }
-
-      const uploadResult = await uploadResponse.json();
-      console.log('✅ [AdminDashboard] STEP 1: File Upload - COMPLETED', uploadResult);
-      // Mark all files as success
-      const successProgress: Record<string, 'success'> = {};
-      uploadingFiles.forEach(f => { successProgress[f.name] = 'success'; });
-      setUploadProgress(prev => ({ ...prev, ...successProgress }));
-      setPipelineSteps((prev) =>
-        prev.map((s) => (s.step === 1 ? { ...s, status: 'completed' } : s))
-      );
-
-      // Step 2: Content Extraction (handled by backend)
-      console.log('🔄 [AdminDashboard] STEP 2: Content Extraction - IN PROGRESS');
-      setPipelineSteps((prev) =>
-        prev.map((s) => (s.step === 2 ? { ...s, status: 'in-progress' } : s))
-      );
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log('✅ [AdminDashboard] STEP 2: Content Extraction - COMPLETED');
-      setPipelineSteps((prev) =>
-        prev.map((s) => (s.step === 2 ? { ...s, status: 'completed' } : s))
-      );
-
-      // Step 3: Embedding & Indexing (handled by backend job queue)
-      console.log('🔄 [AdminDashboard] STEP 3: Embedding & Indexing - IN PROGRESS');
-      setPipelineSteps((prev) =>
-        prev.map((s) => (s.step === 3 ? { ...s, status: 'in-progress' } : s))
-      );
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log('✅ [AdminDashboard] STEP 3: Embedding & Indexing - COMPLETED');
-      setPipelineSteps((prev) =>
-        prev.map((s) => (s.step === 3 ? { ...s, status: 'completed' } : s))
-      );
-
-      // Step 4: RAG Integration
-      console.log('🔄 [AdminDashboard] STEP 4: RAG Integration - IN PROGRESS');
-      setPipelineSteps((prev) =>
-        prev.map((s) => (s.step === 4 ? { ...s, status: 'in-progress' } : s))
-      );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log('✅ [AdminDashboard] STEP 4: RAG Integration - COMPLETED');
-      setPipelineSteps((prev) =>
-        prev.map((s) => (s.step === 4 ? { ...s, status: 'completed' } : s))
-      );
-
-      // Success - refresh document list
-      console.log('🎉 [AdminDashboard] Upload pipeline completed successfully!');
-      
-      // Refresh document history
       const refreshResponse = await fetch('/dev-api/api/files?pageNum=1&pageSize=100', {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       });
@@ -721,97 +167,13 @@ activities.unshift({
       if (Array.isArray(files)) {
         setDocumentHistory(files);
       }
-
-      toast.success(t('documentTable.uploadSuccess', {count: uploadingFiles.length,category: uploadCategory,}));
-      resetUpload();
-    } catch (error) {
-      console.error('❌ [AdminDashboard] Upload failed:', error);
-      setPipelineSteps((prev) =>
-        prev.map((s) => 
-          s.status === 'in-progress' ? { ...s, status: 'error' } : s
-        )
-      );
-      toast.error(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } catch (refreshError) {
+      console.error('❌ [AdminDashboard] Error refreshing document list after delete:', refreshError);
     }
   };
 
-  const removeFile = (fileName: string) => {
-    setUploadingFiles(prev => prev.filter(f => f.name !== fileName));
-    setUploadProgress(prev => {
-      const newProgress = { ...prev };
-      delete newProgress[fileName];
-      return newProgress;
-    });
-  };
-
-  const resetUpload = () => {
-    console.log('🔄 [AdminDashboard] Resetting upload form...');
-    setUploadingFiles([]);
-    setUploadProgress({});
-    setUploadCategory('company_policy');
-    setFileCategories({});
-    setSelectedToRemove(new Set());
-    setReviewMode(false);
-    setPipelineSteps([
-  { step: 1, status: 'pending', labelKey: 'documentTable.pipeline.fileUpload' },
-  { step: 2, status: 'pending', labelKey: 'documentTable.pipeline.contentExtraction' },
-  { step: 3, status: 'pending', labelKey: 'documentTable.pipeline.embeddingIndexing' },
-  { step: 4, status: 'pending', labelKey: 'documentTable.pipeline.ragIntegration' },
-]);
-
-  };
-
-  // Remove selected files in review (client-side only)
-  const removeSelectedFiles = () => {
-    if (selectedToRemove.size === 0) return;
-    const names = new Set(selectedToRemove);
-    setUploadingFiles(prev => prev.filter(f => !names.has(f.name)));
-    setUploadProgress(prev => {
-      const next = { ...prev } as Record<string, 'pending' | 'uploading' | 'success' | 'error'>;
-      names.forEach(n => { delete next[n]; });
-      return next;
-    });
-    setFileCategories(prev => {
-      const next = { ...prev };
-      names.forEach(n => { delete next[n]; });
-      return next;
-    });
-    setSelectedToRemove(new Set());
-  };
-
-  const getStepIcon = (
-    step: number,
-    status: 'pending' | 'in-progress' | 'completed' | 'error'
-  ) => {
-    if (status === 'completed')
-      return <CheckCircle className="w-5 h-5 text-green-400" />;
-    if (status === 'in-progress')
-      return <Zap className="w-5 h-5 text-yellow-400 animate-pulse" />;
-    if (status === 'error') return <AlertCircle className="w-5 h-5 text-red-400" />;
-
-    const icons = {
-      1: <Upload className="w-5 h-5 text-slate-400" />,
-      2: <FileText className="w-5 h-5 text-slate-400" />,
-      3: <Database className="w-5 h-5 text-slate-400" />,
-      4: <Brain className="w-5 h-5 text-slate-400" />,
-    };
-    return icons[step as 1 | 2 | 3 | 4];
-  };
-  const tabs = [
-     { id: 'documents' as Tab, label: t('admin.documents'), icon: FileText },
-    { id: 'analytics' as Tab, label: t('admin.analytics'), icon: BarChart3 },
-    { id: 'users' as Tab, label: t('admin.users'), icon: Users },
-    { id: 'activity' as Tab, label: t('admin.activity'), icon: Activity },
-    { id: 'chat' as Tab, label: t('admin.chat'), icon: MessageSquare },
-    { id: 'contact' as Tab, label: t('admin.contact'), icon: Users },
-    { id: 'messages' as Tab, label: t('admin.messages'), icon: Trash2 },
-  ];
-
   const openContactDeleteMessages = () => {
-    setShowContactDeleteMessages(true);
-    setTimeout(() => {
-      contactDeleteRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+    setShowDeleteMessages(true);
   };
 
   return (
@@ -828,7 +190,7 @@ activities.unshift({
               }}
               className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 transition-all ${
                 activeTab === tab.id
-                  ? 'bg-[#F0F4FF] dark:bg-dark-surface border-b-2 border-[#1d2089] dark:border-[#60a5fa] text-[#1d2089] dark:text-[#60a5fa]'
+                  ? 'bg-[#F0F4FF] dark:bg-dark-surface border-b-2 border-[#2563eb] dark:border-[#60a5fa] text-[#2563eb] dark:text-[#60a5fa]'
                   : 'text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-border hover:text-[#232333] dark:hover:text-white'
               }`}
             >
@@ -839,7 +201,14 @@ activities.unshift({
         </div>
       )}
 
-      <div key={activeTab} className="flex-1 overflow-y-auto p-6 mac-tab-animate bg-[#F6F6F6] dark:bg-dark-gradient transition-colors">
+<div
+  key={activeTab}
+  className={`flex-1 mac-tab-animate bg-[#F6F6F6] dark:bg-dark-gradient transition-colors ${
+    activeTab === 'chat'
+      ? 'overflow-hidden min-h-0 p-0'
+      : 'overflow-y-auto p-6'
+  }`}
+>
         {/* Delete Confirmation Modal */}
         {pendingDelete && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
@@ -951,10 +320,10 @@ activities.unshift({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={t('documentTable.searchPlaceholder')}
-                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#2563eb] dark:focus:ring-dark-accent-blue transition-colors"
                   />
                 </div>
-                <label className="flex items-center gap-2 px-4 py-2.5 bg-[#1d2089] hover:bg-[#161870] text-white rounded-xl transition-colors cursor-pointer whitespace-nowrap font-medium">
+                <label className="flex items-center gap-2 px-4 py-2.5 bg-[#2563eb] hover:bg-[#161870] text-white rounded-xl transition-colors cursor-pointer whitespace-nowrap font-medium">
                   <Upload className="w-5 h-5" />
                   <span>{t('documentTable.upload')}</span>
                   <input
@@ -969,7 +338,7 @@ activities.unshift({
             </div>
 
             {uploadingFiles.length > 0 && (
-              <div className="bg-[#F0F4FF] dark:bg-dark-surface-alt border border-[#1d2089]/20 dark:border-dark-border rounded-2xl p-6 space-y-6 transition-colors">
+              <div className="bg-[#F0F4FF] dark:bg-dark-surface-alt border border-[#2563eb]/20 dark:border-dark-border rounded-2xl p-6 space-y-6 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h4 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors mb-1">{t('documentTable.filesSelected', {count: uploadingFiles.length,})}</h4>
@@ -990,7 +359,7 @@ activities.unshift({
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <input
                           type="checkbox"
-                          className="w-4 h-4 accent-[#1d2089] dark:accent-dark-accent-blue"
+                          className="w-4 h-4 accent-[#2563eb] dark:accent-dark-accent-blue"
                           checked={selectedToRemove.has(file.name)}
                           onChange={(e) => {
                             setSelectedToRemove(prev => {
@@ -1001,7 +370,7 @@ activities.unshift({
                           }}
                           disabled={uploadProgress[file.name] !== 'pending'}
                         />
-                        <FileText className="w-4 h-4 text-[#1d2089] flex-shrink-0" />
+                        <FileText className="w-4 h-4 text-[#2563eb] flex-shrink-0" />
                         <span className="text-sm text-[#232333] dark:text-dark-text truncate transition-colors" title={file.name}>{file.name}</span>
                         <span className="text-xs text-[#6E7680] dark:text-dark-text-muted transition-colors">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
                         {uploadProgress[file.name] === 'success' && (
@@ -1021,7 +390,7 @@ activities.unshift({
                           value={fileCategories[file.name] || 'company_policy'}
                           onChange={(e) => setFileCategories(prev => ({ ...prev, [file.name]: e.target.value }))}
                           disabled={uploadProgress[file.name] !== 'pending'}
-                          className="bg-[#F6F6F6] dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="bg-[#F6F6F6] dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#2563eb] dark:focus:ring-dark-accent-blue transition-colors"
                         >
                           <option value="company_policy">
   {t('documentTable.category.companyPolicy')}
@@ -1089,7 +458,7 @@ activities.unshift({
                           onClick={() => setUploadCategory(cat.value)}
                           className={`px-4 py-2 rounded-xl font-medium transition-all ${
                             uploadCategory === cat.value
-                              ? 'bg-[#1d2089] text-white shadow-lg'
+                              ? 'bg-[#2563eb] text-white shadow-lg'
                               : 'bg-white dark:bg-dark-surface text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-border border border-[#E8E8E8] dark:border-dark-border'
                           }`}
                         >
@@ -1148,7 +517,7 @@ activities.unshift({
                 {reviewMode ? (
                   <button
                     onClick={handleStartUpload}
-                    className="w-full px-6 py-3 bg-[#1d2089] hover:bg-[#161870] text-white font-semibold rounded-xl transition-all"
+                    className="w-full px-6 py-3 bg-[#2563eb] hover:bg-[#161870] text-white font-semibold rounded-xl transition-all"
                   >
                     {t('documentTable.nextContinue')}
                   </button>
@@ -1156,7 +525,7 @@ activities.unshift({
                   <button
                     onClick={handleStartUpload}
                     disabled={pipelineSteps[0].status !== 'pending'}
-                    className="w-full px-6 py-3 bg-[#1d2089] hover:bg-[#161870] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all"
+                    className="w-full px-6 py-3 bg-[#2563eb] hover:bg-[#161870] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all"
                   >
                     {pipelineSteps[0].status === 'pending' ? '🚀 Start Upload Pipeline' : t('documentTable.pipeline.processing')}
                   </button>
@@ -1195,7 +564,7 @@ activities.unshift({
                         return (
                           <input
                             type="checkbox"
-                            className="w-4 h-4 accent-[#1d2089]"
+                            className="w-4 h-4 accent-[#2563eb]"
                             checked={allSelected}
                             onChange={(e) => {
                               const next = new Set(selectedDocIds);
@@ -1247,7 +616,7 @@ activities.unshift({
                         <td className="px-4 py-3">
                           <input
                             type="checkbox"
-                            className="w-4 h-4 accent-[#1d2089]"
+                            className="w-4 h-4 accent-[#2563eb]"
                             checked={selectedDocIds.has(doc.id)}
                             onChange={(e) => {
                               setSelectedDocIds(prev => {
@@ -1360,7 +729,7 @@ activities.unshift({
                         type="checkbox"
                         checked={deleteUserMessages}
                         onChange={(e) => setDeleteUserMessages(e.target.checked)}
-                        className="w-5 h-5 accent-[#1d2089] dark:accent-dark-accent-blue rounded"
+                        className="w-5 h-5 accent-[#2563eb] dark:accent-dark-accent-blue rounded"
                       />
                       <div className="flex-1">
                         <span className="text-[#232333] dark:text-dark-text font-medium transition-colors">
@@ -1377,7 +746,7 @@ activities.unshift({
                         type="checkbox"
                         checked={deleteAdminMessages}
                         onChange={(e) => setDeleteAdminMessages(e.target.checked)}
-                        className="w-5 h-5 accent-[#1d2089] dark:accent-dark-accent-blue rounded"
+                        className="w-5 h-5 accent-[#2563eb] dark:accent-dark-accent-blue rounded"
                       />
                       <div className="flex-1">
                         <span className="text-[#232333] dark:text-dark-text font-medium transition-colors">
@@ -1435,7 +804,7 @@ activities.unshift({
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-[#F0F4FF] dark:bg-dark-surface-alt rounded-xl flex items-center justify-center flex-shrink-0 transition-colors">
-                      <Activity className="w-5 h-5 text-[#1d2089] dark:text-dark-accent-blue transition-colors" />
+                      <Activity className="w-5 h-5 text-[#2563eb] dark:text-dark-accent-blue transition-colors" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -1584,7 +953,7 @@ activities.unshift({
               <div>
                 <p className="text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">
                   {t('messages.confirmLabel').replace('DELETE ALL MESSAGES', '')}
-                  <span className="ml-2 font-mono bg-[#1d2089] text-white px-2 py-1 rounded-lg">
+                  <span className="ml-2 font-mono bg-[#2563eb] text-white px-2 py-1 rounded-lg">
                     {t('messages.confirmText')}
                   </span>
                 </p>
@@ -1593,7 +962,7 @@ activities.unshift({
                   value={confirmationText}
                   onChange={(e) => setConfirmationText(e.target.value)}
                   placeholder={t('messages.confirmPlaceholder')}
-                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue focus:border-transparent font-mono transition-colors"
+                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#2563eb] dark:focus:ring-dark-accent-blue focus:border-transparent font-mono transition-colors"
                   autoFocus
                 />
               </div>

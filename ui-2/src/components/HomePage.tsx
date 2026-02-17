@@ -9,13 +9,13 @@ import {
   Send,
 } from 'lucide-react';
 import { User, FeatureType } from '../types';
-import { useLang } from '../context/LanguageContext';
-import Header from './Header';
-import ChatInterface from './ChatInterface';
-import HistoryPage from './HistoryPage';
-import NotificationsPanel from './NotificationsPanel';
-import AdminDashboard from './AdminDashboard';
-import InlineContactAdmin from './InlineContactAdmin';
+import { useLang } from '../../context/LanguageContext';
+import Header from '../layout/Header';
+import ChatInterface from '../chat/ChatInterface';
+import HistoryPage from '../chat/HistoryPage';
+import NotificationsPanel from '../notifications/NotificationsPanel';
+import AdminDashboard from '../admin/AdminDashboard';
+import InlineContactAdmin from '../contact/InlineContactAdmin';
 import { useRef, useState } from 'react';
 
 interface HomePageProps {
@@ -85,7 +85,7 @@ export default function HomePage({
       />
 
       {/* Main */}
-      <main className="mac-glass-page flex-1 pt-4 px-3 lg:pl-6 lg:pr-6 pb-4 overflow-hidden bg-[#F6F6F6] dark:bg-dark-gradient transition-colors">
+      <main className="mac-glass-page flex-1 pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2 overflow-hidden bg-surface dark:bg-dark-gradient transition-colors">
         <div className={`h-full gap-4 overflow-hidden flex flex-col lg:grid ${showNotificationPanel ? 'lg:grid-cols-[72px_1fr_320px]' : 'lg:grid-cols-[72px_1fr]'}`}>
           {/* Sidebar */}
           <aside className="hidden lg:block h-full">
@@ -108,11 +108,13 @@ export default function HomePage({
             className="relative h-full rounded-xl mac-glass mac-glass-translucent mac-border-highlight mac-tab-animate overflow-hidden flex flex-col"
           >
             {user.role !== 'admin' && activeSection === 'chat' && (
-              <ChatInterface
-                onSaveToHistory={(q, a, s) => onSaveToHistory?.(q, a, s)}
-                focusSignal={chatFocusTick}
-                onUserTyping={setIsTyping}
-              />
+              <div className="flex-1 overflow-y-auto pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2">
+                <ChatInterface
+                  onSaveToHistory={(q, a, s) => onSaveToHistory?.(q, a, s)}
+                  focusSignal={chatFocusTick}
+                  onUserTyping={setIsTyping}
+                />
+              </div>
             )}
 
             {user.role !== 'admin' && activeSection === 'history' && (
@@ -120,7 +122,9 @@ export default function HomePage({
             )}
 
             {user.role !== 'admin' && activeSection === 'contact' && (
-              <InlineContactAdmin userId={user.employeeId} />
+              <div className="flex-1 overflow-y-auto pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2">
+                <InlineContactAdmin userId={user.employeeId} />
+              </div>
             )}
 
             {user.role === 'admin' && (
@@ -153,7 +157,7 @@ export default function HomePage({
       </main>
 
       {/* Mobile nav */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 border-t border-[#E8E8E8] bg-white shadow-lg">
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 border-t border-default bg-surface shadow-lg">
         <nav className="flex justify-around py-2">
           {navButtons(
             user.role,
@@ -191,7 +195,7 @@ function navButtons(
       className={`${
         compact ? 'w-10 h-10' : 'w-12 h-12'
       } flex items-center justify-center rounded-xl transition-all
-        ${active === key ? 'bg-[#1d2089] text-white' : 'text-[#6E7680] hover:bg-[#F0F4FF] hover:text-[#1d2089]'}`}
+        ${active === key ? 'btn-primary text-on-accent' : 'text-muted hover:bg-surface-alt hover:text-accent'}`}
     >
       {icon}
     </button>

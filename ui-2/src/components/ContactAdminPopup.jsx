@@ -1,20 +1,22 @@
 import { useState } from 'react';
 import { X, Send, AlertCircle } from 'lucide-react';
+import { useLang } from '../../context/LanguageContext';
  
 export default function ContactAdminPopup({ isOpen, onClose, onSend, isSubmitting = false }) {
   const [subject, setSubject] = useState('');
   const [query, setQuery] = useState('');
   const [error, setError] = useState('');
+  const { t } = useLang();
  
   const handleSend = () => {
     setError('');
    
     if (!query.trim()) {
-      setError('Please enter your query');
+      setError(t('inlineContactAdmin.pleaseEnterQuery'));
       return;
     }
    
-    if (window.confirm('Are you sure you want to send this message to admin?')) {
+    if (window.confirm(t('inlineContactAdmin.confirmSendMessage'))) {
       onSend({ subject: subject.trim(), message: query.trim() });
       setSubject('');
       setQuery('');
@@ -63,10 +65,10 @@ export default function ContactAdminPopup({ isOpen, onClose, onSend, isSubmittin
         }}>
           <div>
             <h2 style={{ margin: '0 0 4px 0', fontSize: '24px', fontWeight: '700' }}>
-              Contact Admin
+              {t('inlineContactAdmin.contactAdminTitle')}
             </h2>
             <p style={{ margin: 0, fontSize: '13px', color: '#999' }}>
-              Send your question or concern to the admin team
+              {t('inlineContactAdmin.contactAdminDescription')}
             </p>
           </div>
           <button
@@ -133,7 +135,7 @@ export default function ContactAdminPopup({ isOpen, onClose, onSend, isSubmittin
               marginBottom: '8px',
               color: '#e2e8f0'
             }}>
-              Subject (Optional)
+              {t('inlineContactAdmin.subjectLabel')}
             </label>
             <input
               type="text"
@@ -141,7 +143,7 @@ export default function ContactAdminPopup({ isOpen, onClose, onSend, isSubmittin
               onChange={(e) => setSubject(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={isSubmitting}
-              placeholder="e.g., Leave Request, Salary Query..."
+              placeholder={t('inlineContactAdmin.subjectPlaceholder')}
               style={{
                 width: '100%',
                 padding: '12px 14px',
@@ -176,7 +178,7 @@ export default function ContactAdminPopup({ isOpen, onClose, onSend, isSubmittin
               marginBottom: '8px',
               color: '#e2e8f0'
             }}>
-              Your Query *
+              {t('inlineContactAdmin.yourQuery')}
             </label>
             <textarea
               value={query}
@@ -186,7 +188,7 @@ export default function ContactAdminPopup({ isOpen, onClose, onSend, isSubmittin
               }}
               onKeyPress={handleKeyPress}
               disabled={isSubmitting}
-              placeholder="Please describe your question or concern in detail..."
+              placeholder={t('inlineContactAdmin.queryPlaceholder')}
               rows="8"
               style={{
                 width: '100%',

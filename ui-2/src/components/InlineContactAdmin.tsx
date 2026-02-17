@@ -70,12 +70,12 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="p-6 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
+      <div className="pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
         <h2 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">{t('inlineContactAdmin.title')}</h2>
         <p className="text-sm text-[#6E7680] mt-1">{t('inlineContactAdmin.description')}</p>
       </div>
 
-      <div className="p-6 space-y-4">
+      <div className="pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2 space-y-4">
         {success && (
           <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-600 flex items-center gap-2 animate-section-in">
             <CheckCircle className="w-5 h-5" />
@@ -105,7 +105,7 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder={t('inlineContactAdmin.subjectPlaceholder')}
-            className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent transition-all"
+            className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all"
           />
         </div>
 
@@ -116,7 +116,7 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
             onChange={(e) => setContent(e.target.value)}
             placeholder={t('inlineContactAdmin.contentPlaceholder')}
             rows={8}
-            className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent transition-all resize-vertical"
+            className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all resize-vertical"
           />
           <p className="mt-2 text-xs text-[#9CA3AF] dark:text-dark-text-muted transition-colors">
             {content.length > 0
@@ -129,7 +129,7 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
           <button
             onClick={handleSend}
             disabled={sending || !content.trim()}
-            className="px-5 py-2.5 bg-[#1d2089] hover:bg-[#161870] disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] rounded-xl text-white text-sm font-medium inline-flex items-center gap-2 transition-colors"
+            className="px-5 py-2.5 bg-[#1e228a] dark:bg-[#00CCFF] hover:bg-[#151a6e] dark:hover:bg-[#00a3cc] disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] rounded-xl text-white text-sm font-medium inline-flex items-center gap-2 transition-colors"
           >
             <Send className="w-4 h-4" />
             {sending ? t('inlineContactAdmin.sending') : t('inlineContactAdmin.sendButton')}

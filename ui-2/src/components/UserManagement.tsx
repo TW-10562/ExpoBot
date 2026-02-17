@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
-import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, Upload } from 'lucide-react';
-import { useLang } from '../context/LanguageContext';
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, Upload, Users } from 'lucide-react';
+import { useLang } from '../../context/LanguageContext';
 
 interface User {
   id: string;
@@ -133,6 +133,34 @@ export default function UserManagement() {
   });
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [adminPassword, setAdminPassword] = useState('');
+  const [editAdminPassword, setEditAdminPassword] = useState('');
+
+  const getI18nLabel = (key: string, fallback: string) => {
+    const translated = t(key);
+    return translated === key ? fallback : translated;
+  };
+
+  const getJobRoleLabel = (roleKey: string) => {
+    const fallback = JOB_ROLE_OPTIONS.find((option) => option.key === roleKey)?.label || roleKey;
+    return getI18nLabel(`user.jobRole.${roleKey}`, fallback);
+  };
+
+  const getAreaLabel = (areaKey: string) => {
+    const fallback = AREA_OF_WORK_OPTIONS.find((option) => option.key === areaKey)?.label || areaKey;
+    return getI18nLabel(`user.area.${areaKey}`, fallback);
+  };
+
+  const getI18nOrFallback = (key: string, fallback: string) => getI18nLabel(key, fallback);
+
+  const selectJobRoleLabel = getI18nOrFallback('userManagement.form.selectJobRole', 'Select job role');
+  const selectAreaLabel = getI18nOrFallback('userManagement.form.selectAreaOfWork', 'Select area of work');
+  const firstNameLabel = getI18nOrFallback('userManagement.table.firstName', 'First name');
+  const lastNameLabel = getI18nOrFallback('userManagement.table.lastName', 'Last name');
+  const employeeIdLabel = getI18nOrFallback('userManagement.table.employeeId', 'Employee ID');
+  const passwordLabel = getI18nOrFallback('userManagement.table.password', 'Password');
+
+  const uploadCsvLabel = getI18nLabel('userManagement.uploadCsv', 'Upload CSV');
+  const addUserLabel = getI18nLabel('userManagement.form.addUserTitle', 'Add User');
 
   // CSV Upload Handler - accepts both stable keys and display labels
   // e.g., can accept either 'ai_engineer' or 'AI Engineer' and normalizes to 'ai_engineer'
@@ -262,7 +290,7 @@ export default function UserManagement() {
   };
 
   const confirmSaveEdit = () => {
-    if (editingUser) {
+    if (editingUser && editAdminPassword.trim()) {
       setUsers(
         users.map((u) =>
           u.id === editingUser
@@ -272,6 +300,7 @@ export default function UserManagement() {
       );
       setEditingUser(null);
       setShowConfirmSave(false);
+      setEditAdminPassword('');
       setFormData({
         firstName: '',
         lastName: '',
@@ -286,6 +315,7 @@ export default function UserManagement() {
 
   const handleCancelEdit = () => {
     setEditingUser(null);
+    setEditAdminPassword('');
     setFormData({
       firstName: '',
       lastName: '',
@@ -323,12 +353,17 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-2 px-0 pb-2">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
-          {t('userManagement.title')}
-        </h3>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-lg transition-colors">
+            <Users className="w-5 h-5 text-white dark:text-black" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground dark:text-white transition-colors">
+            {t('userManagement.title')}
+          </h2>
+        </div>
         {!editingUser && (
           <div className="flex items-center gap-2">
             {/* CSV Upload Button */}
@@ -342,42 +377,43 @@ export default function UserManagement() {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={csvLoading}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 disabled:bg-[#9CA3AF] dark:disabled:bg-[#6E7680] disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
-              title={t('userManagement.uploadCsv') || 'Upload CSV'}
+              data-state={csvLoading ? 'loading' : 'idle'}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg btn-success disabled:opacity-50 disabled:cursor-not-allowed text-on-accent text-sm font-medium transition-colors"
+              title={uploadCsvLabel}
             >
-              <Upload className="w-4 h-4" />
-              {csvLoading ? t('common.loading') : t('userManagement.uploadCsv')}
+              <Upload className={`w-4 h-4 icon-current ${csvLoading ? 'animate-pulse text-accent-strong' : ''}`} />
+              {csvLoading ? t('common.loading') : uploadCsvLabel}
             </button>
             {/* Add User Button */}
             <button
               onClick={handleAddUser}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1d2089] hover:bg-[#161870] dark:bg-dark-accent-blue dark:hover:bg-[#3b82f6] text-white text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg btn-primary text-on-accent text-sm font-medium transition-colors"
             >
-              <Plus className="w-4 h-4" />
-              {t('userManagement.form.addUserTitle')}
+              <Plus className="w-4 h-4 icon-current" />
+              {addUserLabel}
             </button>
           </div>
         )}
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
+      <div className="bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-2xl overflow-hidden shadow-sm transition-colors">
         <table className="w-full">
-          <thead className="bg-[#F6F6F6] dark:bg-dark-bg-primary border-b border-[#E8E8E8] dark:border-dark-border transition-colors">
+          <thead className="bg-surface-alt dark:bg-dark-bg-primary border-b border-default dark:border-default transition-colors">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.firstName')}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.lastName')}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.employeeId')}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.userJobRole')}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
                 {t('userManagement.table.areaOfWork')}
               </th>
               <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
@@ -397,7 +433,7 @@ export default function UserManagement() {
           <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-[#6E7680] dark:text-dark-text-muted transition-colors">
+                <td colSpan={9} className="px-4 py-8 text-center text-muted dark:text-dark-text-muted transition-colors">
                   {t('userManagement.empty')}
                 </td>
               </tr>
@@ -405,7 +441,7 @@ export default function UserManagement() {
               users.map((user) => (
                 <tr
                   key={user.id}
-                  className="border-b border-[#E8E8E8] dark:border-dark-border hover:bg-[#F6F6F6] dark:hover:bg-dark-border transition-colors"
+                  className="border-b border-default dark:border-default hover:bg-surface-alt dark:hover:bg-dark-border transition-colors"
                 >
                   {editingUser === user.id ? (
                     // Edit Mode
@@ -417,7 +453,7 @@ export default function UserManagement() {
                           onChange={(e) =>
                             setFormData({ ...formData, firstName: e.target.value })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-surface dark:bg-dark-surface border border-default dark:border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -427,7 +463,7 @@ export default function UserManagement() {
                           onChange={(e) =>
                             setFormData({ ...formData, lastName: e.target.value })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-surface dark:bg-dark-surface border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -440,7 +476,7 @@ export default function UserManagement() {
                               employeeId: e.target.value,
                             })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-surface dark:bg-dark-surface border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         />
                       </td>
                       <td className="px-4 py-3">
@@ -452,12 +488,12 @@ export default function UserManagement() {
                               userJobRole: e.target.value,
                             })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
                         >
-                          <option value="">{t('userManagement.form.selectJobRole')}</option>
+                        <option value="">{selectJobRoleLabel}</option>
                           {JOB_ROLE_OPTIONS.map((option) => (
                             <option key={option.key} value={option.key}>
-                              {t(`user.jobRole.${option.key}`)}
+                              {getJobRoleLabel(option.key)}
                             </option>
                           ))}
                         </select>
@@ -468,12 +504,12 @@ export default function UserManagement() {
                           onChange={(e) =>
                             setFormData({ ...formData, areaOfWork: e.target.value })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
                         >
-                          <option value="">{t('userManagement.form.selectAreaOfWork')}</option>
+                        <option value="">{selectAreaLabel}</option>
                           {AREA_OF_WORK_OPTIONS.map((option) => (
                             <option key={option.key} value={option.key}>
-                              {t(`user.area.${option.key}`)}
+                              {getAreaLabel(option.key)}
                             </option>
                           ))}
                         </select>
@@ -487,10 +523,10 @@ export default function UserManagement() {
                               role: e.target.value as 'admin' | 'user',
                             })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-surface dark:bg-dark-surface border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         >
-                          <option value="user">{t('user.role.user')}</option>
-                          <option value="admin">{t('user.role.admin')}</option>
+                          <option value="user">{getI18nLabel('user.role.user', 'User')}</option>
+                          <option value="admin">{getI18nLabel('user.role.admin', 'Admin')}</option>
                         </select>
                       </td>
                       <td className="px-4 py-3">
@@ -500,7 +536,7 @@ export default function UserManagement() {
                           onChange={(e) =>
                             setFormData({ ...formData, password: e.target.value })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
                         />
                       </td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted text-sm transition-colors">
@@ -516,7 +552,7 @@ export default function UserManagement() {
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="p-1 text-[#6E7680] dark:text-dark-text-muted hover:bg-white dark:hover:bg-white/10 rounded transition-colors"
+                          className="p-1 text-icon-muted dark:text-dark-text-muted hover:bg-surface hover:dark:bg-white/10 rounded transition-colors"
                           title={t('userManagement.form.cancel')}
                         >
                           <X className="w-4 h-4" />
@@ -534,10 +570,10 @@ export default function UserManagement() {
                       </td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.employeeId}</td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                        {t(`user.jobRole.${user.userJobRole}`)}
+                        {getJobRoleLabel(user.userJobRole)}
                       </td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                        {t(`user.area.${user.areaOfWork}`)}
+                        {getAreaLabel(user.areaOfWork)}
                       </td>
                       <td className="px-4 py-3">
                         <span
@@ -547,7 +583,7 @@ export default function UserManagement() {
                               : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                           } transition-colors`}
                         >
-                          {t(`user.role.${user.role}`)}
+                          {getI18nLabel(`user.role.${user.role}`, user.role === 'admin' ? 'Admin' : 'User')}
                         </span>
                       </td>
                       <td className="px-4 py-3 flex items-center gap-2">
@@ -556,7 +592,7 @@ export default function UserManagement() {
                         </span>
                         <button
                           onClick={() => togglePasswordVisibility(user.id)}
-                          className="p-1 text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-border rounded transition-colors"
+                          className="p-1 text-muted dark:text-dark-text-muted hover:bg-surface-alt dark:hover:bg-dark-border rounded transition-colors"
                           title={
                             visiblePasswords.has(user.id)
                               ? t('userManagement.password.hide')
@@ -601,50 +637,50 @@ export default function UserManagement() {
       {/* Add User Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
-            <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
+          <div className="bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
+            <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
               {t('userManagement.form.addUserTitle')}
             </h3>
 
             <div className="space-y-3">
               <input
                 type="text"
-                placeholder={t('userManagement.table.firstName')}
+                placeholder={firstNameLabel}
                 value={formData.firstName}
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
               <input
                 type="text"
-                placeholder={t('userManagement.table.lastName')}
+                placeholder={lastNameLabel}
                 value={formData.lastName}
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
               <input
                 type="text"
-                placeholder={t('userManagement.table.employeeId')}
+                placeholder={employeeIdLabel}
                 value={formData.employeeId}
                 onChange={(e) =>
                   setFormData({ ...formData, employeeId: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
               <select
                 value={formData.userJobRole}
                 onChange={(e) =>
                   setFormData({ ...formData, userJobRole: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
               >
-                <option value="">{t('userManagement.form.selectJobRole')}</option>
+                <option value="">{selectJobRoleLabel}</option>
                 {JOB_ROLE_OPTIONS.map((option) => (
                   <option key={option.key} value={option.key}>
-                    {t(`user.jobRole.${option.key}`)}
+                    {getJobRoleLabel(option.key)}
                   </option>
                 ))}
               </select>
@@ -653,12 +689,12 @@ export default function UserManagement() {
                 onChange={(e) =>
                   setFormData({ ...formData, areaOfWork: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
               >
-                <option value="">{t('userManagement.form.selectAreaOfWork')}</option>
+                <option value="">{selectAreaLabel}</option>
                 {AREA_OF_WORK_OPTIONS.map((option) => (
                   <option key={option.key} value={option.key}>
-                    {t(`user.area.${option.key}`)}
+                    {getAreaLabel(option.key)}
                   </option>
                 ))}
               </select>
@@ -670,32 +706,32 @@ export default function UserManagement() {
                     role: e.target.value as 'admin' | 'user',
                   })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
               >
-                <option value="user">{t('user.role.user')}</option>
-                <option value="admin">{t('user.role.admin')}</option>
+                <option value="user">{getI18nLabel('user.role.user', 'User')}</option>
+                <option value="admin">{getI18nLabel('user.role.admin', 'Admin')}</option>
               </select>
               <input
                 type="text"
-                placeholder={t('userManagement.table.password')}
+                placeholder={passwordLabel}
                 value={formData.password}
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
             </div>
 
-            <div className="flex gap-3 justify-end pt-4 border-t border-[#E8E8E8] dark:border-dark-border transition-colors">
+            <div className="flex gap-3 justify-end pt-4 border-t border-default dark:border-default transition-colors">
               <button
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 rounded-lg bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-border text-[#232333] dark:text-dark-text text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.cancel')}
               </button>
               <button
                 onClick={handleSaveNewUser}
-                className="px-4 py-2 rounded-lg bg-[#1d2089] hover:bg-[#161870] dark:bg-dark-accent-blue dark:hover:bg-[#3b82f6] text-white text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg btn-primary text-on-accent text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.save')}
               </button>
@@ -707,24 +743,36 @@ export default function UserManagement() {
       {/* Confirm Save Modal */}
       {showConfirmSave && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
-            <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
+          <div className="bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
+            <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
               {t('userManagement.delete.confirmTitle')}
             </h3>
-            <p className="text-[#6E7680] dark:text-dark-text-muted text-sm transition-colors">
+            <p className="text-muted dark:text-dark-text-muted text-sm transition-colors">
               {t('userManagement.form.editUserTitle')}
             </p>
 
-            <div className="flex gap-3 justify-end pt-4 border-t border-[#E8E8E8] dark:border-dark-border transition-colors">
+            <input
+              type="password"
+              placeholder={t('userManagement.delete.adminPassword')}
+              value={editAdminPassword}
+              onChange={(e) => setEditAdminPassword(e.target.value)}
+              className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
+            />
+
+            <div className="flex gap-3 justify-end pt-4 border-t border-default dark:border-default transition-colors">
               <button
-                onClick={() => setShowConfirmSave(false)}
-                className="px-4 py-2 rounded-lg bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-border text-[#232333] dark:text-dark-text text-sm font-medium transition-colors"
+                onClick={() => {
+                  setShowConfirmSave(false);
+                  setEditAdminPassword('');
+                }}
+                className="px-4 py-2 rounded-lg bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.cancel')}
               </button>
               <button
                 onClick={confirmSaveEdit}
-                className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white text-sm font-medium transition-colors"
+                disabled={!editAdminPassword.trim()}
+                className="px-4 py-2 rounded-lg btn-success text-on-accent text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.save')}
               </button>
@@ -736,11 +784,11 @@ export default function UserManagement() {
       {/* Delete Confirmation Modal - Step 1 */}
       {showDeleteModal && !adminPassword && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
-            <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">
+          <div className="bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
+            <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
               {t('userManagement.delete.adminPassword')}
             </h3>
-            <p className="text-[#6E7680] dark:text-dark-text-muted text-sm transition-colors">
+            <p className="text-muted dark:text-dark-text-muted text-sm transition-colors">
               {t('userManagement.delete.confirmMessage')}
             </p>
 
@@ -749,24 +797,24 @@ export default function UserManagement() {
               placeholder={t('userManagement.delete.adminPassword')}
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
-              className="w-full bg-white dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border rounded-lg px-3 py-2 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+              className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
             />
 
-            <div className="flex gap-3 justify-end pt-4 border-t border-[#E8E8E8] dark:border-dark-border transition-colors">
+            <div className="flex gap-3 justify-end pt-4 border-t border-default dark:border-default transition-colors">
               <button
                 onClick={() => {
                   setShowDeleteModal(false);
                   setUserToDelete(null);
                   setAdminPassword('');
                 }}
-                className="px-4 py-2 rounded-lg bg-[#F6F6F6] dark:bg-dark-surface-alt hover:bg-[#E8E8E8] dark:hover:bg-dark-border text-[#232333] dark:text-dark-text text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.cancel')}
               </button>
               <button
                 onClick={confirmDelete}
                 disabled={!adminPassword.trim()}
-                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 disabled:bg-[#9CA3AF] dark:disabled:bg-[#6E7680] disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+                className="px-4 py-2 rounded-lg btn-danger disabled:opacity-50 disabled:cursor-not-allowed text-on-accent text-sm font-medium transition-colors"
               >
                 {t('userManagement.delete.confirmButton')}
               </button>

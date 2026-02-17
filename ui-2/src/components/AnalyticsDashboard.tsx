@@ -12,7 +12,7 @@ import {
   PieChart,
   AlertTriangle,
 } from 'lucide-react';
-import { useLang } from '../context/LanguageContext';
+import { useLang } from '../../context/LanguageContext';
 
 interface FeedbackItem {
   key: string;
@@ -45,7 +45,6 @@ export default function AnalyticsDashboard() {
       const failedRequests = Math.floor(5 + Math.random() * 20);
       const errorRate = +(failedRequests / totalQueries * 100).toFixed(2);
 
-      // store translation keys, not actual text
       setData({
         totalQueries,
         activeUsers: Math.floor(5 + Math.random() * 20),
@@ -65,7 +64,7 @@ export default function AnalyticsDashboard() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
+        <RefreshCw className="w-8 h-8 text-accent animate-spin" />
       </div>
     );
   }
@@ -73,25 +72,27 @@ export default function AnalyticsDashboard() {
   if (!data) return null;
 
   return (
-    <div className="space-y-6 p-6 min-h-screen bg-[#F6F6F6] dark:bg-dark-gradient mac-tab-animate">
+    <div className="space-y-6 pt-2 px-0 bg-app mac-tab-animate">
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-[#1d2089] dark:bg-gradient-to-r dark:from-[#60a5fa] dark:to-[#a78bfa] rounded-xl transition-colors">
-            <BarChart3 className="w-6 h-6 text-white" />
+          <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-lg transition-colors">
+            <BarChart3 className="w-5 h-5 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-[#232333] dark:text-white transition-colors">{t('analytics.title')}</h2>
+          <h2 className="text-2xl font-bold text-foreground dark:text-white transition-colors">
+            {t('analytics.title')}
+          </h2>
         </div>
 
-        <div className="flex gap-1 bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl p-1 shadow-sm transition-colors">
+        <div className="flex gap-1 bg-surface dark:bg-dark-surface border border-default rounded-xl p-1 shadow-sm transition-colors">
           {(['7d', '30d', '90d'] as const).map(r => (
             <button
               key={r}
               onClick={() => setTimeRange(r)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 timeRange === r
-                  ? 'bg-[#1d2089] dark:bg-gradient-to-r dark:from-[#60a5fa] dark:to-[#a78bfa] text-white'
-                  : 'text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-surface hover:text-[#232333] dark:hover:text-dark-text'
+                  ? 'btn-primary text-on-accent'
+                  : 'text-muted dark:text-dark-text-muted hover:bg-surface-alt dark:hover:bg-dark-border'
               }`}
             >
               {r.toUpperCase()}
@@ -106,132 +107,135 @@ export default function AnalyticsDashboard() {
           title={t('analytics.totalQueries')}
           value={data.totalQueries}
           icon={MessageSquare}
-          color="blue"
-        />
-        <Metric
-          title={t('analytics.activeUsers')}
-          value={data.activeUsers}
-          icon={Users}
-          color="green"
+          bgColor="bg-purple-50 dark:bg-purple-900/20"
+          iconBg="bg-purple-100 dark:bg-purple-900/40"
+          iconColor="text-purple-600 dark:text-purple-300"
+          border="border-purple-200 dark:border-purple-800/50"
+          animated={true}
         />
         <Metric
           title={t('analytics.avgResponseTime')}
           value={`${data.avgResponseTime}s`}
           icon={Clock}
-          color="yellow"
+          bgColor="bg-sky-50 dark:bg-sky-900/20"
+          iconBg="bg-sky-100 dark:bg-sky-900/40"
+          iconColor="text-sky-600 dark:text-sky-300"
+          border="border-sky-200 dark:border-sky-800/50"
+          animated={true}
+        />
+        <Metric
+          title={t('analytics.activeUsers')}
+          value={data.activeUsers}
+          icon={Users}
+          bgColor="bg-orange-50 dark:bg-orange-900/20"
+          iconBg="bg-orange-100 dark:bg-orange-900/40"
+          iconColor="text-orange-600 dark:text-orange-300"
+          border="border-orange-200 dark:border-orange-800/50"
+          animated={true}
         />
       </div>
 
-      {/* GRAPHS / METRICS */}
+      {/* GRAPHS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* FEEDBACK DISTRIBUTION */}
-        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm transition-colors">
-          <h3 className="text-[#232333] dark:text-dark-text font-semibold mb-4 flex items-center gap-2 transition-colors">
-            <PieChart className="w-5 h-5 text-[#1d2089] dark:text-[#60a5fa] transition-colors" />{t('analytics.feedbackQuality')}
+        {/* Feedback */}
+        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm">
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <PieChart className="w-5 h-5 text-yellow-500" />
+            {t('analytics.feedbackQuality')}
           </h3>
 
-          <div className="space-y-4">
-            {data.feedbackChart.map((f, i) => {
-              const label = t(f.key);
-              const isPositive = f.key.includes('positive');
-              return (
-                <div key={i}>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-[#6E7680]">{label}</span>
-                    <span className="text-[#232333] font-medium">{f.value}%</span>
-                  </div>
-                  <div className="h-2.5 bg-[#F6F6F6] dark:bg-dark-border rounded-full transition-colors">
-                    <div
-                      className={`h-2.5 rounded-full ${isPositive ? 'bg-[#059669]' : 'bg-[#DC2626]'}`}
-                      style={{ width: `${f.value}%` }}
-                    />
-                  </div>
+          {data.feedbackChart.map((f, i) => {
+            const isPositive = f.key.includes('positive');
+            return (
+              <div key={i} className="mb-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-muted">{t(f.key)}</span>
+                  <span className="font-medium">{f.value}%</span>
                 </div>
-              );
-            })}
-          </div>
+                <div className="h-2.5 bg-[#F6F6F6] rounded-full">
+                  <div
+                    className={`h-2.5 rounded-full ${isPositive ? 'bg-green-600' : 'bg-red-600'}`}
+                    style={{ width: `${f.value}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* ERROR / FAILURE METRIC */}
-        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm transition-colors">
-          <h3 className="text-[#232333] dark:text-dark-text font-semibold mb-4 flex items-center gap-2 transition-colors">
-            <AlertTriangle className="w-5 h-5 text-amber-500" />{t('analytics.errorFailureRate')}
+        {/* Error Rate */}
+        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm">
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-emerald-600" />
+            {t('analytics.errorFailureRate')}
           </h3>
 
           <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 bg-[#F6F6F6] dark:bg-dark-border rounded-xl transition-colors">
-              <span className="text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('analytics.failedRequests')}</span>
-              <span className="text-[#232333] dark:text-dark-text font-semibold text-lg transition-colors">{data.failedRequests}</span>
+            <div className="flex justify-between p-3 bg-[#F6F6F6] rounded-xl">
+              <span>{t('analytics.failedRequests')}</span>
+              <span className="font-semibold">{data.failedRequests}</span>
             </div>
 
-            <div className="flex justify-between items-center p-3 bg-[#F6F6F6] dark:bg-dark-border rounded-xl transition-colors">
-              <span className="text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('analytics.errorRate')}</span>
-              <span className="text-[#232333] dark:text-dark-text font-semibold text-lg transition-colors">{data.errorRate}%</span>
+            <div className="flex justify-between p-3 bg-[#F6F6F6] rounded-xl">
+              <span>{t('analytics.errorRate')}</span>
+              <span className="font-semibold">{data.errorRate}%</span>
             </div>
-
-            <div className="h-3 bg-[#F6F6F6] dark:bg-dark-border rounded-full transition-colors">
-              <div
-                className="h-3 bg-amber-500 rounded-full"
-                style={{ width: `${Math.min(data.errorRate * 5, 100)}%` }}
-              />
-            </div>
-
-            <p className="text-xs text-[#6E7680]">
-              {t('analytics.errorRateDescription')}
-            </p>
           </div>
         </div>
       </div>
 
-      {/* SYSTEM HEALTH */}
-      <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm transition-colors">
-        <h3 className="text-[#232333] dark:text-dark-text font-semibold mb-2 flex items-center gap-2 transition-colors">
-          <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg transition-colors">
-            <Activity className="w-4 h-4 text-green-600" />
-          </div>
-          {t('analytics.systemHealth')}
-        </h3>
-        <p className="text-[#6E7680] dark:text-dark-text-muted text-sm transition-colorsxt-dark-text-muted text-sm transition-colors">
-          {t('analytics.systemStatus')}
-        </p>
-      </div>
+      <style>{`
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(15px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes wobbleOnHover {
+          0%, 100% {
+            transform: translateY(-8px);
+          }
+          25% {
+            transform: translateY(-8px) translateX(-2px);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+          75% {
+            transform: translateY(-8px) translateX(2px);
+          }
+        }
+        
+        .metric-card-animated {
+          transition: all 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+          cursor: pointer;
+        }
+        
+        .metric-card-animated:hover {
+          animation: wobbleOnHover 0.9s ease-in-out;
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+      `}</style>
     </div>
   );
 }
 
-/* ---------------- KPI CARD ---------------- */
-function Metric({
-  title,
-  value,
-  icon: Icon,
-  color,
-}: {
-  title: string;
-  value: string | number;
-  icon: any;
-  color: 'blue' | 'green' | 'yellow';
-}) {
-  const iconBg: any = {
-    blue: 'bg-[#F0F4FF]',
-    green: 'bg-green-50',
-    yellow: 'bg-amber-50',
-  };
-
-  const iconColor: any = {
-    blue: 'text-[#1d2089]',
-    green: 'text-green-600',
-    yellow: 'text-amber-500',
-  };
-
+/* KPI CARD */
+function Metric({ title, value, icon: Icon, bgColor, iconBg, iconColor, border, animated = false }: any) {
   return (
-    <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+    <div className={`${bgColor} ${border} border rounded-2xl p-5 shadow-sm ${animated ? 'metric-card-animated' : ''}`}>
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-[#6E7680] dark:text-dark-text-muted text-sm mb-1 transition-colors">{title}</p>
-          <p className="text-3xl font-bold text-[#232333] dark:text-dark-text transition-colors">{value}</p>
+          <p className="text-sm text-muted mb-1">{title}</p>
+          <p className="text-3xl font-bold">{value}</p>
         </div>
-        <div className={`p-3 rounded-xl ${iconBg[color]}`}>
-          <Icon className={`w-6 h-6 ${iconColor[color]}`} />
+        <div className={`p-3 rounded-xl ${iconBg}`}>
+          <Icon className={`w-6 h-6 ${iconColor}`} />
         </div>
       </div>
     </div>
