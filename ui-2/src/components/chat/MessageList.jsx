@@ -1,6 +1,9 @@
 import { CheckCircle, Clock } from 'lucide-react';
+import { useLang } from '../../context/LanguageContext';
 
 export default function MessageList({ messages = [], onMarkAsRead }) {
+  const { t } = useLang();
+
   if (!messages || messages.length === 0) {
     return (
       <div style={{
@@ -12,7 +15,7 @@ export default function MessageList({ messages = [], onMarkAsRead }) {
         color: '#999',
         textAlign: 'center'
       }}>
-        <p>No messages yet</p>
+        <p>{t('chat.noMessages')}</p>
       </div>
     );
   }
@@ -52,7 +55,7 @@ export default function MessageList({ messages = [], onMarkAsRead }) {
                 color: '#fff',
                 fontWeight: '500'
               }}>
-                NEW
+                {t('chat.new')}
               </span>
             )}
           </div>
@@ -93,7 +96,7 @@ export default function MessageList({ messages = [], onMarkAsRead }) {
                 onMouseLeave={(e) => e.target.style.backgroundColor = '#0078ff'}
               >
                 <CheckCircle size={12} />
-                Mark as Read
+                {t('chat.markAsRead')}
               </button>
             )}
           </div>

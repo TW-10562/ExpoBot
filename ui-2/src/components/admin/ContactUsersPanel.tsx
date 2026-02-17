@@ -4,6 +4,7 @@ import {
   Send,
   CheckCircle,
   Clock,
+  MessageSquare,
 } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
@@ -199,13 +200,14 @@ export default function ContactUsersPanel({
         </div>
       )}
 
+
       {/* ✅ Wrapper to hold BOTH cards */}
       <div className="space-y-6">
         {/* Broadcast composer card */}
         <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
           <div className="p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-[#1d2089] rounded-xl">
+              <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-xl">
                 <Send className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -233,7 +235,7 @@ export default function ContactUsersPanel({
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent transition-all"
+                className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all"
                 placeholder={t('broadcast.subjectPlaceholder')}
               />
             </div>
@@ -246,7 +248,7 @@ export default function ContactUsersPanel({
                 rows={5}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent transition-all resize-none"
+                className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all resize-none"
                 placeholder={t('broadcast.messagePlaceholder')}
               />
             </div>
@@ -266,7 +268,7 @@ export default function ContactUsersPanel({
                 type="button"
                 onClick={sendBroadcast}
                 disabled={sending || !content.trim()}
-                className="px-6 py-2.5 rounded-xl bg-[#1d2089] hover:bg-[#161870] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm inline-flex items-center gap-2 transition-colors"
+                className="px-6 py-2.5 rounded-xl bg-[#1e228a] dark:bg-[#00CCFF] hover:bg-[#151a6e] dark:hover:bg-[#00a3cc] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm inline-flex items-center gap-2 transition-colors"
               >
                 <Send className="w-4 h-4" />
                 {sending ? t('broadcast.sending') : t('broadcast.send')}

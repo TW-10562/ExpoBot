@@ -33,7 +33,7 @@ export default function Header({
           <img
             src="/assets/logo.png"
             alt={t('brand.name')}
-            className="h-9 w-auto object-contain"
+            className="h-9 w-auto object-contain dark:brightness-0 dark:invert"
           />
           <h1 className="text-2xl font-bold tracking-tight uppercase text-foreground dark:text-dark-text">
             {t('brand.name')}
@@ -46,12 +46,12 @@ export default function Header({
           {/* Notification Bell */}
           <button
             onClick={onNotificationBellClick}
-            className="p-2.5 hover:bg-surface-alt dark:hover:bg-dark-surface rounded-xl transition-colors relative"
+            className="p-2.5 hover:bg-surface-alt dark:hover:bg-[#00CCFF] rounded-xl transition-colors relative"
             title={t('notificationsPanel.toggle')}
           >
-            <Bell className="w-5 h-5 text-icon-muted dark:text-dark-text-muted hover:text-foreground dark:hover:text-dark-accent-blue transition-colors icon-current" />
+            <Bell className="w-5 h-5 text-icon-muted dark:text-dark-text-muted dark:hover:text-black hover:text-foreground transition-colors icon-current" />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 badge-accent text-on-accent text-xs font-bold rounded-full flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-[#1e228a] dark:bg-[#00CCFF] text-white text-xs font-bold rounded-full flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -60,28 +60,28 @@ export default function Header({
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2.5 hover:bg-[#F6F6F6] dark:hover:bg-dark-surface rounded-xl transition-colors"
-            title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+            className="p-2.5 hover:bg-[#F6F6F6] dark:hover:bg-[#00CCFF] rounded-xl transition-colors"
+            title={theme === 'light' ? t('theme.switchToDark') : t('theme.switchToLight')}
           >
             {theme === 'light' ? (
               <Moon className="w-5 h-5 text-icon-muted hover:text-foreground transition-colors icon-current" />
             ) : (
-              <Sun className="w-5 h-5 text-dark-text-muted hover:text-dark-accent-blue transition-colors icon-current" />
+              <Sun className="w-5 h-5 text-dark-text-muted dark:hover:text-black hover:text-dark-accent-blue transition-colors icon-current" />
             )} 
           </button>
 
           {/* Language Toggle */}
           <button
             onClick={toggleLang}
-            className="p-2.5 hover:bg-surface-alt dark:hover:bg-dark-surface rounded-xl transition-colors relative"
+            className="p-2.5 hover:bg-surface-alt dark:hover:bg-[#00CCFF] rounded-xl transition-colors relative"
             title={
               lang === 'ja'
                 ? t('language.switchToEnglish')
                 : t('language.switchToJapanese')
             }
           >
-            <Globe className="w-5 h-5 text-icon-muted dark:text-dark-text-muted hover:text-foreground dark:hover:text-dark-accent-blue transition-colors icon-current" />
-            <span className="absolute -bottom-1 -right-1 w-5 h-5 badge-accent text-on-accent text-[10px] font-bold rounded-full flex items-center justify-center">
+            <Globe className="w-5 h-5 text-icon-muted dark:text-dark-text-muted dark:hover:text-black hover:text-foreground transition-colors icon-current" />
+            <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#1e228a] dark:bg-[#00CCFF] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {lang === 'ja' ? 'JP' : 'EN'}
             </span>
           </button> 
@@ -89,11 +89,11 @@ export default function Header({
           {/* Profile */}
           <button
             onClick={onProfileClick}
-            className="flex items-center gap-3 px-3 py-2 hover:bg-surface-alt dark:hover:bg-dark-surface rounded-xl transition-colors ml-2"
+            className="flex items-center gap-3 px-3 py-2 hover:bg-surface-alt dark:hover:bg-[#00CCFF] rounded-xl transition-colors ml-2"
           >
-            <div className="text-right">
-              <p className="text-sm font-semibold text-foreground dark:text-dark-text">{user.name}</p>
-              <p className="text-xs text-muted dark:text-dark-text-muted">
+            <div className="text-right dark:group-hover:text-black">
+              <p className="text-sm font-semibold text-foreground dark:hover:text-black dark:text-dark-text transition-colors">{user.name}</p>
+              <p className="text-xs text-muted dark:hover:text-black/70 dark:text-dark-text-muted transition-colors">
                 {user.department}
               </p>
             </div>

@@ -3,15 +3,21 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import { getMyTickets, createSupportTicket, replyToTicket } from '../../api/support';
 import { CheckCircle, X } from 'lucide-react';
+import { useLang } from '../../context/LanguageContext';
  
 export default function Messenger({ user, onUnreadCountChange, onNotificationsChange })  {
   const [messages, setMessages] = useState([]);
   const [supportTickets, setSupportTickets] = useState([]);
   const [loadingTickets, setLoadingTickets] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('Message sent successfully!');
+  const [successMessage, setSuccessMessage] = useState('');
   const [adminTickets, setAdminTickets] = useState([]);
   const [replyForTicket, setReplyForTicket] = useState({}); // { [ticketId]: replyText }
+
+  const { t } = useLang();
+
+  // Determine current user ID based on role
+  const currentUserId = user?.role === 'admin' ? 'admin' : user?.employeeId || 'user';
 
   const safeDate = (item) => {
     if (!item) return null;
@@ -39,23 +45,31 @@ export default function Messenger({ user, onUnreadCountChange, onNotificationsCh
     }
   }, []);
  
-  // Whenever messages change, notify parent and update unread count
+  // NOTIFICATION COUNT LOGIC - PURE RECEIVER-BASED CALCULATION
+  // Rule: Only count messages where receiverId === currentUserId AND read === false
+  // This ensures:
+  // - Senders NEVER see their own messages as unread
+  // - Only receivers see messages intended for them as unread
+  // - Admin and User are completely isolated
   useEffect(() => {
-    const filteredNotifications = messages.filter((m) => {
-      if (user?.role === 'admin') return m.senderRole === 'user';
-      return m.senderRole === 'admin';
-    });
-    const unreadCount = filteredNotifications.filter(m => !m.read).length;
-   
-    // Call parent callbacks
+    if (!user) return;
+
+    // CRITICAL: This calculation uses receiverId, NOT senderRole
+    // Messages are only counted as unread if they're intended FOR the current user
+    const unreadMessages = messages.filter(
+      m => m.receiverId === currentUserId && m.read === false
+    );
+
+    // Notify parent of unread count
     if (onUnreadCountChange) {
-      onUnreadCountChange(unreadCount);
+      onUnreadCountChange(unreadMessages.length);
     }
+    // Notify parent of all visible notifications (regardless of read status)
     if (onNotificationsChange) {
-      onNotificationsChange(filteredNotifications);
+      onNotificationsChange(unreadMessages);
     }
-  }, [messages, user, onUnreadCountChange, onNotificationsChange]);
- 
+  }, [messages, user, currentUserId, onUnreadCountChange, onNotificationsChange]);
+
   // Load messages from localStorage
   const loadMessagesFromStorage = () => {
     const storedMessages = localStorage.getItem('notifications_messages');
@@ -119,19 +133,20 @@ export default function Messenger({ user, onUnreadCountChange, onNotificationsCh
   const sendMessage = ({ subject, message }) => {
     console.log('sendMessage called:', { subject, message, userRole: user?.role });
     const now = new Date();
+    // Message structure: REQUIRED fields for unread logic to work
+    // senderId: identifies who sent it
+    // receiverId: identifies who should receive it (CRITICAL for unread calculation)
+    // read: tracks if receiver has read it
     const msg = {
       id: Date.now().toString(),
       sender: user.name || 'User',
-      senderId: user?.role === 'admin' ? 'admin' : user?.employeeId || 'user',
+      senderId: currentUserId, // User's employeeId or 'admin'
+      receiverId: 'admin', // Users always send to admin
       senderRole: user.role,
-      role: user.role,
       subject: subject || '',
-      text: message || '',
-      message: message || '',
-      time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-      date: now.toLocaleDateString('en-US'),
+      message: message || '', // Standardized field name
       timestamp: now.getTime(),
-      read: user?.role === 'admin' ? true : false,
+      read: false, // Unread for receiver initially
     };
    
     const updatedMessages = [...messages, msg];
@@ -143,7 +158,7 @@ export default function Messenger({ user, onUnreadCountChange, onNotificationsCh
     console.log('Saved to localStorage');
    
     // Show success popup
-    setSuccessMessage('Message sent successfully!');
+    setSuccessMessage(t('chat.messageSent'));
     setShowSuccessPopup(true);
     setTimeout(() => setShowSuccessPopup(false), 3000);
    
@@ -160,23 +175,25 @@ export default function Messenger({ user, onUnreadCountChange, onNotificationsCh
     }
   };
  
-  // Mark message as read - find the message in the full array
+  // Mark message as read - RECEIVER-ONLY OPERATION
+  // This only affects the receiver's view of the message
+  // Sender's notification count is never impacted
   const markAsRead = (messageToMark) => {
     console.log('markAsRead called:', messageToMark);
+    // Update only this specific message's read status
     const updatedMessages = messages.map((m) =>
       m.id === messageToMark.id ? { ...m, read: true } : m
     );
     setMessages(updatedMessages);
+    // Persist to localStorage
     localStorage.setItem('notifications_messages', JSON.stringify(updatedMessages));
     console.log('Message marked as read');
   };
  
-  const notifications = messages.filter((m) => {
-    if (user?.role === 'admin') return m.senderRole === 'user';
-    return m.senderRole === 'admin';
-  });
- 
-  const unreadCount = notifications.filter(m => !m.read).length;
+  // NOTIFICATIONS FILTER - RECEIVER-BASED VISIBILITY
+  // Show only messages intended for the current user (their inbox)
+  // This is independent of read status - shows all messages they received
+  const notifications = messages.filter(m => m.receiverId === currentUserId);
  
   return (
     <div style={{
@@ -195,29 +212,12 @@ export default function Messenger({ user, onUnreadCountChange, onNotificationsCh
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h2 style={{ margin: '0 0 4px 0', fontSize: '24px', fontWeight: '700' }}>
-              {user?.role === 'admin' ? 'User Questions' : 'Admin Messages'}
+              {user?.role === 'admin' ? t('notificationsPanel.title') : t('chat.adminMessages')}
             </h2>
             <p style={{ margin: 0, fontSize: '13px', color: '#999' }}>
               {notifications.length} message{notifications.length !== 1 ? 's' : ''}
-              {unreadCount > 0 && ` • ${unreadCount} unread`}
             </p>
           </div>
-          {unreadCount > 0 && (
-            <span style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '32px',
-              height: '32px',
-              backgroundColor: '#ef4444',
-              color: '#fff',
-              borderRadius: '50%',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}>
-              {unreadCount}
-            </span>
-          )}
         </div>
       </div>
  
@@ -295,26 +295,26 @@ export default function Messenger({ user, onUnreadCountChange, onNotificationsCh
                         setShowSuccessPopup(true);
                         setTimeout(() => setShowSuccessPopup(false), 2500);
 
-                        // Optionally append to local messages so user-side list updates
+                        // Append to local messages and sync React state immediately
                         const now = new Date();
+                        // Message structure: REQUIRED fields for unread logic to work
                         const adminMsg = {
                           id: `${t.id}-${now.getTime()}`,
                           sender: 'Admin',
-                          senderId: 'admin',
+                          senderId: 'admin', // Admin is the sender
+                          receiverId: t.user_id || 'user', // Message goes to specific user
                           senderRole: 'admin',
-                          role: 'admin',
                           subject: `Re: ${t.subject || 'User query'}`,
-                          text: reply,
-                          message: reply,
-                          time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-                          date: now.toLocaleDateString('en-US'),
+                          message: reply, // Standardized field name
                           timestamp: now.getTime(),
-                          read: true,
+                          read: false, // Unread for receiver (the user) initially
                         };
                         const stored = localStorage.getItem('notifications_messages');
                         const all = stored ? JSON.parse(stored) : [];
                         all.push(adminMsg);
                         localStorage.setItem('notifications_messages', JSON.stringify(all));
+                        // Sync React state immediately after updating localStorage
+                        setMessages(all);
                         // Clear the input and refresh tickets list
                         setReplyForTicket(prev => ({ ...prev, [t.id]: '' }));
                         await loadAllTicketsForAdmin();
@@ -408,7 +408,7 @@ export default function Messenger({ user, onUnreadCountChange, onNotificationsCh
                 lineHeight: '1.5',
                 wordBreak: 'break-word'
               }}>
-                {msg.text || msg.message}
+                {msg.message || msg.text}
               </p>
  
               {/* Mark as Read Button */}

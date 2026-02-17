@@ -36,7 +36,7 @@ export default function HistoryPage({ history, onContactAdmin }: HistoryPageProp
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-6 border-b border-white/10 bg-black/20">
+      <div className="pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2 border-b border-white/10 bg-black/20">
         <div className="space-y-4">
           <div className="relative">
             <div className="input-icon-absolute pointer-events-none"><Search className="w-5 h-5 text-icon-muted icon-current" /></div>
@@ -45,7 +45,7 @@ export default function HistoryPage({ history, onContactAdmin }: HistoryPageProp
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('history.searchPlaceholder')}
-              className="w-full input-with-icon pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full input-with-icon pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-black dark:text-black placeholder-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>

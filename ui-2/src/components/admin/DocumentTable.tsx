@@ -4,6 +4,7 @@ import {
   Search,
   Upload,
   CheckCircle,
+  FileText,
 } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
@@ -80,7 +81,12 @@ export default function DocumentTable({
   return (
     <div className="space-y-6 mt-4">
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">{t('documentTable.title')}</h3>
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-lg transition-colors">
+            <FileText className="w-5 h-5 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground dark:text-white transition-colors">{t('documentTable.title')}</h2>
+        </div>
         <div className="flex items-center gap-3 flex-1 max-w-md">
           <div className="relative flex-1">
             <div className="input-icon-absolute pointer-events-none"><Search className="w-4 h-4 text-icon-muted dark:text-dark-text-muted icon-current" /></div>
@@ -220,7 +226,7 @@ export default function DocumentTable({
               <th className="px-4 py-3 text-left">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 accent-[#1d2089]"
+                  className="w-4 h-4 accent-[#1e228a] dark:accent-[#00CCFF]"
                   checked={filteredDocs.length > 0 && filteredDocs.every(doc => selectedDocIds.has(doc.id))}
                   onChange={(e) => {
                     const next = new Set(selectedDocIds);
@@ -260,7 +266,7 @@ export default function DocumentTable({
                   <td className="px-4 py-3">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 accent-[#1d2089]"
+                      className="w-4 h-4 accent-[#1e228a] dark:accent-[#00CCFF]"
                       checked={selectedDocIds.has(doc.id)}
                       onChange={(e) => {
                         setSelectedDocIds(prev => {
@@ -289,7 +295,7 @@ export default function DocumentTable({
                     <button
                       onClick={() => setPendingDelete({ id: doc.id, filename: doc.filename })}
                       disabled={deletingFileId === doc.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-medium"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-red-500 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-medium"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       {deletingFileId === doc.id ? '...' : t('documentTable.delete')}

@@ -124,7 +124,7 @@ export default function ChatExport({
         <div className="flex items-center justify-between px-6 py-4 border-b border-default bg-surface-alt dark:bg-dark-bg-primary transition-colors">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center border border-default">
-              <Download className="w-5 h-5 text-on-accent icon-current" />
+              <Download className="w-5 h-5 text-black dark:text-on-accent icon-current" />
             </div>
             <div>
               <h2 className="font-semibold text-foreground dark:text-white transition-colors">{t('chatExport.title')}</h2>
@@ -145,9 +145,9 @@ export default function ChatExport({
             {t('chatExport.description')}
           </p>
 
-          <ExportButton icon={FileText} title={t('chatExport.plainText.title')} desc={t('chatExport.plainText.desc')} onClick={exportAsTxt} />
-          <ExportButton icon={File} title={t('chatExport.markdown.title')} desc={t('chatExport.markdown.desc')} onClick={exportAsMarkdown} />
-          <ExportButton icon={File} title={t('chatExport.json.title')} desc={t('chatExport.json.desc')} onClick={exportAsJson} />
+          <ExportButton type="text" icon={FileText} title={t('chatExport.plainText.title')} desc={t('chatExport.plainText.desc')} onClick={exportAsTxt} />
+          <ExportButton type="markdown" icon={File} title={t('chatExport.markdown.title')} desc={t('chatExport.markdown.desc')} onClick={exportAsMarkdown} />
+          <ExportButton type="json" icon={File} title={t('chatExport.json.title')} desc={t('chatExport.json.desc')} onClick={exportAsJson} />
 
           <div className="text-center text-xs text-muted dark:text-dark-text-muted">{t('chatExport.or')}</div>
 
@@ -155,7 +155,7 @@ export default function ChatExport({
             onClick={copyToClipboard}
             className="w-full flex items-center justify-center gap-2 p-3 btn-primary text-on-accent rounded-xl transition-colors"
           >
-            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            {copied ? <Check className="w-4 h-4 text-black dark:text-on-accent" /> : <Copy className="w-4 h-4 text-black dark:text-on-accent" />}
             {copied ? t('chatExport.copied') : t('chatExport.copy')}
           </button>
         </div>
@@ -171,20 +171,60 @@ export default function ChatExport({
 }
 
 interface ExportButtonProps {
+  type: 'text' | 'markdown' | 'json';
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   desc: string;
   onClick: () => void;
 }
 
-function ExportButton({ icon: Icon, title, desc, onClick }: ExportButtonProps) {
+function ExportButton({ type, icon: Icon, title, desc, onClick }: ExportButtonProps) {
+  const getColorClasses = () => {
+    switch (type) {
+      case 'text':
+        return {
+          bg: 'bg-orange-50 dark:bg-orange-950/20',
+          border: 'border-orange-200 dark:border-orange-800/50',
+          iconBg: 'bg-orange-100 dark:bg-orange-900/40',
+          iconColor: 'text-black dark:text-orange-300', // updated
+          hoverBg: 'hover:bg-orange-100 dark:hover:bg-orange-900/30'
+        };
+      case 'markdown':
+        return {
+          bg: 'bg-green-50 dark:bg-green-900/20',
+          border: 'border-green-200 dark:border-green-800/50',
+          iconBg: 'bg-green-100 dark:bg-green-900/40',
+          iconColor: 'text-black dark:text-green-400', // updated
+          hoverBg: 'hover:bg-green-100 dark:hover:bg-green-900/30'
+        };
+      case 'json':
+        return {
+          bg: 'bg-purple-50 dark:bg-purple-900/20',
+          border: 'border-purple-200 dark:border-purple-800/50',
+          iconBg: 'bg-purple-100 dark:bg-purple-900/40',
+          iconColor: 'text-black dark:text-purple-400', // updated
+          hoverBg: 'hover:bg-purple-100 dark:hover:bg-purple-900/30'
+        };
+      default:
+        return {
+          bg: 'bg-surface dark:bg-dark-surface-alt',
+          border: 'border-default',
+          iconBg: 'bg-surface-alt dark:bg-dark-surface',
+          iconColor: 'text-black dark:text-dark-text-muted', // updated
+          hoverBg: 'hover:bg-surface-alt dark:hover:bg-dark-border'
+        };
+    }
+  };
+
+  const colors = getColorClasses();
+
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-4 p-4 bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border border border-default rounded-xl text-left transition-colors"
+      className={`w-full flex items-center gap-4 p-4 ${colors.bg} border ${colors.border} rounded-xl text-left transition-colors ${colors.hoverBg}`}
     >
-      <div className="w-10 h-10 rounded-xl bg-surface-alt dark:bg-dark-surface border border-default flex items-center justify-center">
-        <Icon className="w-5 h-5 text-icon-muted dark:text-dark-text-muted icon-current" />
+      <div className={`w-10 h-10 rounded-xl ${colors.iconBg} border ${colors.border} flex items-center justify-center`}>
+        <Icon className={`w-5 h-5 ${colors.iconColor} icon-current`} />
       </div>
       <div>
         <p className="font-medium text-foreground dark:text-dark-text transition-colors">{title}</p>

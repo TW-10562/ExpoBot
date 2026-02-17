@@ -134,7 +134,10 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
 
     const activities: ActivityLog[] = documentHistory.slice(0, 10).map((doc, index) => ({
       id: String(index + 1),
-      user: doc.create_by || t('activity.admin'),
+      user: doc.create_by
+  ? t(`activity.roles.${doc.create_by}`)
+  : t('activity.admin'),
+
       action: t('activity.documentUploaded'),
       detail: doc.filename,
       timestamp: new Date(doc.created_at),
@@ -202,7 +205,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
         </div>
       )}
 
-      <div key={activeTab} className="flex-1 overflow-y-auto p-6 mac-tab-animate bg-app transition-colors">
+      <div key={activeTab} className="flex-1 overflow-y-auto pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2 mac-tab-animate bg-app transition-colors">
         {activeTab === 'documents' && (
           <>
             <DocumentUpload
@@ -222,15 +225,8 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
         {activeTab === 'analytics' && <AnalyticsDashboard />}
 
         {activeTab === 'chat' && (
-          <div className="bg-surface dark:bg-dark-surface border border-default rounded-2xl overflow-hidden animate-section-in flex flex-col h-full shadow-sm transition-colors">
-            <div className="p-4 border-b border-default bg-surface-alt dark:bg-dark-bg-primary transition-colors">
-              <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
-                {t('chat.title')}
-              </h3>
-            </div>
-            <div className="flex-1 min-h-0">
-              <ChatInterface onSaveToHistory={() => {}} />
-            </div>
+          <div className="flex-1 min-h-0">
+            <ChatInterface onSaveToHistory={() => {}} />
           </div>
         )}
 

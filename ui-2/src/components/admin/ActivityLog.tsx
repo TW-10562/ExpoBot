@@ -21,7 +21,12 @@ export default function ActivityLogComponent({ activities }: ActivityLogProps) {
 
   return (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">{t('activity.title')}</h3>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-lg transition-colors">
+          <Activity className="w-5 h-5 text-white dark:text-black" />
+        </div>
+        <h2 className="text-2xl font-bold text-[#232333] dark:text-white transition-colors">{t('activity.title')}</h2>
+      </div>
 
       <div className="space-y-3">
         {activities.map((activity) => (
@@ -31,7 +36,7 @@ export default function ActivityLogComponent({ activities }: ActivityLogProps) {
           >
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-[#F0F4FF] dark:bg-dark-surface-alt rounded-xl flex items-center justify-center flex-shrink-0 transition-colors">
-                <Activity className="w-5 h-5 text-[#1d2089] dark:text-dark-accent-blue transition-colors" />
+                <Activity className="w-5 h-5 text-[#1e228a] dark:text-[#00CCFF] transition-colors" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Send, CheckCircle, Users } from 'lucide-react';
 import { getToken } from '../../api/auth';
+import { useLang } from '../../context/LanguageContext';
 
 interface BroadcastModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ export default function BroadcastModal({ isOpen, onClose }: BroadcastModalProps)
   const [content, setContent] = useState('');
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
+  const { t } = useLang();
 
   if (!isOpen) return null;
 
@@ -77,17 +79,17 @@ export default function BroadcastModal({ isOpen, onClose }: BroadcastModalProps)
             <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-10 h-10 text-green-500" />
             </div>
-            <h3 className="text-xl font-semibold text-[#232333] dark:text-dark-text">Broadcast Sent!</h3>
-            <p className="text-[#6E7680] dark:text-dark-text-muted mt-2">Message sent to all users.</p>
+            <h3 className="text-xl font-semibold text-[#232333] dark:text-dark-text">{t('broadcast.sentTitle')}</h3>
+            <p className="text-[#6E7680] dark:text-dark-text-muted mt-2">{t('broadcast.sentMessage')}</p>
           </div>
         ) : (
           <>
             <div className="flex items-center justify-between p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-[#1d2089] dark:bg-[#2563eb] rounded-xl transition-colors">
-                  <Users className="w-5 h-5 text-white" />
+                <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-xl transition-colors">
+                  <Users className="w-5 h-5 text-white dark:text-black" />
                 </div>
-                <h2 className="text-lg font-semibold text-[#232333] dark:text-dark-text transition-colors">Message All Users</h2>
+                <h2 className="text-lg font-semibold text-[#232333] dark:text-dark-text transition-colors">{t('broadcast.messageAllUsers')}</h2>
               </div>
               <button onClick={onClose} className="p-2 rounded-xl hover:bg-[#E8E8E8] dark:hover:bg-dark-surface text-[#6E7680] dark:text-dark-text-muted hover:text-[#232333] dark:hover:text-dark-text transition-colors">
                 <X className="w-5 h-5" />
@@ -96,34 +98,34 @@ export default function BroadcastModal({ isOpen, onClose }: BroadcastModalProps)
 
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">Subject</label>
+                <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">{t('broadcast.subjectLabel')}</label>
                 <input
                   type="text"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  placeholder="Enter subject..."
-                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted transition-colors"
+                  placeholder={t('broadcast.enterSubject')}
+                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">Message</label>
+                <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">{t('broadcast.messageLabel')}</label>
                 <textarea
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="Type your message to all users..."
+                  placeholder={t('broadcast.typeMessage')}
                   rows={4}
-                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted resize-none transition-colors"
+                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted resize-none transition-colors"
                 />
               </div>
 
               <button
                 onClick={handleSend}
                 disabled={sending || !subject.trim() || !content.trim()}
-                className="w-full bg-[#1d2089] hover:bg-[#161870] disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] dark:bg-[#2563eb] dark:hover:bg-[#1d4ed8] dark:disabled:bg-[#2563eb]/50 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all"
+                className="w-full bg-[#1e228a] hover:bg-[#161a5a] disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] dark:bg-[#00CCFF] dark:hover:bg-[#0099cc] dark:disabled:bg-[#00CCFF]/50 dark:text-black text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all"
               >
                 <Send className="w-4 h-4" />
-                {sending ? 'Sending...' : 'Broadcast to All Users'}
+                {sending ? t('common.loading') : t('broadcast.broadcastToAllUsers')}
               </button>
             </div>
           </>

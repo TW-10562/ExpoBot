@@ -4,7 +4,7 @@
     "english": "English",
     "japanese": "Japanese",
     "settings": "Settings",
-    "profile": "Profile",
+    "profile": "PROFILE",
     "logout": "Logout",
     "notifications": "Notifications",
     "cancel": "Cancel",
@@ -48,12 +48,13 @@
     "confirmText": "DELETE ALL MESSAGES",
      "deleteSuccess": "Successfully deleted {{count}} messages",
      "deleteWarning": "This is a destructive action. Once deleted, messages cannot be recovered.",
-     "permanentDeleteTitle": "Permanently delete message history"
+     "permanentDeleteTitle": "Permanently delete message history",
+     "confirmationMismatch": "Confirmation text does not match"
   },
 
   "login": {
     "welcome": "Welcome",
-    "signIn": "Sign in to access HR Policy System",
+    "signIn": "Sign in to access Internal Policy System",
     "username": "Username",
     "password": "Password",
     "signInButton": "Sign In",
@@ -77,11 +78,15 @@
   },
  
   "brand": {
-    "name": "Thirdwave"
+    "name": "THIRDWAVE"
   },
   "language": {
     "switchToEnglish": "Switch to English",
     "switchToJapanese": "Switch to Japanese"
+  },
+  "theme": {
+    "switchToDark": "Switch to Dark Mode",
+    "switchToLight": "Switch to Light Mode"
   },
   
   "chatExport": {
@@ -140,9 +145,9 @@
     "categoryLabel": "Category",
     "selectedCount": "{{count}} selected",
     "category": {
-      "companyPolicy": "📋 Company Policy",
-      "internalGuide": "📖 Internal Guide",
-      "procedure": "⚙️ Procedure",
+      "companyPolicy": "📋 HR Policy",
+      "internalGuide": "📖 General Affairs Policy",
+      "procedure": "📋 Others",
       "faq": "❓ FAQ"
     },
     "filesSelected": "📄 {{count}} file(s) selected",
@@ -247,14 +252,24 @@
     "messagePlaceholder": "Write your message to all users...",
     "send": "Send Broadcast",
     "sending": "Sending...",
-    "defaultSubject": "Broadcast Message"
+    "defaultSubject": "Broadcast Message",
+    "messageAllUsers": "Message All Users",
+    "broadcastSent": "Broadcast Sent!",
+    "enterSubject": "Enter subject...",
+    "typeMessage": "Type your message to all users...",
+    "broadcastToAllUsers": "Broadcast to All Users"
   },
   "activity": {
     "admin": "Admin",
     "documentUploaded": "Document uploaded",
     "chatQuery": "Chat query",
     "chatDetail": "Asked about documents",
-    "title": "Activity Log"
+    "title": "Activity Log",
+    "adminLabel": "ADMIN",
+    "roles": {
+      "admin": "Admin",
+      "user": "User"
+    }
   },
 
     
@@ -284,17 +299,30 @@
     "clearHistory": "Clear History",
     "exportChat": "Export Chat",
     "deleteChat": "Delete Chat",
+    "deleteChatTitle": "Delete Chat",
+    "deleteChatConfirm": "Are you sure you want to delete {{title}}? This action cannot be undone.",
     "chatSaved": "Chat saved to history",
     "noChats": "No chat history yet",
     "startConversation": "Start a new conversation",
-    "welcomeMessage": "Hello! I'm your HR Policy Assistant. I can help you with questions about company policies, benefits, leave, remote work, and more. You can ask in English or Japanese (日本語でも質問できます).",
+    "welcomeMessage": "Hello! I'm your HR Policy Assistant. I can help you with questions about company policies, benefits, leave, remote work, and more. You can ask in English or Japanese.",
     "assistant": "Assistant",
     "statusOnline": "Online",
     "generationStopped": "⏹️ Generation stopped by user.",
     "generation": "Generation stopped",
     "like": "Thanks for your feedback!",
     "dislike": "We'll improve!",
-    "regen": "Regenerating..."
+    "regen": "Regenerating...",
+    "messageSent": "Message sent successfully!",
+    "noMessages": "No messages yet",
+    "markAsRead": "Mark as Read",
+    "new": "NEW",
+    "translating": "Translating...",
+    "hideTranslation": "Hide Translation",
+    "showLanguage": "Show {{language}}",
+    "adminMessages": "Admin Messages",
+     "deleted": "Chat deleted",
+    "cleared": "Chat cleared",
+    "deleteFailed": "Failed to delete chat"
   },
   "chatActions": {
     "copy": "Copy",
@@ -361,7 +389,7 @@
     "notifications": "Notifications",
     "analytics": "Analytics",
     "chat": "Ask HR Bot",
-    "contact": "Contact Users",
+    "contact": "Contact User",
     "messages": "Delete Messages",
     "sendNotification": "Send Notification",
     "notificationTitle": "Notification Title",
@@ -405,7 +433,13 @@
     "sending": "Sending...",
     "sendButton": "Send Message",
     "you": "You",
-    "defaultSubject": "User message"
+    "defaultSubject": "User message",
+    "contactAdminTitle": "Contact Admin",
+    "contactAdminDescription": "Send your question or concern to the admin team",
+    "pleaseEnterQuery": "Please enter your query",
+    "confirmSendMessage": "Are you sure you want to send this message to admin?",
+    "yourQuery": "Your Query *",
+    "queryPlaceholder": "Please describe your question or concern in detail..."
   },
    "notificationsPanel": {
     "title": "Notifications",

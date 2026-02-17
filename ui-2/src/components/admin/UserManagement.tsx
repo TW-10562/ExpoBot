@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, Upload } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Save, Upload, Users } from 'lucide-react';
 import { useLang } from '../../context/LanguageContext';
 
 interface User {
@@ -353,12 +353,17 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-2 px-0 pb-2">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
-          {t('userManagement.title')}
-        </h3>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-lg transition-colors">
+            <Users className="w-5 h-5 text-white dark:text-black" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground dark:text-white transition-colors">
+            {t('userManagement.title')}
+          </h2>
+        </div>
         {!editingUser && (
           <div className="flex items-center gap-2">
             {/* CSV Upload Button */}
@@ -483,7 +488,7 @@ export default function UserManagement() {
                               userJobRole: e.target.value,
                             })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
                         >
                         <option value="">{selectJobRoleLabel}</option>
                           {JOB_ROLE_OPTIONS.map((option) => (
@@ -499,7 +504,7 @@ export default function UserManagement() {
                           onChange={(e) =>
                             setFormData({ ...formData, areaOfWork: e.target.value })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
                         >
                         <option value="">{selectAreaLabel}</option>
                           {AREA_OF_WORK_OPTIONS.map((option) => (
@@ -531,7 +536,7 @@ export default function UserManagement() {
                           onChange={(e) =>
                             setFormData({ ...formData, password: e.target.value })
                           }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
                         />
                       </td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted text-sm transition-colors">

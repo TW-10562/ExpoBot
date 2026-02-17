@@ -85,7 +85,7 @@ export default function HomePage({
       />
 
       {/* Main */}
-      <main className="mac-glass-page flex-1 pt-4 px-3 lg:pl-6 lg:pr-6 pb-4 overflow-hidden bg-surface dark:bg-dark-gradient transition-colors">
+      <main className="mac-glass-page flex-1 pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2 overflow-hidden bg-surface dark:bg-dark-gradient transition-colors">
         <div className={`h-full gap-4 overflow-hidden flex flex-col lg:grid ${showNotificationPanel ? 'lg:grid-cols-[72px_1fr_320px]' : 'lg:grid-cols-[72px_1fr]'}`}>
           {/* Sidebar */}
           <aside className="hidden lg:block h-full">
@@ -108,11 +108,13 @@ export default function HomePage({
             className="relative h-full rounded-xl mac-glass mac-glass-translucent mac-border-highlight mac-tab-animate overflow-hidden flex flex-col"
           >
             {user.role !== 'admin' && activeSection === 'chat' && (
-              <ChatInterface
-                onSaveToHistory={(q, a, s) => onSaveToHistory?.(q, a, s)}
-                focusSignal={chatFocusTick}
-                onUserTyping={setIsTyping}
-              />
+              <div className="flex-1 overflow-y-auto pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2">
+                <ChatInterface
+                  onSaveToHistory={(q, a, s) => onSaveToHistory?.(q, a, s)}
+                  focusSignal={chatFocusTick}
+                  onUserTyping={setIsTyping}
+                />
+              </div>
             )}
 
             {user.role !== 'admin' && activeSection === 'history' && (
@@ -120,7 +122,9 @@ export default function HomePage({
             )}
 
             {user.role !== 'admin' && activeSection === 'contact' && (
-              <InlineContactAdmin userId={user.employeeId} />
+              <div className="flex-1 overflow-y-auto pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2">
+                <InlineContactAdmin userId={user.employeeId} />
+              </div>
             )}
 
             {user.role === 'admin' && (

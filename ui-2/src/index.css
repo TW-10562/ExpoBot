@@ -19,9 +19,9 @@
   --c-surface-alt: #F0F4FF;
   --c-bg: #F6F6F6;
   --c-border: #E8E8E8;
-  --c-accent: #1d2089; /* primary action */
-  --c-accent-strong: #2563eb; /* stronger accent (used in dark) */
-  --c-accent-rgb: 29,32,137;
+  --c-accent: #1e228a; /* primary action */
+  --c-accent-strong: #1e228a; /* stronger accent (used in dark) */
+  --c-accent-rgb: 30,34,138;
   --c-on-accent: #ffffff;
   --c-success: #0f766e;
   --c-warning: #d97706;
@@ -39,9 +39,9 @@ html.dark {
   --c-surface-alt: #121827;
   --c-bg: #0f1724;
   --c-border: #2d3e52;
-  --c-accent: #1d2089; /* dark navy across dark theme */
-  --c-accent-strong: #2563eb;
-  --c-accent-rgb: 29,32,137;
+  --c-accent: #00CCFF; /* cyan accent dark theme */
+  --c-accent-strong: #00CCFF;
+  --c-accent-rgb: 89,148,210;
   --c-on-accent: #ffffff;
   --c-success: #0f766e;
   --c-warning: #f59e0b;
@@ -206,22 +206,24 @@ html.dark .left-sidebar {
   border-right-color: #2d3e52;
 }
 .left-sidebar .sidebar-inner{ display:flex; flex-direction:column; align-items:center; padding-top:16px; padding-bottom:16px; gap:8px; }
-.sidebar-btn{ width:44px; height:44px; display:flex; align-items:center; justify-content:center; color: #6E7680; border-radius:10px; background:transparent; border:none; cursor:pointer; transition: all 0.15s ease; }
-.sidebar-btn:hover{ background: #F0F4FF; color:#1d2089; }
-.sidebar-btn.active{ background: #1d2089; color:#ffffff; }
+.sidebar-btn{ width:44px; height:44px; display:flex; align-items:center; justify-content:center; color: #6E7680; border-radius:10px; background:transparent; border:none; cursor:pointer; transition: all 0.2s ease; }
+.sidebar-btn:hover{ background: #F0F4FF; color:#1e228a; }
+.sidebar-btn.active{ background: #1e228a; color:#ffffff; }
 
 html.dark .sidebar-btn {
-  color: #9aa6b2;
+  color: #ffffff;
+  transition: all 0.2s ease;
 }
 
 html.dark .sidebar-btn:hover {
   background: #2d3e52;
-  color: #60a5fa;
+  color: #00CCFF;
+  transition: all 0.2s ease;
 }
 
 html.dark .sidebar-btn.active {
-  background: #2563eb;
-  color: #ffffff;
+  background: #00CCFF;
+  color: #000000;
 }
 
 /* Make sure embedded panels stretch correctly in flex layouts */
@@ -402,6 +404,15 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   scrollbar-width: thin;
   scrollbar-color: #D1D5DB transparent;
 }
+
+/* Prevent horizontal scrollbar globally */
+::-webkit-scrollbar-horizontal {
+  display: none;
+}
+
+html, body {
+  overflow-x: hidden;
+}
  
 /* Glass morphism effect */
 .glass {
@@ -568,7 +579,7 @@ html.dark .mac-border-highlight {
  
 /* Gradient text */
 .gradient-text {
-  color: #1d2089;
+  color: #2563eb;
 }
  
 /* Focus ring for accessibility */
@@ -584,14 +595,14 @@ html.dark .mac-border-highlight {
 .bg-black\/10,.bg-black\/20,.bg-black\/40,.bg-black\/50,.bg-black\/70{ background: rgba(0,0,0,0.04) !important; }
 .border-white\/10,.border-white\/20,.border-white\/30{ border-color: #E8E8E8 !important; }
 .border-slate-800,.border-slate-700{ border-color: #E8E8E8 !important; }
-.bg-blue-600,.bg-blue-700,.bg-blue-500{ background:#1d2089 !important; }
+.bg-blue-600,.bg-blue-700,.bg-blue-500{ background:#2563eb !important; }
 .bg-red-600,.bg-red-700,.bg-red-500{ background:#DC2626 !important; }
-.text-blue-400,.text-blue-300{ color:#1d2089 !important; }
+.text-blue-400,.text-blue-300{ color:#2563eb !important; }
 .text-red-400,.text-red-300{ color:#DC2626 !important; }
 .text-green-400{ color:#059669 !important; }
 .text-yellow-400{ color:#D97706 !important; }
 .text-purple-400{ color:#7C3AED !important; }
-.accent-blue-600{ accent-color:#1d2089 !important; }
+.accent-blue-600{ accent-color:#2563eb !important; }
 .accent-red-600{ accent-color:#DC2626 !important; }
 
 /* Button hover lift effect */
@@ -901,4 +912,57 @@ html.dark .mac-border-highlight {
 .send-btn:active {
   transform: translateY(0);
 }
- 
+
+/* ========================================
+   CHAT MESSAGE GLASSMORPHISM (DARK THEME)
+   ======================================== */
+
+/* Light theme - no changes */
+.mac-glass-bubble {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 18px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.mac-glass-user {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.mac-glass-bot {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Dark theme - glassmorphic gradient with cyan glow */
+html.dark .mac-glass-bubble {
+  background: linear-gradient(135deg, rgba(0, 204, 255, 0.12) 0%, rgba(0, 204, 255, 0.08) 100%);
+  border: 1px solid rgba(0, 204, 255, 0.25);
+  box-shadow:
+    0 0 20px rgba(0, 204, 255, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+
+html.dark .mac-glass-user {
+  background: linear-gradient(135deg, rgba(0, 204, 255, 0.1) 0%, rgba(0, 204, 255, 0.06) 100%);
+  border: 1px solid rgba(0, 204, 255, 0.2);
+  box-shadow:
+    0 0 16px rgba(0, 204, 255, 0.12),
+    0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+html.dark .mac-glass-bot {
+  background: linear-gradient(135deg, rgba(0, 204, 255, 0.14) 0%, rgba(0, 204, 255, 0.09) 100%);
+  border: 1px solid rgba(0, 204, 255, 0.28);
+  box-shadow:
+    0 0 24px rgba(0, 204, 255, 0.18),
+    0 8px 28px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}

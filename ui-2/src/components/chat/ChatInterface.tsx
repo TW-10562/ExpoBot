@@ -345,25 +345,28 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
   return (
     <div className="w-full space-y-3">
       <div className="space-y-2">
-        <div className="flex items-center gap-2 pb-2">
-          <Globe className="w-3.5 h-3.5 text-blue-500" />
-          <span className="text-xs font-semibold text-blue-600 dark:text-blue-300">
-            {sourceLanguageName}
-          </span>
-        </div>
+        {content.isDualLanguage && (
+          <div className="flex items-center gap-2 pb-2">
+            <Globe className="w-3.5 h-3.5 text-blue-500" />
+            <span className="text-xs font-semibold text-blue-600 dark:text-blue-300">
+              {sourceLanguageName}
+            </span>
+          </div>
+        )}
 
         <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-slate-100">
           {displayText || ''}
         </p>
       </div>
 
-      <div>
-        {!translation ? (
-          <button onClick={handleTranslate} disabled={loadingTranslation} className="mac-secondary">
-            <Languages className="w-3.5 h-3.5" />
-            <span>{loadingTranslation ? 'Translating...' : `Show ${targetLanguageName}`}</span>
-          </button>
-        ) : (
+      {content.isDualLanguage && (
+        <div>
+          {!translation ? (
+            <button onClick={handleTranslate} disabled={loadingTranslation} className="mac-secondary">
+              <Languages className="w-3.5 h-3.5" />
+              <span>{loadingTranslation ? t('chat.translating') : `Show ${targetLanguageName}`}</span>
+            </button>
+          ) : (
           <>
             <div className="mt-3 mac-panel p-4">
               <div className="flex items-center gap-2 mb-2 pb-2 border-b border-black/10 dark:border-white/10">
@@ -380,7 +383,7 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
 
             <button onClick={handleTranslate} className="mt-2 mac-secondary">
               <Globe className="w-3.5 h-3.5" />
-              <span>Hide Translation</span>
+              <span>{t('chat.hideTranslation')}</span>
             </button>
           </>
         )}
@@ -389,25 +392,18 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
           <div className="mt-2 p-2 rounded-lg bg-red-900/10 dark:bg-red-900/30 border border-red-700/20 dark:border-red-700/50 text-xs text-red-600 dark:text-red-300">
             {translationError}
             <button onClick={handleTranslate} className="ml-2 underline hover:no-underline">
-              Retry
+              {t('common.close')}
             </button>
           </div>
         )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTyping }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'bot',
-      content:
-        "Hello! I'm your HR Policy Assistant. I can help you with questions about company policies, benefits, leave, remote work, and more. You can ask in English or Japanese (日本語でも質問できます).",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [chatList, setChatList] = useState<ChatTask[]>([]);
@@ -422,7 +418,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const toast = useToast();
 
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
@@ -442,6 +438,31 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
   useEffect(() => {
     if (typeof focusSignal !== 'undefined') inputRef.current?.focus();
   }, [focusSignal]);
+
+  // Initialize welcome message based on current language
+  // Update initial message reactively when language changes
+  useEffect(() => {
+    if (messages.length === 0 && currentChatId === null) {
+      setMessages([
+        {
+          id: '1',
+          type: 'bot',
+          content: t('chat.welcomeMessage'),
+          timestamp: new Date(),
+        },
+      ]);
+    } else if (messages.length === 1 && messages[0].id === '1' && messages[0].type === 'bot' && currentChatId === null) {
+      // Update the initial welcome message when language changes
+      setMessages([
+        {
+          id: '1',
+          type: 'bot',
+          content: t('chat.welcomeMessage'),
+          timestamp: messages[0].timestamp,
+        },
+      ]);
+    }
+  }, [lang]);
 
   useEffect(() => {
     loadChatList();
@@ -683,12 +704,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
   };
 
   const clearChat = () => {
-    setMessages([{
-      id: '1',
-      type: 'bot',
-      content: t('chat.askQuestion'),
-      timestamp: new Date(),
-    }]);
+    setMessages([]);
     setCurrentChatId(null);
     setFieldSort(0);
     showToast(t('chat.chatSaved'), 'success');
@@ -735,9 +751,10 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
 
       <ConfirmDialog
         isOpen={confirmDelete !== null}
-        title="Delete Chat"
-        message={`Are you sure you want to delete "${confirmDelete?.title || 'this chat'}"? This action cannot be undone.`}
-        confirmLabel="Delete"
+        title={t('chat.deleteChatTitle')}
+        message={t('chat.deleteChatConfirm', { title: confirmDelete?.title || 'this chat' })}
+        confirmLabel={t('common.delete')}
+          cancelLabel={t('common.cancel')}
         variant="danger"
         onConfirm={async () => {
           if (confirmDelete) {
@@ -746,13 +763,13 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
                 await deleteTaskOutput(confirmDelete.id);
                 setChatList(prev => prev.filter(c => c.id !== confirmDelete.id));
                 if (currentChatId === confirmDelete.id) startNewChat();
-                showToast('Chat deleted', 'success');
+                showToast(t('chat.deleted'), 'success');
               } else {
                 clearChat();
-                showToast('Chat cleared', 'success');
+                showToast(t('chat.cleared'), 'success');
               }
-            } catch {
-              showToast('Failed to delete chat', 'error');
+            } catch (error) {
+              showToast(t('chat.deleteFailed'), 'error');
             }
             setConfirmDelete(null);
           }
@@ -760,8 +777,15 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
         onCancel={() => setConfirmDelete(null)}
       />
 
-      <div className="flex-1 flex flex-col h-full bg-transparent mac-window">
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 mac-glass-surface mac-scroll">
+      <div className="flex-1 flex flex-col bg-transparent">
+        <div className={`flex-1 min-h-0 mac-scroll pb-20 ${messages.length > 0 && messages.some(m => m.type === 'user') ? 'overflow-y-auto' : 'overflow-hidden'} overflow-x-hidden`}>
+          {Array.isArray(messages) && messages.length === 0 && (
+            <div className="text-center text-slate-500 dark:text-slate-400">
+              <Bot className="w-12 h-12 mx-auto mb-3 text-[#1e228a] dark:text-[#00CCFF] opacity-60" />
+              <p className="text-sm">{t('chat.askQuestion')}</p>
+            </div>
+          )}
+          <div className="w-full space-y-4">
           {Array.isArray(messages) && messages.map((message) => (
             <div
               key={message.id}
@@ -778,7 +802,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
                 {message.type === 'user' ? (
                   <User className="w-5 h-5 text-white" />
                 ) : (
-                  <Bot className="w-5 h-5 text-white" />
+                  <Bot className="w-5 h-5 text-[#1e228a] dark:text-[#00CCFF]" />
                 )}
               </div>
 
@@ -799,23 +823,27 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
                       (() => {
                         try {
                           const parsed = parseDualLanguageContent(message.content);
+                          const isInitialMessage = messages.indexOf(message) === 0;
                           return (
                             <>
                               <DualLanguageMessage content={parsed} taskOutputId={message.taskOutputId} />
-                              <MessageActions
-                                content={message.content}
-                                messageId={message.id}
-                                onFeedback={(id, fb) => {
-                                  const emoji = fb === 'like' ? '👍' : '👎';
-                                  handleFeedback(id, emoji, message.taskOutputId);
-                                  showToast(fb === 'like' ? t('chat.like') : t('chat.dislike'), 'success');
-                                }}
-                                onRegenerate={() => regenerateAt(message.id)}
-                              />
+                              {!isInitialMessage && (
+                                <MessageActions
+                                  content={message.content}
+                                  messageId={message.id}
+                                  onFeedback={(id, fb) => {
+                                    const emoji = fb === 'like' ? '👍' : '👎';
+                                    handleFeedback(id, emoji, message.taskOutputId);
+                                    showToast(fb === 'like' ? t('chat.like') : t('chat.dislike'), 'success');
+                                  }}
+                                  onRegenerate={() => regenerateAt(message.id)}
+                                />
+                              )}
                             </>
                           );
                         } catch (error) {
                           console.error('Error rendering message:', error);
+                          const isInitialMessage = messages.indexOf(message) === 0;
                           return (
                             <>
                               <div className="space-y-3">
@@ -832,16 +860,18 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
                                   taskOutputId={message.taskOutputId}
                                 />
                               </div>
-                              <MessageActions
-                                content={message.content}
-                                messageId={message.id}
-                                onFeedback={(id, fb) => {
-                                  const emoji = fb === 'like' ? '👍' : '👎';
-                                  handleFeedback(id, emoji, message.taskOutputId);
-                                  showToast(fb === 'like' ? t('chat.like') : t('chat.dislike'), 'success');
-                                }}
-                                onRegenerate={() => regenerateAt(message.id)}
-                              />
+                              {!isInitialMessage && (
+                                <MessageActions
+                                  content={message.content}
+                                  messageId={message.id}
+                                  onFeedback={(id, fb) => {
+                                    const emoji = fb === 'like' ? '👍' : '👎';
+                                    handleFeedback(id, emoji, message.taskOutputId);
+                                    showToast(fb === 'like' ? t('chat.like') : t('chat.dislike'), 'success');
+                                  }}
+                                  onRegenerate={() => regenerateAt(message.id)}
+                                />
+                              )}
                             </>
                           );
                         }
@@ -894,6 +924,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
             </div>
           ))}
           <div ref={messagesEndRef} />
+          </div>
         </div>
 
         {pdfPreview && (
@@ -911,38 +942,28 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
         )}
 
         {/* ✅ FIXED: bottom area now true glass in dark + clean in light */}
-        <div className="p-4 mac-inputbar">
-          <div className="flex items-center gap-2 mb-3">
-            <button onClick={startNewChat} className="mac-toolbarbtn" title={t('chat.newChat')}>
-              <Plus className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={() => setConfirmDelete({ id: currentChatId || '', title: chatList.find(c => c.id === currentChatId)?.title || t('chat.deleteChat') })}
-              className="mac-toolbarbtn"
-              title={t('chat.clearHistory')}
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-
-            <div className="w-px h-5 bg-black/10 dark:bg-white/10" />
-
-            <button onClick={() => setShowExportDialog(true)} className="mac-toolbarbtn" title={t('chat.exportChat')}>
-              <Download className="w-4 h-4" />
-            </button>
-
-            {isTyping && (
-              <button onClick={stopGeneration} className="mac-stopbtn" title={`${t('chat.stop')} (Esc)`}>
-                <StopCircle className="w-4 h-4" />
-                <span className="text-xs">{t('chat.stop')}</span>
-              </button>
-            )}
-
-            <div className="flex-1" />
-            <span className="text-xs text-slate-500 dark:text-slate-400">{input.length > 0 && `${input.length} chars`}</span>
-          </div>
-
+        <div className="fixed bottom-0 left-0 right-0 p-4 mac-inputbar" style={{ zIndex: 10 }}>
           <div className="flex gap-3">
+            <div className="flex items-center gap-2">
+              <button onClick={startNewChat} className="mac-toolbarbtn" title={t('chat.newChat')}>
+                <Plus className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => setConfirmDelete({ id: currentChatId || '', title: chatList.find(c => c.id === currentChatId)?.title || t('chat.deleteChat') })}
+                className="mac-toolbarbtn"
+                title={t('chat.clearHistory')}
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+
+              <div className="w-px h-5 bg-black/10 dark:bg-white/10" />
+
+              <button onClick={() => setShowExportDialog(true)} className="mac-toolbarbtn" title={t('chat.exportChat')}>
+                <Download className="w-4 h-4" />
+              </button>
+            </div>
+
             <div className="flex-1 relative">
               <textarea
                 ref={inputRef}
@@ -959,13 +980,20 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
               <Send className="w-5 h-5" />
               <span className="hidden sm:inline">{t('chat.send')}</span>
             </button>
+
+            {isTyping && (
+              <button onClick={stopGeneration} className="mac-stopbtn" title={`${t('chat.stop')} (Esc)`}>
+                <StopCircle className="w-4 h-4" />
+                <span className="text-xs">{t('chat.stop')}</span>
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-4 mt-2 text-xs text-slate-500 dark:text-slate-400">
-            <span><kbd className="mac-kbd">Enter</kbd> {t('inputTips.send')}</span>
-            <span><kbd className="mac-kbd">Shift+Enter</kbd> {t('inputTips.newline')}</span>
-            {isTyping && <span><kbd className="mac-kbd">Esc</kbd> {t('inputTips.stop')}</span>}
-          </div>
+          {input.length > 0 && (
+            <div className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-right">
+              {input.length} chars
+            </div>
+          )}
         </div>
 
         <style>{`
@@ -1085,12 +1113,20 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
             -webkit-backdrop-filter: blur(34px) saturate(135%);
           }
           .dark .mac-glass-user{
-            background: rgba(90,140,255,0.16);
-            border-color: rgba(170,210,255,0.16);
+            background: linear-gradient(135deg, rgba(0,204,255,0.25) 0%, rgba(0,204,255,0.15) 100%);
+            border: 1px solid rgba(0,204,255,0.3);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,204,255,0.15), inset 0 1px 0 rgba(0,204,255,0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
           }
           .dark .mac-glass-bot{
-            background: rgba(30,30,30,0.30);
-            border-color: rgba(255,255,255,0.12);
+            background: linear-gradient(135deg, rgba(0,204,255,0.2) 0%, rgba(0,204,255,0.12) 100%);
+            border: 1px solid rgba(0,204,255,0.2);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,204,255,0.1), inset 0 1px 0 rgba(0,204,255,0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
           }
 
           /* Scrollbar */
@@ -1191,24 +1227,24 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
           .mac-sendbtn{
             padding: 12px 16px;
             border-radius: 14px;
-            border: 1px solid rgba(0,0,0,0.10);
-            background: rgba(255,255,255,0.70);
-            color: rgba(15,23,42,0.85);
+            border: 1px solid #1e228a;
+            background: #1e228a;
+            color: white;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             transition: transform .15s ease, background .15s ease, opacity .15s ease;
           }
-          .mac-sendbtn:hover{ background: rgba(255,255,255,0.85); transform: translateY(-1px); }
+          .mac-sendbtn:hover{ background: #161a5a; transform: translateY(-1px); }
           .mac-sendbtn:active{ transform: translateY(0) scale(0.98); }
           .mac-sendbtn:disabled{ opacity: .45; cursor: not-allowed; transform: none; }
 
           .dark .mac-sendbtn{
-            border-color: rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.10);
-            color: rgba(255,255,255,0.92);
+            border-color: #00CCFF;
+            background: #00CCFF;
+            color: #000000;
           }
-          .dark .mac-sendbtn:hover{ background: rgba(255,255,255,0.14); }
+          .dark .mac-sendbtn:hover{ background: #0099cc; }
 
           /* Small helpers */
           .mac-kbd{
@@ -1270,18 +1306,22 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
             color: rgba(255,255,255,0.86);
           }
           .dark .mac-secondary:hover{ background: rgba(255,255,255,0.12); }
+.mac-panel{
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: 0 12px 32px rgba(15,23,42,0.08);
+}
 
-          .mac-panel{
-            border-radius: 14px;
-            border: 1px solid rgba(0,0,0,0.08);
-            background: rgba(255,255,255,0.55);
-            backdrop-filter: blur(20px) saturate(140%);
-            -webkit-backdrop-filter: blur(20px) saturate(140%);
-          }
-          .dark .mac-panel{
-            border-color: rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.08);
-          }
+.dark .mac-panel{
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(20,20,20,0.35);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  box-shadow: 0 18px 48px rgba(0,0,0,0.45);
+}
 
           .mac-modal{
             border-radius: 16px;

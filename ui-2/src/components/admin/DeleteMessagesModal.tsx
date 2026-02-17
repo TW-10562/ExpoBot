@@ -42,7 +42,7 @@ export default function DeleteMessagesModal({
 
   const handleDeleteMessages = async () => {
     if (confirmationText !== 'DELETE ALL MESSAGES') {
-      toast.error('Confirmation text does not match');
+      toast.error(t('messages.confirmationMismatch'));
       return;
     }
 
@@ -152,7 +152,7 @@ export default function DeleteMessagesModal({
             <div>
               <p className="text-sm font-medium text-[#232333] dark:text-[#e5e7eb] mb-2 transition-colors">
                 {t('messages.confirmLabel').replace('DELETE ALL MESSAGES', '')}
-                <span className="ml-2 font-mono bg-[#1d2089] dark:bg-[#2563eb] text-white px-2 py-1 rounded-lg">
+                <span className="ml-2 font-mono bg-[#1e228a] dark:bg-[#00CCFF] text-white dark:text-black px-2 py-1 rounded-lg">
                   {t('messages.confirmText')}
                 </span>
               </p>
@@ -161,7 +161,7 @@ export default function DeleteMessagesModal({
                 value={confirmationText}
                 onChange={(e) => setConfirmationText(e.target.value)}
                 placeholder={t('messages.confirmPlaceholder')}
-                className="w-full bg-white dark:bg-[#1a1a2e] border border-[#E8E8E8] dark:border-[#3d3d4d] rounded-xl px-4 py-3 text-[#232333] dark:text-[#e5e7eb] placeholder-[#9CA3AF] dark:placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-[#60a5fa] focus:border-transparent font-mono transition-colors"
+                className="w-full bg-white dark:bg-[#1a1a2e] border border-[#E8E8E8] dark:border-[#3d3d4d] rounded-xl px-4 py-3 text-[#232333] dark:text-[#e5e7eb] placeholder-[#9CA3AF] dark:placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent font-mono transition-colors"
                 autoFocus
               />
             </div>
@@ -251,7 +251,7 @@ export default function DeleteMessagesModal({
                 type="checkbox"
                 checked={deleteUserMessages}
                 onChange={(e) => setDeleteUserMessages(e.target.checked)}
-                className="w-5 h-5 accent-[#1d2089] dark:accent-[#60a5fa] rounded"
+                className="w-5 h-5 accent-[#1e228a] dark:accent-[#00CCFF] rounded"
               />
               <div className="flex-1">
                 <span className="text-[#232333] dark:text-[#e5e7eb] font-medium transition-colors">
@@ -268,7 +268,7 @@ export default function DeleteMessagesModal({
                 type="checkbox"
                 checked={deleteAdminMessages}
                 onChange={(e) => setDeleteAdminMessages(e.target.checked)}
-                className="w-5 h-5 accent-[#1d2089] dark:accent-[#60a5fa] rounded"
+                className="w-5 h-5 accent-[#1e228a] dark:accent-[#00CCFF] rounded"
               />
               <div className="flex-1">
                 <span className="text-[#232333] dark:text-[#e5e7eb] font-medium transition-colors">

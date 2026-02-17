@@ -135,7 +135,10 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
 
     const activities: ActivityLog[] = documentHistory.slice(0, 10).map((doc, index) => ({
       id: String(index + 1),
-      user: doc.create_by || t('activity.admin'),
+      user: doc.create_by
+  ? t(`activity.roles.${doc.create_by}`)
+  : t('activity.admin'),
+
       action: t('activity.documentUploaded'),
       detail: doc.filename,
       timestamp: new Date(doc.created_at),
@@ -187,7 +190,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
               }}
               className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 transition-all ${
                 activeTab === tab.id
-                  ? 'bg-[#F0F4FF] dark:bg-dark-surface border-b-2 border-[#1d2089] dark:border-[#60a5fa] text-[#1d2089] dark:text-[#60a5fa]'
+                  ? 'bg-[#F0F4FF] dark:bg-dark-surface border-b-2 border-[#2563eb] dark:border-[#60a5fa] text-[#2563eb] dark:text-[#60a5fa]'
                   : 'text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-border hover:text-[#232333] dark:hover:text-white'
               }`}
             >
@@ -198,7 +201,14 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
         </div>
       )}
 
-      <div key={activeTab} className="flex-1 overflow-y-auto p-6 mac-tab-animate bg-[#F6F6F6] dark:bg-dark-gradient transition-colors">
+<div
+  key={activeTab}
+  className={`flex-1 mac-tab-animate bg-[#F6F6F6] dark:bg-dark-gradient transition-colors ${
+    activeTab === 'chat'
+      ? 'overflow-hidden min-h-0 p-0'
+      : 'overflow-y-auto p-6'
+  }`}
+>
         {/* Delete Confirmation Modal */}
         {pendingDelete && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
@@ -310,10 +320,10 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={t('documentTable.searchPlaceholder')}
-                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#2563eb] dark:focus:ring-dark-accent-blue transition-colors"
                   />
                 </div>
-                <label className="flex items-center gap-2 px-4 py-2.5 bg-[#1d2089] hover:bg-[#161870] text-white rounded-xl transition-colors cursor-pointer whitespace-nowrap font-medium">
+                <label className="flex items-center gap-2 px-4 py-2.5 bg-[#2563eb] hover:bg-[#161870] text-white rounded-xl transition-colors cursor-pointer whitespace-nowrap font-medium">
                   <Upload className="w-5 h-5" />
                   <span>{t('documentTable.upload')}</span>
                   <input
@@ -328,7 +338,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
             </div>
 
             {uploadingFiles.length > 0 && (
-              <div className="bg-[#F0F4FF] dark:bg-dark-surface-alt border border-[#1d2089]/20 dark:border-dark-border rounded-2xl p-6 space-y-6 transition-colors">
+              <div className="bg-[#F0F4FF] dark:bg-dark-surface-alt border border-[#2563eb]/20 dark:border-dark-border rounded-2xl p-6 space-y-6 transition-colors">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h4 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors mb-1">{t('documentTable.filesSelected', {count: uploadingFiles.length,})}</h4>
@@ -349,7 +359,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <input
                           type="checkbox"
-                          className="w-4 h-4 accent-[#1d2089] dark:accent-dark-accent-blue"
+                          className="w-4 h-4 accent-[#2563eb] dark:accent-dark-accent-blue"
                           checked={selectedToRemove.has(file.name)}
                           onChange={(e) => {
                             setSelectedToRemove(prev => {
@@ -360,7 +370,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                           }}
                           disabled={uploadProgress[file.name] !== 'pending'}
                         />
-                        <FileText className="w-4 h-4 text-[#1d2089] flex-shrink-0" />
+                        <FileText className="w-4 h-4 text-[#2563eb] flex-shrink-0" />
                         <span className="text-sm text-[#232333] dark:text-dark-text truncate transition-colors" title={file.name}>{file.name}</span>
                         <span className="text-xs text-[#6E7680] dark:text-dark-text-muted transition-colors">({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
                         {uploadProgress[file.name] === 'success' && (
@@ -380,7 +390,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                           value={fileCategories[file.name] || 'company_policy'}
                           onChange={(e) => setFileCategories(prev => ({ ...prev, [file.name]: e.target.value }))}
                           disabled={uploadProgress[file.name] !== 'pending'}
-                          className="bg-[#F6F6F6] dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue transition-colors"
+                          className="bg-[#F6F6F6] dark:bg-dark-surface-alt border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text text-xs rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-[#2563eb] dark:focus:ring-dark-accent-blue transition-colors"
                         >
                           <option value="company_policy">
   {t('documentTable.category.companyPolicy')}
@@ -448,7 +458,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                           onClick={() => setUploadCategory(cat.value)}
                           className={`px-4 py-2 rounded-xl font-medium transition-all ${
                             uploadCategory === cat.value
-                              ? 'bg-[#1d2089] text-white shadow-lg'
+                              ? 'bg-[#2563eb] text-white shadow-lg'
                               : 'bg-white dark:bg-dark-surface text-[#6E7680] dark:text-dark-text-muted hover:bg-[#F6F6F6] dark:hover:bg-dark-border border border-[#E8E8E8] dark:border-dark-border'
                           }`}
                         >
@@ -507,7 +517,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                 {reviewMode ? (
                   <button
                     onClick={handleStartUpload}
-                    className="w-full px-6 py-3 bg-[#1d2089] hover:bg-[#161870] text-white font-semibold rounded-xl transition-all"
+                    className="w-full px-6 py-3 bg-[#2563eb] hover:bg-[#161870] text-white font-semibold rounded-xl transition-all"
                   >
                     {t('documentTable.nextContinue')}
                   </button>
@@ -515,7 +525,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                   <button
                     onClick={handleStartUpload}
                     disabled={pipelineSteps[0].status !== 'pending'}
-                    className="w-full px-6 py-3 bg-[#1d2089] hover:bg-[#161870] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all"
+                    className="w-full px-6 py-3 bg-[#2563eb] hover:bg-[#161870] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all"
                   >
                     {pipelineSteps[0].status === 'pending' ? '🚀 Start Upload Pipeline' : t('documentTable.pipeline.processing')}
                   </button>
@@ -554,7 +564,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                         return (
                           <input
                             type="checkbox"
-                            className="w-4 h-4 accent-[#1d2089]"
+                            className="w-4 h-4 accent-[#2563eb]"
                             checked={allSelected}
                             onChange={(e) => {
                               const next = new Set(selectedDocIds);
@@ -606,7 +616,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                         <td className="px-4 py-3">
                           <input
                             type="checkbox"
-                            className="w-4 h-4 accent-[#1d2089]"
+                            className="w-4 h-4 accent-[#2563eb]"
                             checked={selectedDocIds.has(doc.id)}
                             onChange={(e) => {
                               setSelectedDocIds(prev => {
@@ -719,7 +729,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                         type="checkbox"
                         checked={deleteUserMessages}
                         onChange={(e) => setDeleteUserMessages(e.target.checked)}
-                        className="w-5 h-5 accent-[#1d2089] dark:accent-dark-accent-blue rounded"
+                        className="w-5 h-5 accent-[#2563eb] dark:accent-dark-accent-blue rounded"
                       />
                       <div className="flex-1">
                         <span className="text-[#232333] dark:text-dark-text font-medium transition-colors">
@@ -736,7 +746,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                         type="checkbox"
                         checked={deleteAdminMessages}
                         onChange={(e) => setDeleteAdminMessages(e.target.checked)}
-                        className="w-5 h-5 accent-[#1d2089] dark:accent-dark-accent-blue rounded"
+                        className="w-5 h-5 accent-[#2563eb] dark:accent-dark-accent-blue rounded"
                       />
                       <div className="flex-1">
                         <span className="text-[#232333] dark:text-dark-text font-medium transition-colors">
@@ -794,7 +804,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-[#F0F4FF] dark:bg-dark-surface-alt rounded-xl flex items-center justify-center flex-shrink-0 transition-colors">
-                      <Activity className="w-5 h-5 text-[#1d2089] dark:text-dark-accent-blue transition-colors" />
+                      <Activity className="w-5 h-5 text-[#2563eb] dark:text-dark-accent-blue transition-colors" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -943,7 +953,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
               <div>
                 <p className="text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">
                   {t('messages.confirmLabel').replace('DELETE ALL MESSAGES', '')}
-                  <span className="ml-2 font-mono bg-[#1d2089] text-white px-2 py-1 rounded-lg">
+                  <span className="ml-2 font-mono bg-[#2563eb] text-white px-2 py-1 rounded-lg">
                     {t('messages.confirmText')}
                   </span>
                 </p>
@@ -952,7 +962,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
                   value={confirmationText}
                   onChange={(e) => setConfirmationText(e.target.value)}
                   placeholder={t('messages.confirmPlaceholder')}
-                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1d2089] dark:focus:ring-dark-accent-blue focus:border-transparent font-mono transition-colors"
+                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#2563eb] dark:focus:ring-dark-accent-blue focus:border-transparent font-mono transition-colors"
                   autoFocus
                 />
               </div>

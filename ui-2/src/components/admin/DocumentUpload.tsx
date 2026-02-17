@@ -345,7 +345,7 @@ export default function DocumentUpload({
   return (
     <>
       {uploadingFiles.length > 0 && (
-        <div className="bg-surface-alt dark:bg-dark-surface-alt border border-default rounded-2xl p-6 space-y-6 transition-colors">
+        <div className="bg-surface-alt dark:bg-dark-surface-alt border border-default rounded-2xl pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2 space-y-6 transition-colors">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h4 className="text-lg font-semibold text-foreground dark:text-white transition-colors mb-1">{t('documentTable.filesSelected', { count: uploadingFiles.length })}</h4>
