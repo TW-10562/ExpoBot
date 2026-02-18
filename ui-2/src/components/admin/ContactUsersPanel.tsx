@@ -52,7 +52,6 @@ export default function ContactUsersPanel({
     return Array.isArray(rows) ? rows : [];
   };
 
-  // Load sent messages on mount
   useEffect(() => {
     loadSentMessages();
   }, []);
@@ -122,10 +121,7 @@ export default function ContactUsersPanel({
         setSubject('');
         setContent('');
         setTimeout(() => setSuccess(''), 1600);
-
-        setTimeout(() => {
-          loadSentMessages();
-        }, 350);
+        setTimeout(() => { loadSentMessages(); }, 350);
       }
     } catch (e) {
       // keep silent
@@ -162,7 +158,7 @@ export default function ContactUsersPanel({
       {/* Delete Confirmation Modal */}
       {pendingDeleteMsg && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl transition-colors">
+          <div className="bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl transition-colors">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950">
                 <Trash2 className="w-6 h-6 text-red-500" />
@@ -200,26 +196,21 @@ export default function ContactUsersPanel({
         </div>
       )}
 
-
-      {/* ✅ Wrapper to hold BOTH cards */}
       <div className="space-y-6">
-        {/* Broadcast composer card */}
-        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
-          <div className="p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
+        {/* Broadcast composer */}
+        <>
+          {/* Header — no background */}
+          <div className="p-5 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-xl">
-                <Send className="w-5 h-5 text-white" />
-              </div>
               <div>
                 <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">
                   {t('broadcast.title')}
                 </h3>
-                <p className="text-sm text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('broadcast.subtitle')}</p>
               </div>
             </div>
           </div>
 
-          <div className="p-5 space-y-4">
+          <div className="px-5 pb-5 pt-0 space-y-4">
             {success && (
               <div className="p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/40 rounded-xl text-green-600 dark:text-green-300 text-sm flex items-center gap-2 transition-colors">
                 <CheckCircle className="w-4 h-4" />
@@ -235,8 +226,8 @@ export default function ContactUsersPanel({
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all"
                 placeholder={t('broadcast.subjectPlaceholder')}
+                className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all"
               />
             </div>
 
@@ -248,8 +239,8 @@ export default function ContactUsersPanel({
                 rows={5}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all resize-none"
                 placeholder={t('broadcast.messagePlaceholder')}
+                className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all resize-none"
               />
             </div>
 
@@ -275,11 +266,12 @@ export default function ContactUsersPanel({
               </button>
             </div>
           </div>
-        </div>
+        </>
 
-        {/* Sent messages card */}
-        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl overflow-hidden shadow-sm transition-colors">
-          <div className="p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
+        {/* Sent messages */}
+        <>
+          {/* Header — no background */}
+          <div className="p-5 border-b border-[#E8E8E8] dark:border-dark-border transition-colors">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-green-500 rounded-xl">
                 <CheckCircle className="w-5 h-5 text-white" />
@@ -316,7 +308,6 @@ export default function ContactUsersPanel({
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
-
                     <h5 className="text-sm font-semibold text-[#232333] dark:text-white transition-colors mb-1 pr-8">
                       {msg.subject}
                     </h5>
@@ -330,7 +321,7 @@ export default function ContactUsersPanel({
               </div>
             )}
           </div>
-        </div>
+        </>
       </div>
     </>
   );

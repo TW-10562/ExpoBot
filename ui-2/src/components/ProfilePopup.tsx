@@ -30,7 +30,7 @@ export default function ProfilePopup({ user, onLogout }: ProfilePopupProps) {
           )}
         </div>
 
-        <div className="bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 space-y-4 shadow-sm transition-colors">
+        <div className="bg-white dark:bg-dark-bg-primary border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 space-y-4 shadow-sm transition-colors">
           <h3 className="text-lg font-semibold text-[#232333] dark:text-dark-text mb-4 transition-colors">{t('profile.info') || 'Profile Information'}</h3>
 
           <div className="space-y-3">
@@ -68,7 +68,7 @@ export default function ProfilePopup({ user, onLogout }: ProfilePopupProps) {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 space-y-3 shadow-sm transition-colors">
+        <div className="bg-white dark:bg-dark-bg-primary border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 space-y-3 shadow-sm transition-colors">
           <h3 className="text-lg font-semibold text-[#232333] dark:text-dark-text mb-4 transition-colors">{t('profile.actions') || 'Account Actions'}</h3>
 <button
   onClick={() => setShowContactHR(true)}

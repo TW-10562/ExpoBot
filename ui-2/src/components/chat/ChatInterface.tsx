@@ -354,7 +354,7 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
           </div>
         )}
 
-        <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-slate-100">
+        <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-white">
           {displayText || ''}
         </p>
       </div>
@@ -376,7 +376,7 @@ function DualLanguageMessage({ content, taskOutputId }: { content: DualLanguageC
                 </span>
               </div>
 
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-slate-100">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-white">
                 {translation}
               </p>
             </div>
@@ -795,7 +795,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
                 className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center`}
                 style={
                   message.type === 'user'
-                    ? { backgroundImage: 'linear-gradient(135deg, var(--c-accent), var(--c-accent-strong))' }
+                    ? { backgroundColor: 'var(--c-accent)' }
                     : undefined
                 }
               >
@@ -847,7 +847,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
                           return (
                             <>
                               <div className="space-y-3">
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-slate-100">
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-white">
                                   {message.content}
                                 </p>
                                 <DualLanguageMessage
@@ -885,7 +885,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
                     )
                   ) : (
                     <div className="group/msg relative">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-slate-100">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-900 dark:text-white">
                         {message.content}
                       </p>
                       {message.type === 'user' && !isTyping && (
@@ -959,7 +959,15 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
 
               <div className="w-px h-5 bg-black/10 dark:bg-white/10" />
 
-              <button onClick={() => setShowExportDialog(true)} className="mac-toolbarbtn" title={t('chat.exportChat')}>
+              <button 
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowExportDialog(true);
+                }} 
+                className="mac-toolbarbtn" 
+                title={t('chat.exportChat')}
+              >
                 <Download className="w-4 h-4" />
               </button>
             </div>
@@ -1009,37 +1017,23 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
 
           /* Page / container backdrop (LIGHT) */
           .mac-window{
-            background:
-              radial-gradient(1100px 800px at 18% 10%, rgba(60,130,255,0.14), transparent 55%),
-              radial-gradient(900px 700px at 85% 18%, rgba(140,80,255,0.10), transparent 55%),
-              radial-gradient(900px 700px at 55% 90%, rgba(70,200,180,0.08), transparent 58%),
-              linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,255,255,0.70));
+            background: #ffffff;
           }
 
           /* Page / container backdrop (DARK) */
           .dark .mac-window{
-            background:
-              radial-gradient(1100px 800px at 18% 10%, rgba(60,130,255,0.20), transparent 55%),
-              radial-gradient(900px 700px at 85% 18%, rgba(140,80,255,0.16), transparent 55%),
-              radial-gradient(900px 700px at 55% 90%, rgba(70,200,180,0.10), transparent 58%),
-              linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.78));
+            background: #0f1724;
           }
 
           /* Chat surface behind bubbles (LIGHT) */
           .mac-glass-surface{
-            background:
-              radial-gradient(900px 600px at 20% 20%, rgba(255,255,255,0.55), transparent 65%),
-              radial-gradient(700px 500px at 80% 30%, rgba(255,255,255,0.35), transparent 65%),
-              linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.16));
+            background: #ffffff;
             border-top: 1px solid rgba(0,0,0,0.05);
           }
 
           /* Chat surface behind bubbles (DARK) */
           .dark .mac-glass-surface{
-            background:
-              radial-gradient(900px 600px at 20% 20%, rgba(255,255,255,0.05), transparent 60%),
-              radial-gradient(700px 500px at 80% 30%, rgba(255,255,255,0.04), transparent 60%),
-              linear-gradient(180deg, rgba(0,0,0,0.22), rgba(0,0,0,0.38));
+            background: #0f1724;
             border-top: 1px solid rgba(255,255,255,0.06);
           }
 
@@ -1066,12 +1060,8 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
             position:absolute;
             inset:-2px;
             pointer-events:none;
-            background:
-              radial-gradient(900px 260px at 18% 0%,
-                rgba(255,255,255,0.42),
-                rgba(255,255,255,0.14) 35%,
-                transparent 62%);
-            opacity: 1;
+            background: rgba(255,255,255,0.14);
+            opacity: 0;
           }
 
           .mac-glass-bubble::after{
@@ -1079,18 +1069,9 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
             position:absolute;
             inset:-40px;
             pointer-events:none;
-            background:
-              radial-gradient(320px 240px at 12% 22%,
-                rgba(255,255,255,0.28),
-                transparent 65%),
-              radial-gradient(420px 320px at 92% 34%,
-                rgba(255,255,255,0.20),
-                transparent 70%),
-              radial-gradient(520px 420px at 72% 92%,
-                rgba(255,255,255,0.14),
-                transparent 72%);
-            filter: blur(7px);
-            opacity: 0.95;
+            background: rgba(255,255,255,0.08);
+            filter: blur(0px);
+            opacity: 0;
           }
 
           .mac-glass-user{
@@ -1104,29 +1085,29 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
           }
 
           .dark .mac-glass-bubble{
-            background: rgba(20,20,20,0.34);
-            border-color: rgba(255,255,255,0.14);
+            background: rgba(0, 204, 255, 0.14);
+            border-color: rgba(0, 204, 255, 0.30);
             box-shadow:
-              0 24px 70px rgba(0,0,0,0.45),
-              inset 0 1px 0 rgba(255,255,255,0.10);
-            backdrop-filter: blur(34px) saturate(135%);
-            -webkit-backdrop-filter: blur(34px) saturate(135%);
+              0 8px 28px rgba(0,0,0,0.45),
+              inset 0 1px 0 rgba(0, 204, 255, 0.18);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
           }
           .dark .mac-glass-user{
-            background: linear-gradient(135deg, rgba(0,204,255,0.25) 0%, rgba(0,204,255,0.15) 100%);
-            border: 1px solid rgba(0,204,255,0.3);
+            background: rgba(0, 204, 255, 0.14);
+            border: 1px solid rgba(0, 204, 255, 0.30);
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,204,255,0.15), inset 0 1px 0 rgba(0,204,255,0.2);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(0, 204, 255, 0.18);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
           }
           .dark .mac-glass-bot{
-            background: linear-gradient(135deg, rgba(0,204,255,0.2) 0%, rgba(0,204,255,0.12) 100%);
-            border: 1px solid rgba(0,204,255,0.2);
+            background: rgba(0, 204, 255, 0.14);
+            border: 1px solid rgba(0, 204, 255, 0.30);
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,204,255,0.1), inset 0 1px 0 rgba(0,204,255,0.15);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(0, 204, 255, 0.18);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
           }
 
           /* Scrollbar */
@@ -1242,7 +1223,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
           .dark .mac-sendbtn{
             border-color: #00CCFF;
             background: #00CCFF;
-            color: #000000;
+            color: #ffffff;
           }
           .dark .mac-sendbtn:hover{ background: #0099cc; }
 
@@ -1371,10 +1352,16 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
             padding: 10px 14px;
             border-radius: 12px;
             border: 1px solid rgba(110,160,255,0.25);
-            background: linear-gradient(180deg, rgba(110,160,255,0.92), rgba(70,110,255,0.92));
+            background: #1e228a;
             color: white;
             font-weight: 600;
             box-shadow: 0 16px 34px rgba(70,110,255,0.22);
+          }
+
+          .dark .mac-primary{
+            background: #00CCFF;
+            color: #0f1724;
+            border-color: rgba(0,204,255,0.25);
           }
 
           @keyframes fadeIn {

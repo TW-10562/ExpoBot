@@ -72,14 +72,13 @@ export default function AnalyticsDashboard() {
   if (!data) return null;
 
   return (
-    <div className="space-y-6 pt-2 px-0 bg-app mac-tab-animate">
+    <div className="space-y-6 pt-0 px-0 bg-app mac-tab-animate">
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-lg transition-colors">
-            <BarChart3 className="w-5 h-5 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-foreground dark:text-white transition-colors">
+
+          <h2 className="text-[1.125rem] font-semibold text-foreground dark:text-white transition-colors">
+
             {t('analytics.title')}
           </h2>
         </div>
@@ -114,15 +113,15 @@ export default function AnalyticsDashboard() {
           animated={true}
         />
         <Metric
-          title={t('analytics.avgResponseTime')}
-          value={`${data.avgResponseTime}s`}
-          icon={Clock}
-          bgColor="bg-sky-50 dark:bg-sky-900/20"
-          iconBg="bg-sky-100 dark:bg-sky-900/40"
-          iconColor="text-sky-600 dark:text-sky-300"
-          border="border-sky-200 dark:border-sky-800/50"
-          animated={true}
-        />
+  title={t('analytics.avgResponseTime')}
+  value={`${data.avgResponseTime}s`}
+  icon={Clock}
+  bgColor="bg-green-50 dark:bg-green-900/20"
+iconBg="bg-green-100 dark:bg-green-900/40"
+iconColor="text-green-600 dark:text-green-300"
+border="border-green-200 dark:border-green-800/50"
+  animated={true}
+/>
         <Metric
           title={t('analytics.activeUsers')}
           value={data.activeUsers}
@@ -138,7 +137,7 @@ export default function AnalyticsDashboard() {
       {/* GRAPHS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Feedback */}
-        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm">
+        <div className="bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
             <PieChart className="w-5 h-5 text-yellow-500" />
             {t('analytics.feedbackQuality')}
@@ -164,7 +163,7 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* Error Rate */}
-        <div className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm">
+        <div className="bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-6 shadow-sm">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-emerald-600" />
             {t('analytics.errorFailureRate')}

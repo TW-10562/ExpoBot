@@ -73,8 +73,6 @@ export default function HomePage({
           onNotificationBellClick?.();
           const next = !showNotificationPanel;
           setShowNotificationPanel(next);
-          // NOTE: Removed auto-mark behavior. Messages should only be marked as read
-          // when user explicitly clicks "Mark as Read" button, not when opening panel.
         }}
         notifications={notifications}
         onMarkAsRead={onMarkAsRead}
@@ -85,12 +83,12 @@ export default function HomePage({
       />
 
       {/* Main */}
-      <main className="mac-glass-page flex-1 pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2 overflow-hidden bg-surface dark:bg-dark-gradient transition-colors">
-        <div className={`h-full gap-4 overflow-hidden flex flex-col lg:grid ${showNotificationPanel ? 'lg:grid-cols-[72px_1fr_320px]' : 'lg:grid-cols-[72px_1fr]'}`}>
+     <main className="mac-glass-page flex-1 pt-1 px-1 lg:pl-1 lg:pr-1 pb-1 overflow-hidden bg-surface dark:bg-[#0f1724] transition-colors rounded-xl">
+        <div className={`h-full gap-2 overflow-hidden flex flex-col lg:grid ${showNotificationPanel ? 'lg:grid-cols-[56px_1fr_320px]' : 'lg:grid-cols-[56px_1fr]'}`}>
           {/* Sidebar */}
           <aside className="hidden lg:block h-full">
-            <div className="left-sidebar h-full rounded-xl overflow-hidden">
-              <div className="sidebar-inner h-full overflow-y-auto flex flex-col items-center gap-3 pt-4">
+            <div className="left-sidebar h-full overflow-hidden rounded-xl" style={{ borderRight: `1px solid var(--c-section-divider)` }}>
+              <div className="sidebar-inner h-full overflow-hidden flex flex-col items-center pt-0">
                 {sidebarButtons(
                   user.role,
                   activeSection,
@@ -106,6 +104,7 @@ export default function HomePage({
           <section
             key={activeSection}
             className="relative h-full rounded-xl mac-glass mac-glass-translucent mac-border-highlight mac-tab-animate overflow-hidden flex flex-col"
+            style={{ borderLeft: `1px solid var(--c-section-divider)`, borderRight: `1px solid var(--c-section-divider)` }}
           >
             {user.role !== 'admin' && activeSection === 'chat' && (
               <div className="flex-1 overflow-y-auto pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2">
@@ -141,6 +140,7 @@ export default function HomePage({
             <section
               ref={rightPanelRef}
               className="hidden lg:block h-full rounded-xl mac-glass mac-glass-translucent mac-border-highlight shadow-sm overflow-y-auto"
+              style={{ borderLeft: `1px solid var(--c-section-divider)` }}
             >
               <NotificationsPanel
                 items={notifications as any}

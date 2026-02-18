@@ -15,7 +15,7 @@ export default function ProfilePopup({ user, onLogout }: ProfilePopupProps) {
     <div className="p-6 h-full overflow-y-auto">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+          <div className="w-24 h-24 bg-blue-500 rounded-full flex items-center justify-center mb-4">
             <User className="w-12 h-12 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-white mb-1">{user.name}</h2>

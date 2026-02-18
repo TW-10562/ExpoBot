@@ -7,8 +7,8 @@ interface User {
   firstName: string;
   lastName: string;
   employeeId: string;
-  userJobRole: string; // e.g., 'ai_engineer'
-  areaOfWork: string; // e.g., 'ayase'
+  userJobRole: string;
+  areaOfWork: string;
   role: 'admin' | 'user';
   password: string;
   lastUpdated: Date;
@@ -18,13 +18,12 @@ interface FormData {
   firstName: string;
   lastName: string;
   employeeId: string;
-  userJobRole: string; // e.g., 'ai_engineer'
-  areaOfWork: string; // e.g., 'ayase'
+  userJobRole: string;
+  areaOfWork: string;
   role: 'admin' | 'user';
   password: string;
 }
 
-// Stable keys for Job Roles (used for storage and CSV)
 const JOB_ROLE_OPTIONS = [
   { key: 'ai_engineer', label: 'AI Engineer' },
   { key: 'system_engineer', label: 'System Engineer' },
@@ -38,7 +37,6 @@ const JOB_ROLE_OPTIONS = [
   { key: 'call_center_agent', label: 'Call Center Agent' },
 ];
 
-// Stable keys for Areas of Work (used for storage and CSV)
 const AREA_OF_WORK_OPTIONS = [
   { key: 'ayase', label: 'Ayase' },
   { key: 'ebina', label: 'Ebina' },
@@ -47,43 +45,29 @@ const AREA_OF_WORK_OPTIONS = [
   { key: 'hiratsuka', label: 'Hiratsuka' },
 ];
 
-// Helper function to convert display labels to stable keys
-// Accepts either stable keys or display labels and returns stable key
 const normalizeJobRole = (value: string): string => {
   const trimmed = value.trim().toLowerCase();
-  
-  // Check if it's already a stable key
   const jobRoleKey = JOB_ROLE_OPTIONS.find(
     (opt) => opt.key === trimmed || opt.key === value.trim()
   )?.key;
   if (jobRoleKey) return jobRoleKey;
-  
-  // Try to match by display label (case-insensitive)
   const jobRoleByLabel = JOB_ROLE_OPTIONS.find(
     (opt) => opt.label.toLowerCase() === trimmed
   )?.key;
   if (jobRoleByLabel) return jobRoleByLabel;
-  
-  // Fallback: return original value
   return value.trim();
 };
 
 const normalizeArea = (value: string): string => {
   const trimmed = value.trim().toLowerCase();
-  
-  // Check if it's already a stable key
   const areaKey = AREA_OF_WORK_OPTIONS.find(
     (opt) => opt.key === trimmed || opt.key === value.trim()
   )?.key;
   if (areaKey) return areaKey;
-  
-  // Try to match by display label (case-insensitive)
   const areaByLabel = AREA_OF_WORK_OPTIONS.find(
     (opt) => opt.label.toLowerCase() === trimmed
   )?.key;
   if (areaByLabel) return areaByLabel;
-  
-  // Fallback: return original value
   return value.trim();
 };
 
@@ -162,31 +146,25 @@ export default function UserManagement() {
   const uploadCsvLabel = getI18nLabel('userManagement.uploadCsv', 'Upload CSV');
   const addUserLabel = getI18nLabel('userManagement.form.addUserTitle', 'Add User');
 
-  // CSV Upload Handler - accepts both stable keys and display labels
-  // e.g., can accept either 'ai_engineer' or 'AI Engineer' and normalizes to 'ai_engineer'
   const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setCsvLoading(true);
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
       try {
         const text = e.target?.result as string;
         const lines = text.split('\n');
-        
-        // Skip header row
-        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
         const newUsers: User[] = [];
-        
+
         for (let i = 1; i < lines.length; i++) {
           const line = lines[i].trim();
           if (!line) continue;
-          
-          const values = line.split(',').map(v => v.trim());
-          
-          // Map CSV columns to user fields
+          const values = line.split(',').map((v) => v.trim());
+
           const firstNameIdx = headers.indexOf('first name');
           const lastNameIdx = headers.indexOf('last name');
           const employeeIdIdx = headers.indexOf('employee id');
@@ -194,77 +172,47 @@ export default function UserManagement() {
           const areaOfWorkIdx = headers.indexOf('area of work');
           const roleIdx = headers.indexOf('role');
           const passwordIdx = headers.indexOf('password');
-          
-          // Normalize job role and area to stable keys (supports both stable keys and display labels)
-          const jobRoleValue = values[jobRoleIdx] || '';
-          const areaValue = values[areaOfWorkIdx] || '';
-          
+
           const newUser: User = {
             id: String(users.length + newUsers.length + 1),
             firstName: values[firstNameIdx] || '',
             lastName: values[lastNameIdx] || '',
             employeeId: values[employeeIdIdx] || '',
-            userJobRole: normalizeJobRole(jobRoleValue), // Converts display label to stable key
-            areaOfWork: normalizeArea(areaValue), // Converts display label to stable key
-            role: (values[roleIdx]?.toLowerCase() === 'admin' ? 'admin' : 'user'),
+            userJobRole: normalizeJobRole(values[jobRoleIdx] || ''),
+            areaOfWork: normalizeArea(values[areaOfWorkIdx] || ''),
+            role: values[roleIdx]?.toLowerCase() === 'admin' ? 'admin' : 'user',
             password: values[passwordIdx] || '',
             lastUpdated: new Date(),
           };
-          
+
           if (newUser.firstName && newUser.lastName) {
             newUsers.push(newUser);
           }
         }
-        
+
         setUsers([...users, ...newUsers]);
         setCsvLoading(false);
-        
-        // Reset file input
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
+        if (fileInputRef.current) fileInputRef.current.value = '';
       } catch (error) {
         console.error('CSV parsing error:', error);
         setCsvLoading(false);
       }
     };
-    
+
     reader.readAsText(file);
   };
 
   const handleAddUser = () => {
-    setFormData({
-      firstName: '',
-      lastName: '',
-      employeeId: '',
-      userJobRole: '',
-      areaOfWork: '',
-      role: 'user',
-      password: '',
-    });
+    setFormData({ firstName: '', lastName: '', employeeId: '', userJobRole: '', areaOfWork: '', role: 'user', password: '' });
     setShowAddModal(true);
   };
 
   const handleSaveNewUser = () => {
-    if (!formData.firstName || !formData.lastName) {
-      return;
-    }
-    const newUser: User = {
-      id: String(users.length + 1),
-      ...formData,
-      lastUpdated: new Date(),
-    };
+    if (!formData.firstName || !formData.lastName) return;
+    const newUser: User = { id: String(users.length + 1), ...formData, lastUpdated: new Date() };
     setUsers([...users, newUser]);
     setShowAddModal(false);
-    setFormData({
-      firstName: '',
-      lastName: '',
-      employeeId: '',
-      userJobRole: '',
-      areaOfWork: '',
-      role: 'user',
-      password: '',
-    });
+    setFormData({ firstName: '', lastName: '', employeeId: '', userJobRole: '', areaOfWork: '', role: 'user', password: '' });
   };
 
   const handleEditUser = (userId: string) => {
@@ -284,47 +232,23 @@ export default function UserManagement() {
   };
 
   const handleSaveEdit = () => {
-    if (editingUser) {
-      setShowConfirmSave(true);
-    }
+    if (editingUser) setShowConfirmSave(true);
   };
 
   const confirmSaveEdit = () => {
     if (editingUser && editAdminPassword.trim()) {
-      setUsers(
-        users.map((u) =>
-          u.id === editingUser
-            ? { ...u, ...formData, lastUpdated: new Date() }
-            : u
-        )
-      );
+      setUsers(users.map((u) => (u.id === editingUser ? { ...u, ...formData, lastUpdated: new Date() } : u)));
       setEditingUser(null);
       setShowConfirmSave(false);
       setEditAdminPassword('');
-      setFormData({
-        firstName: '',
-        lastName: '',
-        employeeId: '',
-        userJobRole: '',
-        areaOfWork: '',
-        role: 'user',
-        password: '',
-      });
+      setFormData({ firstName: '', lastName: '', employeeId: '', userJobRole: '', areaOfWork: '', role: 'user', password: '' });
     }
   };
 
   const handleCancelEdit = () => {
     setEditingUser(null);
     setEditAdminPassword('');
-    setFormData({
-      firstName: '',
-      lastName: '',
-      employeeId: '',
-      userJobRole: '',
-      areaOfWork: '',
-      role: 'user',
-      password: '',
-    });
+    setFormData({ firstName: '', lastName: '', employeeId: '', userJobRole: '', areaOfWork: '', role: 'user', password: '' });
   };
 
   const handleDeleteUser = (userId: string) => {
@@ -344,29 +268,22 @@ export default function UserManagement() {
 
   const togglePasswordVisibility = (userId: string) => {
     const newSet = new Set(visiblePasswords);
-    if (newSet.has(userId)) {
-      newSet.delete(userId);
-    } else {
-      newSet.add(userId);
-    }
+    if (newSet.has(userId)) newSet.delete(userId);
+    else newSet.add(userId);
     setVisiblePasswords(newSet);
   };
 
   return (
-    <div className="space-y-6 pt-2 px-0 pb-2">
+    <div className="space-y-6 pt-0 px-0 pb-0">
       {/* Header */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-lg transition-colors">
-            <Users className="w-5 h-5 text-white dark:text-black" />
-          </div>
-          <h2 className="text-2xl font-bold text-foreground dark:text-white transition-colors">
+          <h2 className="text-[1.125rem] font-semibold text-foreground dark:text-white transition-colors">
             {t('userManagement.title')}
           </h2>
         </div>
         {!editingUser && (
           <div className="flex items-center gap-2">
-            {/* CSV Upload Button */}
             <input
               ref={fileInputRef}
               type="file"
@@ -384,7 +301,6 @@ export default function UserManagement() {
               <Upload className={`w-4 h-4 icon-current ${csvLoading ? 'animate-pulse text-accent-strong' : ''}`} />
               {csvLoading ? t('common.loading') : uploadCsvLabel}
             </button>
-            {/* Add User Button */}
             <button
               onClick={handleAddUser}
               className="flex items-center gap-2 px-4 py-2 rounded-lg btn-primary text-on-accent text-sm font-medium transition-colors"
@@ -397,37 +313,19 @@ export default function UserManagement() {
       </div>
 
       {/* Table */}
-      <div className="bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-2xl overflow-hidden shadow-sm transition-colors">
+      <div className="bg-surface dark:bg-[#0f1724] border border-default dark:border-default rounded-2xl overflow-hidden shadow-sm transition-colors">
         <table className="w-full">
-          <thead className="bg-surface-alt dark:bg-dark-bg-primary border-b border-default dark:border-default transition-colors">
+          <thead className="bg-surface-alt dark:bg-[#0f1724] border-b border-default dark:border-default transition-colors">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
-                {t('userManagement.table.firstName')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
-                {t('userManagement.table.lastName')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
-                {t('userManagement.table.employeeId')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
-                {t('userManagement.table.userJobRole')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">
-                {t('userManagement.table.areaOfWork')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                {t('userManagement.table.role')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                {t('userManagement.table.password')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                {t('userManagement.table.lastUpdated')}
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                {t('userManagement.table.actions')}
-              </th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">{t('userManagement.table.firstName')}</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">{t('userManagement.table.lastName')}</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">{t('userManagement.table.employeeId')}</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">{t('userManagement.table.userJobRole')}</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted dark:text-dark-text-muted transition-colors">{t('userManagement.table.areaOfWork')}</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('userManagement.table.role')}</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('userManagement.table.password')}</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('userManagement.table.lastUpdated')}</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-[#6E7680] dark:text-dark-text-muted transition-colors">{t('userManagement.table.actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -444,53 +342,41 @@ export default function UserManagement() {
                   className="border-b border-default dark:border-default hover:bg-surface-alt dark:hover:bg-dark-border transition-colors"
                 >
                   {editingUser === user.id ? (
-                    // Edit Mode
                     <>
+                      {/* ✅ FIX 1: was className="..."> then /> on next line */}
                       <td className="px-4 py-3">
                         <input
                           type="text"
                           value={formData.firstName}
-                          onChange={(e) =>
-                            setFormData({ ...formData, firstName: e.target.value })
-                          }
-                          className="w-full bg-surface dark:bg-dark-surface border border-default dark:border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
+                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                          className="w-full bg-surface dark:bg-[#0f1724] border border-default dark:border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         />
                       </td>
+                      {/* ✅ FIX 2: same broken pattern */}
                       <td className="px-4 py-3">
                         <input
                           type="text"
                           value={formData.lastName}
-                          onChange={(e) =>
-                            setFormData({ ...formData, lastName: e.target.value })
-                          }
-                          className="w-full bg-surface dark:bg-dark-surface border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
+                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                          className="w-full bg-surface dark:bg-[#102030] border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         />
                       </td>
                       <td className="px-4 py-3">
                         <input
                           type="text"
                           value={formData.employeeId}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              employeeId: e.target.value,
-                            })
-                          }
+                          onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
                           className="w-full bg-surface dark:bg-dark-surface border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         />
                       </td>
+                      {/* ✅ FIX 3: <select className="..."> had extra > before closing > */}
                       <td className="px-4 py-3">
                         <select
                           value={formData.userJobRole}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              userJobRole: e.target.value,
-                            })
-                          }
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
+                          onChange={(e) => setFormData({ ...formData, userJobRole: e.target.value })}
+                          className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
                         >
-                        <option value="">{selectJobRoleLabel}</option>
+                          <option value="">{selectJobRoleLabel}</option>
                           {JOB_ROLE_OPTIONS.map((option) => (
                             <option key={option.key} value={option.key}>
                               {getJobRoleLabel(option.key)}
@@ -501,12 +387,10 @@ export default function UserManagement() {
                       <td className="px-4 py-3">
                         <select
                           value={formData.areaOfWork}
-                          onChange={(e) =>
-                            setFormData({ ...formData, areaOfWork: e.target.value })
-                          }
+                          onChange={(e) => setFormData({ ...formData, areaOfWork: e.target.value })}
                           className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
                         >
-                        <option value="">{selectAreaLabel}</option>
+                          <option value="">{selectAreaLabel}</option>
                           {AREA_OF_WORK_OPTIONS.map((option) => (
                             <option key={option.key} value={option.key}>
                               {getAreaLabel(option.key)}
@@ -517,12 +401,7 @@ export default function UserManagement() {
                       <td className="px-4 py-3">
                         <select
                           value={formData.role}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              role: e.target.value as 'admin' | 'user',
-                            })
-                          }
+                          onChange={(e) => setFormData({ ...formData, role: e.target.value as 'admin' | 'user' })}
                           className="w-full bg-surface dark:bg-dark-surface border border-default rounded px-2 py-1 text-foreground dark:text-dark-text text-sm focus:outline-none focus-ring-accent transition-colors"
                         >
                           <option value="user">{getI18nLabel('user.role.user', 'User')}</option>
@@ -533,9 +412,7 @@ export default function UserManagement() {
                         <input
                           type="text"
                           value={formData.password}
-                          onChange={(e) =>
-                            setFormData({ ...formData, password: e.target.value })
-                          }
+                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                           className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
                         />
                       </td>
@@ -560,21 +437,12 @@ export default function UserManagement() {
                       </td>
                     </>
                   ) : (
-                    // View Mode
                     <>
-                      <td className="px-4 py-3 text-[#232333] dark:text-dark-text font-medium transition-colors">
-                        {user.firstName}
-                      </td>
-                      <td className="px-4 py-3 text-[#232333] dark:text-dark-text font-medium transition-colors">
-                        {user.lastName}
-                      </td>
+                      <td className="px-4 py-3 text-[#232333] dark:text-dark-text font-medium transition-colors">{user.firstName}</td>
+                      <td className="px-4 py-3 text-[#232333] dark:text-dark-text font-medium transition-colors">{user.lastName}</td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{user.employeeId}</td>
-                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                        {getJobRoleLabel(user.userJobRole)}
-                      </td>
-                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">
-                        {getAreaLabel(user.areaOfWork)}
-                      </td>
+                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{getJobRoleLabel(user.userJobRole)}</td>
+                      <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted transition-colors">{getAreaLabel(user.areaOfWork)}</td>
                       <td className="px-4 py-3">
                         <span
                           className={`px-2 py-1 rounded text-xs font-medium ${
@@ -593,17 +461,9 @@ export default function UserManagement() {
                         <button
                           onClick={() => togglePasswordVisibility(user.id)}
                           className="p-1 text-muted dark:text-dark-text-muted hover:bg-surface-alt dark:hover:bg-dark-border rounded transition-colors"
-                          title={
-                            visiblePasswords.has(user.id)
-                              ? t('userManagement.password.hide')
-                              : t('userManagement.password.show')
-                          }
+                          title={visiblePasswords.has(user.id) ? t('userManagement.password.hide') : t('userManagement.password.show')}
                         >
-                          {visiblePasswords.has(user.id) ? (
-                            <EyeOff className="w-4 h-4" />
-                          ) : (
-                            <Eye className="w-4 h-4" />
-                          )}
+                          {visiblePasswords.has(user.id) ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted text-sm transition-colors">
@@ -641,96 +501,56 @@ export default function UserManagement() {
             <h3 className="text-xl font-semibold text-foreground dark:text-white transition-colors">
               {t('userManagement.form.addUserTitle')}
             </h3>
-
             <div className="space-y-3">
-              <input
-                type="text"
-                placeholder={firstNameLabel}
-                value={formData.firstName}
-                onChange={(e) =>
-                  setFormData({ ...formData, firstName: e.target.value })
-                }
+              <input type="text" placeholder={firstNameLabel} value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                 className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
-              <input
-                type="text"
-                placeholder={lastNameLabel}
-                value={formData.lastName}
-                onChange={(e) =>
-                  setFormData({ ...formData, lastName: e.target.value })
-                }
+              <input type="text" placeholder={lastNameLabel} value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                 className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
-              <input
-                type="text"
-                placeholder={employeeIdLabel}
-                value={formData.employeeId}
-                onChange={(e) =>
-                  setFormData({ ...formData, employeeId: e.target.value })
-                }
+              <input type="text" placeholder={employeeIdLabel} value={formData.employeeId}
+                onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
                 className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
-              <select
-                value={formData.userJobRole}
-                onChange={(e) =>
-                  setFormData({ ...formData, userJobRole: e.target.value })
-                }
+              <select value={formData.userJobRole}
+                onChange={(e) => setFormData({ ...formData, userJobRole: e.target.value })}
                 className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
               >
                 <option value="">{selectJobRoleLabel}</option>
                 {JOB_ROLE_OPTIONS.map((option) => (
-                  <option key={option.key} value={option.key}>
-                    {getJobRoleLabel(option.key)}
-                  </option>
+                  <option key={option.key} value={option.key}>{getJobRoleLabel(option.key)}</option>
                 ))}
               </select>
-              <select
-                value={formData.areaOfWork}
-                onChange={(e) =>
-                  setFormData({ ...formData, areaOfWork: e.target.value })
-                }
+              <select value={formData.areaOfWork}
+                onChange={(e) => setFormData({ ...formData, areaOfWork: e.target.value })}
                 className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
               >
                 <option value="">{selectAreaLabel}</option>
                 {AREA_OF_WORK_OPTIONS.map((option) => (
-                  <option key={option.key} value={option.key}>
-                    {getAreaLabel(option.key)}
-                  </option>
+                  <option key={option.key} value={option.key}>{getAreaLabel(option.key)}</option>
                 ))}
               </select>
-              <select
-                value={formData.role}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    role: e.target.value as 'admin' | 'user',
-                  })
-                }
+              <select value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value as 'admin' | 'user' })}
                 className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text focus:outline-none focus-ring-accent transition-colors"
               >
                 <option value="user">{getI18nLabel('user.role.user', 'User')}</option>
                 <option value="admin">{getI18nLabel('user.role.admin', 'Admin')}</option>
               </select>
-              <input
-                type="text"
-                placeholder={passwordLabel}
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
+              <input type="text" placeholder={passwordLabel} value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
               />
             </div>
-
             <div className="flex gap-3 justify-end pt-4 border-t border-default dark:border-default transition-colors">
-              <button
-                onClick={() => setShowAddModal(false)}
+              <button onClick={() => setShowAddModal(false)}
                 className="px-4 py-2 rounded-lg bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.cancel')}
               </button>
-              <button
-                onClick={handleSaveNewUser}
+              <button onClick={handleSaveNewUser}
                 className="px-4 py-2 rounded-lg btn-primary text-on-accent text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.save')}
@@ -750,7 +570,6 @@ export default function UserManagement() {
             <p className="text-muted dark:text-dark-text-muted text-sm transition-colors">
               {t('userManagement.form.editUserTitle')}
             </p>
-
             <input
               type="password"
               placeholder={t('userManagement.delete.adminPassword')}
@@ -758,20 +577,14 @@ export default function UserManagement() {
               onChange={(e) => setEditAdminPassword(e.target.value)}
               className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
             />
-
             <div className="flex gap-3 justify-end pt-4 border-t border-default dark:border-default transition-colors">
               <button
-                onClick={() => {
-                  setShowConfirmSave(false);
-                  setEditAdminPassword('');
-                }}
+                onClick={() => { setShowConfirmSave(false); setEditAdminPassword(''); }}
                 className="px-4 py-2 rounded-lg bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.cancel')}
               </button>
-              <button
-                onClick={confirmSaveEdit}
-                disabled={!editAdminPassword.trim()}
+              <button onClick={confirmSaveEdit} disabled={!editAdminPassword.trim()}
                 className="px-4 py-2 rounded-lg btn-success text-on-accent text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.save')}
@@ -781,7 +594,7 @@ export default function UserManagement() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal - Step 1 */}
+      {/* Delete Confirmation Modal */}
       {showDeleteModal && !adminPassword && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-surface dark:bg-dark-surface border border-default dark:border-default rounded-2xl p-6 max-w-md w-full mx-4 space-y-4 shadow-xl transition-colors">
@@ -791,7 +604,6 @@ export default function UserManagement() {
             <p className="text-muted dark:text-dark-text-muted text-sm transition-colors">
               {t('userManagement.delete.confirmMessage')}
             </p>
-
             <input
               type="password"
               placeholder={t('userManagement.delete.adminPassword')}
@@ -799,21 +611,14 @@ export default function UserManagement() {
               onChange={(e) => setAdminPassword(e.target.value)}
               className="w-full bg-surface dark:bg-dark-surface-alt border border-default dark:border-default rounded-lg px-3 py-2 text-foreground dark:text-dark-text placeholder-muted dark:placeholder-dark-text-muted focus:outline-none focus-ring-accent transition-colors"
             />
-
             <div className="flex gap-3 justify-end pt-4 border-t border-default dark:border-default transition-colors">
               <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setUserToDelete(null);
-                  setAdminPassword('');
-                }}
+                onClick={() => { setShowDeleteModal(false); setUserToDelete(null); setAdminPassword(''); }}
                 className="px-4 py-2 rounded-lg bg-surface dark:bg-dark-surface-alt hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text text-sm font-medium transition-colors"
               >
                 {t('userManagement.form.cancel')}
               </button>
-              <button
-                onClick={confirmDelete}
-                disabled={!adminPassword.trim()}
+              <button onClick={confirmDelete} disabled={!adminPassword.trim()}
                 className="px-4 py-2 rounded-lg btn-danger disabled:opacity-50 disabled:cursor-not-allowed text-on-accent text-sm font-medium transition-colors"
               >
                 {t('userManagement.delete.confirmButton')}

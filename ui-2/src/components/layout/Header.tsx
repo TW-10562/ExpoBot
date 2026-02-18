@@ -25,7 +25,7 @@ export default function Header({
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="w-full py-3 px-6 bg-surface dark:bg-dark-bg-primary border-b border-default shadow-sm transition-colors">
+    <header className="w-full py-3 px-6 bg-surface dark:bg-[#0f1724] border-b border-default transition-colors" style={{ boxShadow: `inset 0 -1px 0 var(--c-section-divider)` }}>
       <div className="flex items-center justify-between w-full">
 
         {/* Left: Logo and Company Name */}
@@ -46,10 +46,10 @@ export default function Header({
           {/* Notification Bell */}
           <button
             onClick={onNotificationBellClick}
-            className="p-2.5 hover:bg-surface-alt dark:hover:bg-[#00CCFF] rounded-xl transition-colors relative"
+            className="p-2.5 rounded-xl transition-colors relative"
             title={t('notificationsPanel.toggle')}
           >
-            <Bell className="w-5 h-5 text-icon-muted dark:text-dark-text-muted dark:hover:text-black hover:text-foreground transition-colors icon-current" />
+            <Bell className="w-5 h-5 text-icon-muted dark:text-dark-text-muted icon-current" />
             {unreadCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-[#1e228a] dark:bg-[#00CCFF] text-white text-xs font-bold rounded-full flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -60,27 +60,27 @@ export default function Header({
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2.5 hover:bg-[#F6F6F6] dark:hover:bg-[#00CCFF] rounded-xl transition-colors"
+            className="p-2.5 rounded-xl transition-colors"
             title={theme === 'light' ? t('theme.switchToDark') : t('theme.switchToLight')}
           >
             {theme === 'light' ? (
-              <Moon className="w-5 h-5 text-icon-muted hover:text-foreground transition-colors icon-current" />
+              <Moon className="w-5 h-5 text-icon-muted icon-current" />
             ) : (
-              <Sun className="w-5 h-5 text-dark-text-muted dark:hover:text-black hover:text-dark-accent-blue transition-colors icon-current" />
+              <Sun className="w-5 h-5 text-dark-text-muted icon-current" />
             )} 
           </button>
 
           {/* Language Toggle */}
           <button
             onClick={toggleLang}
-            className="p-2.5 hover:bg-surface-alt dark:hover:bg-[#00CCFF] rounded-xl transition-colors relative"
+            className="p-2.5 rounded-xl transition-colors relative"
             title={
               lang === 'ja'
                 ? t('language.switchToEnglish')
                 : t('language.switchToJapanese')
             }
           >
-            <Globe className="w-5 h-5 text-icon-muted dark:text-dark-text-muted dark:hover:text-black hover:text-foreground transition-colors icon-current" />
+            <Globe className="w-5 h-5 text-icon-muted dark:text-dark-text-muted icon-current" />
             <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#1e228a] dark:bg-[#00CCFF] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {lang === 'ja' ? 'JP' : 'EN'}
             </span>
@@ -89,11 +89,11 @@ export default function Header({
           {/* Profile */}
           <button
             onClick={onProfileClick}
-            className="flex items-center gap-3 px-3 py-2 hover:bg-surface-alt dark:hover:bg-[#00CCFF] rounded-xl transition-colors ml-2"
+            className="flex items-center gap-3 px-3 py-2 rounded-xl transition-colors ml-2"
           >
-            <div className="text-right dark:group-hover:text-black">
-              <p className="text-sm font-semibold text-foreground dark:hover:text-black dark:text-dark-text transition-colors">{user.name}</p>
-              <p className="text-xs text-muted dark:hover:text-black/70 dark:text-dark-text-muted transition-colors">
+            <div className="text-right">
+              <p className="text-sm font-semibold text-foreground dark:text-dark-text transition-colors">{user.name}</p>
+              <p className="text-xs text-muted dark:text-dark-text-muted transition-colors">
                 {user.department}
               </p>
             </div>

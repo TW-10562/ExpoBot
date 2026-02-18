@@ -59,7 +59,7 @@ export default function HomePage({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-slate-900 dark:bg-[#0f1724]">
       {/* Fixed height header so layout below can center properly */}
       <div className="h-20">
         <Header
@@ -102,7 +102,7 @@ export default function HomePage({
               className="feature-card group flex flex-col items-center"
             >
               <div
-                className={`w-32 h-32 rounded-full bg-gradient-to-br ${feature.gradient}
+                className={`w-32 h-32 rounded-full bg-blue-500
                   flex items-center justify-center text-white shadow-2xl
                   transform transition-all duration-300
                   group-hover:scale-110 group-hover:shadow-3xl relative overflow-hidden

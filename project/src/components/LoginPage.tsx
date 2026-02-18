@@ -46,7 +46,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex flex-col">
+    <div className="min-h-screen bg-slate-900 dark:bg-[#0f1724] flex flex-col">
       <header className="w-full py-4 px-8 bg-black/20 backdrop-blur-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto flex items-center gap-3">
           <Building2 className="w-8 h-8 text-blue-400" />

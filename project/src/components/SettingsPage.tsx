@@ -66,13 +66,13 @@ export default function SettingsPage() {
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              <button className="p-3 bg-gradient-to-br from-slate-900 to-slate-800 border-2 border-blue-500 rounded-lg text-white text-sm">
+              <button className="p-3 bg-slate-900 border-2 border-blue-500 rounded-lg text-white text-sm">
                 Dark
               </button>
-              <button className="p-3 bg-gradient-to-br from-slate-100 to-white border border-white/20 rounded-lg text-slate-900 text-sm">
+              <button className="p-3 bg-white border border-white/20 rounded-lg text-slate-900 text-sm">
                 Light
               </button>
-              <button className="p-3 bg-gradient-to-br from-slate-700 to-slate-600 border border-white/20 rounded-lg text-white text-sm">
+              <button className="p-3 bg-slate-700 border border-white/20 rounded-lg text-white text-sm">
                 Auto
               </button>
             </div>

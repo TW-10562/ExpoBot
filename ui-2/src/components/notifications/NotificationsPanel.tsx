@@ -136,16 +136,16 @@ export default function NotificationsPanel({
 
   return (
     <aside
-      className={`h-full w-full bg-white dark:bg-dark-surface flex flex-col overflow-hidden transition-colors ${
+      className={`h-full w-full bg-surface flex flex-col overflow-hidden transition-colors ${
         dimmed ? 'opacity-60' : 'opacity-100'
       }`}
     >
       {/* HEADER */}
-      <div className="p-4 border-b border-[#E8E8E8] dark:border-dark-border dark:bg-dark-bg-primary flex items-center gap-3 flex-shrink-0 transition-colors">
-        <div className="p-2 bg-[#F0F4FF] dark:bg-blue-900/30 rounded-lg transition-colors">
-          <Bell className="w-4 h-4 text-[#1e228a] dark:text-[#00CCFF] flex-shrink-0 transition-colors" />
+      <div className="p-4 border-b border-default bg-surface flex items-center gap-3 flex-shrink-0 transition-colors">
+        <div className="p-2 bg-surface-alt rounded-lg transition-colors">
+          <Bell className="w-4 h-4 text-accent flex-shrink-0 transition-colors" />
         </div>
-        <h3 className="text-sm font-semibold text-[#232333] dark:text-dark-text flex-1 truncate transition-colors">
+        <h3 className="text-sm font-semibold text-foreground flex-1 truncate transition-colors">
           {t('notificationsPanel.title')}
         </h3>
         {onSearchChange && (
@@ -153,7 +153,7 @@ export default function NotificationsPanel({
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={t('notificationsPanel.searchPlaceholder')}
-            className="bg-[#F6F6F6] dark:bg-dark-border text-xs text-[#232333] dark:text-dark-text px-3 py-1.5 rounded-lg border border-[#E8E8E8] dark:border-dark-border flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
+            className="bg-app text-xs text-foreground px-3 py-1.5 rounded-lg border border-default flex-shrink-0 focus:outline-none focus:ring-2 ring-accent transition-colors placeholder-muted"
           />
         )}
       </div>
@@ -165,11 +165,11 @@ export default function NotificationsPanel({
         style={{ overscrollBehavior: 'contain' }}
       >
         {!isInitialized ? (
-          <p className="text-[#6E7680] dark:text-white/70 text-center text-xs">
+          <p className="text-muted text-center text-xs">
             {t('notificationsPanel.loading')}
           </p>
         ) : filtered.length === 0 ? (
-          <p className="text-[#6E7680] dark:text-white/70 text-center text-xs">
+          <p className="text-muted text-center text-xs">
             {searchTerm ? t('notificationsPanel.noResults') : t('notificationsPanel.noNotifications')}
           </p>
         ) : (
@@ -198,7 +198,7 @@ export default function NotificationsPanel({
 
             /* ===================== DETERMINE UI STATE ===================== */
             let containerClasses = '';
-            let textColor = '';
+            let textColor = 'text-foreground dark:text-white';
             let iconColor = '';
             let badgeColor = '';
             let badgeText = '';
@@ -206,38 +206,25 @@ export default function NotificationsPanel({
             let showMarkAsReadBtn = false;
 
             if (isSentByViewer) {
-              // SENT MESSAGE STYLING
-              // Light theme: white bg with green border
-              // Dark theme: green background with glassmorphism
-              containerClasses = 'bg-white dark:bg-green-900/40 shadow-sm dark:shadow-lg border-2 dark:border border-green-500 dark:border-green-500/30 rounded-xl dark:backdrop-blur-md';
-              
-              textColor = 'text-black dark:text-white';
-              iconColor = 'text-green-600 dark:text-green-300';
+              // SENT MESSAGE
+              containerClasses = 'notif-bubble-sent';
+              iconColor = 'text-green-600 dark:text-green-400';
               icon = <Send className={`w-4 h-4 ${iconColor} flex-shrink-0`} />;
-              badgeColor = '';
-              badgeText = '';
             } else if (isNew) {
-              // NEW MESSAGE STYLING (received, unread)
-              // Light theme: white bg with blue border
-              // Dark theme: blue background with glassmorphism
-              containerClasses = 'bg-white dark:bg-blue-900/40 shadow-sm dark:shadow-lg border-2 dark:border border-blue-500 dark:border-blue-500/30 rounded-xl dark:backdrop-blur-md';
-              
-              textColor = 'text-black dark:text-white';
-              iconColor = 'text-blue-600 dark:text-blue-300';
+              // NEW MESSAGE
+              containerClasses = 'notif-bubble-received';
+              iconColor = 'text-blue-600 dark:text-blue-400';
               icon = <Mail className={`w-4 h-4 ${iconColor} flex-shrink-0`} />;
               badgeColor = 'bg-[#1e228a] dark:bg-blue-500 text-white';
               badgeText = t('notificationsPanel.new');
               showMarkAsReadBtn = true;
             } else if (isReceivedByViewer && messageRead) {
-              // READ MESSAGE STYLING (received, read)
-              // Light theme: white bg with blue border
-              // Dark theme: blue background with glassmorphism (more subtle)
-              containerClasses = 'bg-white dark:bg-blue-900/20 shadow-sm dark:shadow-lg border-2 dark:border border-blue-300 dark:border-blue-500/20 rounded-xl dark:backdrop-blur-md';
-              
-              textColor = 'text-black dark:text-white';
-              iconColor = 'text-gray-500 dark:text-blue-200/60';
+              // READ MESSAGE
+              containerClasses = 'notif-bubble-received opacity-70';
+              iconColor = 'text-gray-500 dark:text-blue-300/50';
               icon = <MailOpen className={`w-4 h-4 ${iconColor} flex-shrink-0`} />;
             }
+
 
             const isExpanded = expandedId === message.id;
             const messageText = message.message || message.text || '';
@@ -337,14 +324,14 @@ export default function NotificationsPanel({
                     <p className={`line-clamp-2 break-words ${textColor} opacity-80`}>
                       {messageText || t('notificationsPanel.noContent') || 'No content'}
                     </p>
-                    <p className="text-[10px] text-black/50 dark:text-white/50 italic">
+                    <p className="text-[10px] text-placeholder italic">
                       {t('notificationsPanel.clickToExpand') || 'Click to expand'}
                     </p>
                   </div>
                 ) : (
                   // EXPANDED VIEW: Show full content
                   <div 
-                    className="mt-2 pt-2 border-t border-gray-200 dark:border-white/20 ml-6 space-y-2"
+                    className="mt-2 pt-2 border-t border-default ml-6 space-y-2"
                     onClick={handleToggleExpand}
                   >
                     <p 
@@ -356,13 +343,13 @@ export default function NotificationsPanel({
                     
                     {/* Timestamp - if available */}
                     {message.timestamp && (
-                      <p className="text-[10px] text-black/60 dark:text-white/60">
+                      <p className="text-[10px] text-muted">
                         {new Date(message.timestamp).toLocaleString()}
                       </p>
                     )}
 
                     {/* Click to collapse hint - bottom right */}
-                    <p className="text-[10px] text-black/50 dark:text-white/50 text-right italic cursor-pointer hover:text-black/70 dark:hover:text-white/70">
+                    <p className="text-[10px] text-placeholder text-right italic cursor-pointer hover:text-muted">
                       {t('notificationsPanel.clickToCollapse') || 'Click to collapse'}
                     </p>
                   </div>

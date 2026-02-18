@@ -105,8 +105,8 @@ export default function DeleteMessagesModal({
   if (showDeleteConfirm) {
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-white dark:bg-[#1a1a2e] border border-[#E8E8E8] dark:border-[#2d2d3d] rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden transition-colors">
-          <div className="p-5 border-b border-[#E8E8E8] dark:border-[#2d2d3d] bg-[#F6F6F6] dark:bg-[#252538] flex items-start justify-between gap-4 transition-colors">
+        <div className="bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-[#2d2d3d] rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden transition-colors">
+          <div className="p-5 border-b border-[#E8E8E8] dark:border-[#2d2d3d] bg-white dark:bg-[#0f1724] flex items-start justify-between gap-4 transition-colors" style={{ boxShadow: `inset 0 -1px 0 var(--c-section-divider)` }}>
             <div className="flex items-start gap-3">
               <div className="p-3 rounded-xl bg-red-50 dark:bg-red-500/15 flex-shrink-0 transition-colors">
                 <AlertTriangle className="w-6 h-6 text-red-500 dark:text-red-400" />
@@ -135,8 +135,8 @@ export default function DeleteMessagesModal({
           </div>
 
           <div className="p-5 space-y-5">
-            <div className="bg-[#F6F6F6] dark:bg-[#252538] border border-[#E8E8E8] dark:border-[#3d3d4d] rounded-xl p-4 transition-colors">
-              <p className="text-sm font-medium text-[#232333] dark:text-[#e5e7eb] mb-2 transition-colors">
+            <div className="bg-[#F6F6F6] dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-[#2d2d3d] rounded-xl p-4 transition-colors" style={{ boxShadow: `inset 0 1px 0 var(--c-section-divider)` }}>
+              <p className="text-sm font-medium text-black dark:text-[#e5e7eb] mb-2 transition-colors">
                 {t('messages.aboutToDelete')}
               </p>
               <ul className="text-sm text-[#6E7680] dark:text-[#9ca3af] space-y-1 ml-5 transition-colors">
@@ -150,7 +150,7 @@ export default function DeleteMessagesModal({
             </div>
 
             <div>
-              <p className="text-sm font-medium text-[#232333] dark:text-[#e5e7eb] mb-2 transition-colors">
+              <p className="text-sm font-medium text-black dark:text-[#e5e7eb] mb-2 transition-colors">
                 {t('messages.confirmLabel').replace('DELETE ALL MESSAGES', '')}
                 <span className="ml-2 font-mono bg-[#1e228a] dark:bg-[#00CCFF] text-white dark:text-black px-2 py-1 rounded-lg">
                   {t('messages.confirmText')}
@@ -161,7 +161,7 @@ export default function DeleteMessagesModal({
                 value={confirmationText}
                 onChange={(e) => setConfirmationText(e.target.value)}
                 placeholder={t('messages.confirmPlaceholder')}
-                className="w-full bg-white dark:bg-[#1a1a2e] border border-[#E8E8E8] dark:border-[#3d3d4d] rounded-xl px-4 py-3 text-[#232333] dark:text-[#e5e7eb] placeholder-[#9CA3AF] dark:placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent font-mono transition-colors"
+                className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-[#2d2d3d] rounded-xl px-4 py-3 text-black dark:text-[#e5e7eb] placeholder-[#9CA3AF] dark:placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent font-mono transition-colors"
                 autoFocus
               />
             </div>
@@ -174,8 +174,7 @@ export default function DeleteMessagesModal({
                   setDeleteSuccess(false);
                 }}
                 disabled={isDeleting}
-                className="flex-1 px-4 py-3 rounded-xl bg-[#F6F6F6] dark:bg-[#252538] hover:bg-[#E8E8E8] dark:hover:bg-[#3d3d4d] disabled:opacity-50 disabled:cursor-not-allowed text-[#232333] dark:text-[#e5e7eb] transition-colors font-medium"
-              >
+                className="flex-1 px-4 py-3 rounded-xl bg-white dark:bg-[#0f1724] hover:bg-[#F6F6F6] dark:hover:bg-[#1a1a2e] disabled:opacity-50 disabled:cursor-not-allowed text-black dark:text-[#e5e7eb] transition-colors font-medium border border-[#E8E8E8] dark:border-[#2d2d3d]">
                 {t('common.cancel')}
               </button>
               <button
@@ -210,14 +209,14 @@ export default function DeleteMessagesModal({
   // Main Delete Messages Modal
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-[#1a1a2e] border border-[#E8E8E8] dark:border-[#2d2d3d] rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden transition-colors">
-        <div className="p-5 border-b border-[#E8E8E8] dark:border-[#2d2d3d] bg-red-50 dark:bg-red-500/10 flex items-start justify-between gap-4 transition-colors">
+      <div className="bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-[#2d2d3d] rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden transition-colors">
+        <div className="p-5 border-b border-[#E8E8E8] dark:border-[#2d2d3d] bg-white dark:bg-[#0f1724] flex items-start justify-between gap-4 transition-colors" style={{ boxShadow: `inset 0 -1px 0 var(--c-section-divider)` }}>
           <div className="flex items-start gap-3">
             <div className="p-3 rounded-xl bg-red-500/20 dark:bg-red-500/15 flex-shrink-0">
               <AlertTriangle className="w-6 h-6 text-red-500 dark:text-red-400" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-semibold text-[#232333] dark:text-[#f1f5f9] transition-colors">
+              <h3 className="text-xl font-semibold text-black dark:text-[#f1f5f9] transition-colors">
                 {t('messages.deleteTitle')}
               </h3>
               <p className="text-sm text-[#6E7680] dark:text-[#cbd5e1] mt-1 transition-colors">
@@ -246,7 +245,7 @@ export default function DeleteMessagesModal({
           </div>
 
           <div className="space-y-3 mb-5">
-            <label className="flex items-center gap-4 p-4 bg-[#F6F6F6] dark:bg-[#252538] border border-[#E8E8E8] dark:border-[#3d3d4d] rounded-xl cursor-pointer hover:bg-[#E8E8E8] dark:hover:bg-[#3d3d4d] transition-colors">
+            <label className="flex items-center gap-4 p-4 bg-white dark:bg-[#252538] border border-[#E8E8E8] dark:border-[#3d3d4d] rounded-xl cursor-pointer hover:bg-[#F6F6F6] dark:hover:bg-[#3d3d4d] transition-colors">
               <input
                 type="checkbox"
                 checked={deleteUserMessages}
@@ -254,7 +253,7 @@ export default function DeleteMessagesModal({
                 className="w-5 h-5 accent-[#1e228a] dark:accent-[#00CCFF] rounded"
               />
               <div className="flex-1">
-                <span className="text-[#232333] dark:text-[#e5e7eb] font-medium transition-colors">
+                <span className="text-black dark:text-[#e5e7eb] font-medium transition-colors">
                   {t('messages.usersLabel')}
                 </span>
                 <p className="text-xs text-[#6E7680] dark:text-[#9ca3af] mt-1 transition-colors">
@@ -263,7 +262,7 @@ export default function DeleteMessagesModal({
               </div>
             </label>
 
-            <label className="flex items-center gap-4 p-4 bg-[#F6F6F6] dark:bg-[#252538] border border-[#E8E8E8] dark:border-[#3d3d4d] rounded-xl cursor-pointer hover:bg-[#E8E8E8] dark:hover:bg-[#3d3d4d] transition-colors">
+            <label className="flex items-center gap-4 p-4 bg-white dark:bg-[#252538] border border-[#E8E8E8] dark:border-[#3d3d4d] rounded-xl cursor-pointer hover:bg-[#F6F6F6] dark:hover:bg-[#3d3d4d] transition-colors">
               <input
                 type="checkbox"
                 checked={deleteAdminMessages}
@@ -271,7 +270,7 @@ export default function DeleteMessagesModal({
                 className="w-5 h-5 accent-[#1e228a] dark:accent-[#00CCFF] rounded"
               />
               <div className="flex-1">
-                <span className="text-[#232333] dark:text-[#e5e7eb] font-medium transition-colors">
+                <span className="text-black dark:text-[#e5e7eb] font-medium transition-colors">
                   {t('messages.adminsLabel')}
                 </span>
                 <p className="text-xs text-[#6E7680] dark:text-[#9ca3af] mt-1 transition-colors">
@@ -288,8 +287,7 @@ export default function DeleteMessagesModal({
                 setDeleteUserMessages(false);
                 setDeleteAdminMessages(false);
               }}
-              className="flex-1 px-6 py-3 bg-[#F6F6F6] dark:bg-[#252538] hover:bg-[#E8E8E8] dark:hover:bg-[#3d3d4d] text-[#232333] dark:text-[#e5e7eb] font-medium rounded-xl transition-colors"
-            >
+              className="flex-1 px-6 py-3 bg-white dark:bg-[#0f1724] hover:bg-[#F6F6F6] dark:hover:bg-[#1a1a2e] text-black dark:text-[#e5e7eb] font-medium rounded-xl transition-colors border border-[#E8E8E8] dark:border-[#2d2d3d]">
               {t('common.cancel')}
             </button>
             <button

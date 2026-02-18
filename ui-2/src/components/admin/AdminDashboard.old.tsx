@@ -206,7 +206,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
   className={`flex-1 mac-tab-animate bg-[#F6F6F6] dark:bg-dark-gradient transition-colors ${
     activeTab === 'chat'
       ? 'overflow-hidden min-h-0 p-0'
-      : 'overflow-y-auto p-6'
+      : 'overflow-y-auto px-6 pb-6 pt-0'
   }`}
 >
         {/* Delete Confirmation Modal */}

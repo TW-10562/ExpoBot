@@ -136,7 +136,7 @@ export default function PDFPreview({
         style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top left' }}
       >
         {/* PDF Preview - using iframe or object for actual PDF */}
-        <div className="bg-white dark:bg-dark-surface rounded-lg shadow-lg min-h-full transition-colors">
+        <div className="bg-white dark:bg-[#0f1724] rounded-lg shadow-lg min-h-full transition-colors">
           {fileUrl ? (
             <iframe
               src={`${previewUrl}#page=${currentPage}`}

@@ -73,7 +73,7 @@ export default function BroadcastModal({ isOpen, onClose }: BroadcastModalProps)
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-dark-surface rounded-2xl w-full max-w-md shadow-2xl border border-[#E8E8E8] dark:border-dark-border overflow-hidden transition-colors">
+      <div className="bg-white dark:bg-[#0f1724] rounded-2xl w-full max-w-md shadow-2xl border border-[#E8E8E8] dark:border-dark-border overflow-hidden transition-colors">
         {success ? (
           <div className="text-center py-12 px-6">
             <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -84,7 +84,7 @@ export default function BroadcastModal({ isOpen, onClose }: BroadcastModalProps)
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-dark-bg-primary transition-colors">
+            <div className="flex items-center justify-between p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-[#0f1724] transition-colors">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-xl transition-colors">
                   <Users className="w-5 h-5 text-white dark:text-black" />
@@ -104,7 +104,7 @@ export default function BroadcastModal({ isOpen, onClose }: BroadcastModalProps)
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   placeholder={t('broadcast.enterSubject')}
-                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted transition-colors"
+                  className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted transition-colors"
                 />
               </div>
 
@@ -115,7 +115,7 @@ export default function BroadcastModal({ isOpen, onClose }: BroadcastModalProps)
                   onChange={(e) => setContent(e.target.value)}
                   placeholder={t('broadcast.typeMessage')}
                   rows={4}
-                  className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted resize-none transition-colors"
+                  className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted resize-none transition-colors"
                 />
               </div>
 

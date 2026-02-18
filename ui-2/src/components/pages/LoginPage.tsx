@@ -58,10 +58,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
   };
 
   return (
-    <div className="mac-glass-page min-h-screen bg-surface dark:bg-dark-bg-primary flex flex-col transition-colors">
+    <div className="mac-glass-page h-screen overflow-hidden bg-surface dark:bg-[#0f1724] flex flex-col transition-colors">
 
       {/* ================= AUTOFILL FIXES ================= */}
-      <style jsx global>{`
+      <style>{`
         /* ---------- DARK THEME ONLY ---------- */
         html.dark input:-webkit-autofill,
         html.dark input:-webkit-autofill:hover,
@@ -94,8 +94,9 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       `}</style>
 
       {/* ================= HEADER ================= */}
-      <header className="w-full py-4 px-8 bg-surface dark:bg-dark-bg-primary border-b border-default dark:border-dark-border">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <header className="w-full py-4 px-6 bg-surface dark:bg-[#0f1724] border-b border-default dark:border-dark-border" style={{ boxShadow: `inset 0 -1px 0 var(--c-section-divider)` }}>
+        <div className="flex items-center justify-between">
+          {/* Logo — pinned to left edge */}
           <div className="flex items-center gap-3">
             <img
               src="/assets/logo.png"
@@ -107,15 +108,16 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             </h1>
           </div>
 
+          {/* Icons — pinned to right edge */}
           <div className="flex items-center gap-2">
             <button
               onClick={toggleTheme}
-              className="p-2.5 rounded-xl hover:bg-surface-alt dark:hover:bg-dark-surface"
+              className="p-2.5 rounded-xl transition-colors"
             >
               {theme === 'light' ? (
                 <Moon className="w-5 h-5 text-icon-muted" />
               ) : (
-                <Sun className="w-5 h-5 text-dark-text-muted hover:text-dark-accent-blue" />
+                <Sun className="w-5 h-5 text-dark-text-muted" />
               )}
             </button>
 
@@ -124,27 +126,27 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               className="p-2.5 rounded-xl hover:bg-surface-alt dark:hover:bg-dark-surface relative"
             >
               <Globe className="w-5 h-5 text-icon-muted dark:text-dark-text-muted" />
-<span
-  className="absolute -bottom-1 -right-1 w-5 h-5 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
-  style={{ backgroundColor: theme === 'light' ? '#1e228a' : '#00CCFF' }}
->
-  {lang === 'ja' ? 'JP' : 'EN'}
-</span>
+              <span
+                className="absolute -bottom-1 -right-1 w-5 h-5 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                style={{ backgroundColor: theme === 'light' ? '#1e228a' : '#00CCFF' }}
+              >
+                {lang === 'ja' ? 'JP' : 'EN'}
+              </span>
             </button>
           </div>
         </div>
       </header>
 
       {/* ================= LOGIN CARD ================= */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 overflow-hidden">
         <div className="w-full max-w-md">
-          <div className="bg-surface dark:bg-dark-surface rounded-2xl shadow-lg border border-default dark:border-dark-border p-8">
+          <div className="bg-surface dark:bg-[#0f1724] rounded-2xl shadow-lg border border-default dark:border-dark-border p-8">
 
-            <div className="text-center mb-8">
+            <div className={`text-center ${showForgotPassword ? 'mb-3' : 'mb-8'}`}>
               <img
                 src="/assets/logo.png"
                 alt="Thirdwave Logo"
-                className="h-14 mx-auto mb-4 dark:brightness-0 dark:invert"
+                className={`mx-auto mb-3 dark:brightness-0 dark:invert ${showForgotPassword ? 'h-10' : 'h-14'}`}
               />
               <h2 className="text-2xl font-bold text-foreground dark:text-dark-text">
                 {t('login.welcome')}
@@ -164,9 +166,9 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                 />
 
                 <button
-                  onClick={() => setShowForgotPassword(false)}
-                  className="w-full mt-4 py-3 bg-surface dark:bg-dark-surface hover:bg-surface-alt dark:hover:bg-dark-border text-foreground dark:text-dark-text rounded-xl transition-colors font-medium"
-                >
+  onClick={() => setShowForgotPassword(false)}
+  className="w-full mt-2 mb-1 py-3 bg-[#f0f4ff] dark:bg-[#0f1724] hover:bg-[#e4eaff] dark:hover:bg-[#1a1a2e] text-foreground dark:text-white transition-colors font-medium border border-[#d0d5e8] dark:border-gray-600 rounded-xl"
+>
                   {t('login.backToLogin')}
                 </button>
               </>
@@ -192,7 +194,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full input-with-icon py-3 bg-surface dark:bg-dark-surface border rounded-xl text-foreground dark:text-dark-text"
+                      className="w-full input-with-icon py-3 bg-surface dark:bg-[#0f1724] border rounded-xl text-foreground dark:text-dark-text"
                     />
                   </div>
                 </div>
@@ -210,7 +212,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full input-with-icon py-3 pr-12 bg-surface dark:bg-dark-surface border rounded-xl text-foreground dark:text-dark-text"
+                      className="w-full input-with-icon py-3 pr-12 bg-surface dark:bg-[#0f1724] border rounded-xl text-foreground dark:text-dark-text"
                     />
                     <button
                       type="button"

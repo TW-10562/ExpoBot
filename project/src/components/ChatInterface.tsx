@@ -143,8 +143,8 @@ export default function ChatInterface({ onSaveToHistory }: ChatInterfaceProps) {
             <div
               className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                 message.type === 'user'
-                  ? 'bg-gradient-to-br from-blue-500 to-purple-600'
-                  : 'bg-gradient-to-br from-green-500 to-emerald-600'
+                  ? 'bg-blue-500'
+                  : 'bg-green-500'
               }`}
             >
               {message.type === 'user' ? (
@@ -191,7 +191,7 @@ export default function ChatInterface({ onSaveToHistory }: ChatInterfaceProps) {
 
         {isTyping && (
           <div className="flex gap-3 animate-fadeIn">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-green-500">
               <Bot className="w-5 h-5 text-white" />
             </div>
             <div className="px-4 py-3 rounded-2xl bg-white/10 border border-white/20">

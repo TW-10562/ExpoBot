@@ -15,8 +15,8 @@ export default {
       colors: {
         'dark-bg-primary': '#0f1724',
         'dark-bg-secondary': '#0b1220',
-        'dark-surface': '#1a2332',
-        'dark-surface-alt': '#1e2536',
+        'dark-surface': '#0f1724', // Unified dark background
+        'dark-surface-alt': '#0f1724', // Unified dark background (alt also maps to main)
         'dark-border': '#2d3e52',
         'dark-text': '#e6edf3',
         'dark-text-muted': '#9aa6b2',
@@ -24,10 +24,7 @@ export default {
         'dark-accent-purple': '#a78bfa',
         'dark-accent-pink': '#f472b6',
       },
-      backgroundImage: {
-        'dark-gradient': 'linear-gradient(180deg, #0f1724 0%, #0b1220 100%)',
-        'dark-gradient-brand': 'linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%)',
-      },
+      backgroundImage: {},
       transitionDuration: {
         120: '120ms',
         180: '180ms',

@@ -137,9 +137,9 @@ export function ConfirmDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative bg-slate-800 rounded-xl border border-slate-700 p-6 max-w-md w-full shadow-2xl animate-scaleIn">
-        <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
-        <p className="text-slate-400 text-sm mb-6">{message}</p>
+      <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 max-w-md w-full shadow-2xl animate-scaleIn">
+        <h3 className="text-lg font-semibold text-black dark:text-white mb-2">{title}</h3>
+        <p className="text-slate-600 dark:text-slate-400 text-sm mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
           <button
             onClick={onCancel}

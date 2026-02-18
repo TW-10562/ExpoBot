@@ -17,8 +17,10 @@
   --c-placeholder: #9CA3AF;
   --c-surface: #ffffff;
   --c-surface-alt: #F0F4FF;
-  --c-bg: #F6F6F6;
+  --c-bg: #ffffff; /* Unified background - light theme */
   --c-border: #E8E8E8;
+  /* Subtle shadow/border for section differentiation - light theme */
+  --c-section-divider: rgba(0, 0, 0, 0.03);
   --c-accent: #1e228a; /* primary action */
   --c-accent-strong: #1e228a; /* stronger accent (used in dark) */
   --c-accent-rgb: 30,34,138;
@@ -35,10 +37,12 @@ html.dark {
   --c-foreground: #e6edf3;
   --c-muted: #9aa6b2;
   --c-placeholder: #6B7280;
-  --c-surface: #1a2332;
-  --c-surface-alt: #121827;
-  --c-bg: #0f1724;
+  --c-surface: #0f1724; /* Unified background - dark theme */
+  --c-surface-alt: #0f1724; /* Unified background - dark theme (alt maps to main) */
+  --c-bg: #0f1724; /* Unified background - dark theme */
   --c-border: #2d3e52;
+  /* Subtle shadow/border for section differentiation - dark theme */
+  --c-section-divider: rgba(255, 255, 255, 0.03);
   --c-accent: #00CCFF; /* cyan accent dark theme */
   --c-accent-strong: #00CCFF;
   --c-accent-rgb: 89,148,210;
@@ -70,6 +74,12 @@ html.dark {
 .border-default{ border-color:var(--c-border) !important; }
 .border-accent{ border-color:var(--c-accent) !important; }
 .border-accent-strong{ border-color:var(--c-accent-strong) !important; }
+/* Subtle dividers for section separation */
+.border-section-divider{ border-color:var(--c-section-divider) !important; }
+.border-section-divider-top{ border-top-color:var(--c-section-divider) !important; }
+.border-section-divider-bottom{ border-bottom-color:var(--c-section-divider) !important; }
+.border-section-divider-left{ border-left-color:var(--c-section-divider) !important; }
+.border-section-divider-right{ border-right-color:var(--c-section-divider) !important; }
 .accent-accent{ accent-color:color-mix(in srgb, var(--c-accent) 80%, transparent); }
 .placeholder-muted::placeholder{ color:var(--c-placeholder) !important; }
 .icon-current{ color:currentColor; }
@@ -135,7 +145,7 @@ html.dark .login-card .input-with-icon .icon-current {
 }
 
 /* badge accent (for small language badge etc.) */
-.badge-accent{ background:linear-gradient(135deg, rgba(var(--c-accent-rgb),0.95), rgba(var(--c-accent-rgb),0.7)); color:var(--c-on-accent); }
+.badge-accent{ background: var(--c-accent); color:var(--c-on-accent); }
 
 /* ensure svg icons inherit color by default */
 svg{ color:inherit; }
@@ -153,7 +163,7 @@ body{
 }
 
 html.dark body {
-  background: linear-gradient(180deg, #0f1724 0%, #0b1220 100%);
+  background: #0f1724;
   color: #e6edf3;
 }
 
@@ -167,7 +177,7 @@ img, svg, video { max-width:100%; height:auto; display:block; }
 .card{ background: #ffffff; border:1px solid #E8E8E8; border-radius:12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding:16px; }
 
 html.dark .card {
-  background: #1a2332;
+  background: #0f1724;
   border-color: #2d3e52;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
@@ -176,7 +186,7 @@ html.dark .card {
 .overlay-panel{ border-radius:12px; background:#ffffff; border:1px solid #E8E8E8; box-shadow: 0 4px 20px rgba(0,0,0,0.12); padding:12px; }
 
 html.dark .overlay-panel {
-  background: #1a2332;
+  background: #0f1724;
   border-color: #2d3e52;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
@@ -202,11 +212,12 @@ html.dark .overlay-panel {
 .left-sidebar{ background: #ffffff; border-right: 1px solid #E8E8E8; min-height:0; }
 
 html.dark .left-sidebar {
-  background: #1a2332;
+  background: #0f1724;
   border-right-color: #2d3e52;
 }
-.left-sidebar .sidebar-inner{ display:flex; flex-direction:column; align-items:center; padding-top:16px; padding-bottom:16px; gap:8px; }
-.sidebar-btn{ width:44px; height:44px; display:flex; align-items:center; justify-content:center; color: #6E7680; border-radius:10px; background:transparent; border:none; cursor:pointer; transition: all 0.2s ease; }
+.left-sidebar .sidebar-inner{ display:flex; flex-direction:column; align-items:center; padding: 8px 4px; gap:10px; }
+.sidebar-btn{ width: 40px; height:40px; display:flex; align-items:center; justify-content:center; color: #6E7680; border-radius:10px; background:transparent; border:none; cursor:pointer; transition: all 0.2s ease; }
+.sidebar-btn svg { width: 19px; height: 19px; }
 .sidebar-btn:hover{ background: #F0F4FF; color:#1e228a; }
 .sidebar-btn.active{ background: #1e228a; color:#ffffff; }
 
@@ -223,7 +234,7 @@ html.dark .sidebar-btn:hover {
 
 html.dark .sidebar-btn.active {
   background: #00CCFF;
-  color: #000000;
+  color: #ffffff;
 }
 
 /* Make sure embedded panels stretch correctly in flex layouts */
@@ -318,14 +329,13 @@ html.dark .sidebar-btn.active {
 }
  
 .animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: #ffffff;
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+}
+
+html.dark .animate-shimmer {
+  background: #0f1724;
 }
  
 /* Smooth transitions */
@@ -470,15 +480,15 @@ body::before {
   content: '';
   position: fixed;
   inset: -10% -10% -20% -10%;
-  background:
-    radial-gradient(600px 400px at 12% 20%, rgba(96, 165, 250, 0.25), transparent 55%),
-    radial-gradient(520px 360px at 70% 24%, rgba(167, 139, 250, 0.22), transparent 55%),
-    radial-gradient(520px 360px at 40% 70%, rgba(244, 114, 182, 0.18), transparent 55%),
-    radial-gradient(420px 320px at 88% 78%, rgba(56, 189, 248, 0.16), transparent 60%);
+  background: #ffffff;
   filter: blur(60px);
-  opacity: 0.9;
+  opacity: 0;
   z-index: 0;
   pointer-events: none;
+}
+
+html.dark body::before {
+  background: #0f1724;
 }
 
 body {
@@ -617,22 +627,22 @@ html.dark .mac-border-highlight {
  
 /* Loading skeleton */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(51, 65, 85, 0.5) 25%,
-    rgba(71, 85, 105, 0.5) 50%,
-    rgba(51, 65, 85, 0.5) 75%
-  );
+  background: #ffffff;
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 4px;
 }
+
+.dark .skeleton-shimmer-dark {
+  background: #0f1724;
+}
+
 /* ============================================
    MESSENGER STYLES
    ============================================ */
  
 .messenger-container {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+  background: #0f1724;
   border-radius: 12px;
   padding: 20px;
   color: #fff;
@@ -748,7 +758,7 @@ html.dark .mac-border-highlight {
 }
  
 .send-button-container button {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #1e228a;
   color: white;
   border: none;
   padding: 10px 24px;
@@ -760,9 +770,9 @@ html.dark .mac-border-highlight {
 }
  
 .send-button-container button:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: #161a5a;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(30, 34, 138, 0.3);
 }
  
 .send-button-container button:active {
@@ -783,7 +793,7 @@ html.dark .mac-border-highlight {
 }
  
 .user-messenger button {
-  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  background: #1e228a;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -796,9 +806,9 @@ html.dark .mac-border-highlight {
 }
  
 .user-messenger button:hover {
-  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
+  background: #161a5a;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+  box-shadow: 0 4px 12px rgba(30, 34, 138, 0.3);
 }
  
 .user-messenger button:active {
@@ -821,21 +831,33 @@ html.dark .mac-border-highlight {
 }
  
 .modal-content {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #ffffff;
+  border: 1px solid #E8E8E8;
   border-radius: 12px;
   padding: 30px;
   max-width: 500px;
   width: 100%;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.12);
   animation: scaleIn 0.3s ease-out forwards;
+  color: #232333;
 }
- 
+
+html.dark .modal-content {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+}
+
 .modal-content h2 {
   margin: 0 0 20px 0;
-  color: #fff;
   font-size: 22px;
   font-weight: 700;
+  color: #232333;
+}
+
+html.dark .modal-content h2 {
+  color: #ffffff;
 }
  
 .modal-input,
@@ -899,14 +921,14 @@ html.dark .mac-border-highlight {
 }
  
 .send-btn {
-  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  background: #1e228a;
   color: white;
 }
  
 .send-btn:hover {
-  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
+  background: #161a5a;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+  box-shadow: 0 4px 12px rgba(30, 34, 138, 0.3);
 }
  
 .send-btn:active {
@@ -938,31 +960,72 @@ html.dark .mac-border-highlight {
   border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-/* Dark theme - glassmorphic gradient with cyan glow */
-html.dark .mac-glass-bubble {
-  background: linear-gradient(135deg, rgba(0, 204, 255, 0.12) 0%, rgba(0, 204, 255, 0.08) 100%);
-  border: 1px solid rgba(0, 204, 255, 0.25);
-  box-shadow:
-    0 0 20px rgba(0, 204, 255, 0.15),
-    0 8px 24px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(16px) saturate(120%);
-  -webkit-backdrop-filter: blur(16px) saturate(120%);
-}
-
-html.dark .mac-glass-user {
-  background: linear-gradient(135deg, rgba(0, 204, 255, 0.1) 0%, rgba(0, 204, 255, 0.06) 100%);
-  border: 1px solid rgba(0, 204, 255, 0.2);
-  box-shadow:
-    0 0 16px rgba(0, 204, 255, 0.12),
-    0 6px 20px rgba(0, 0, 0, 0.35);
-}
-
+/* Dark theme - flat cyan glassmorphism, no gradients */
+html.dark .mac-glass-bubble,
+html.dark .mac-glass-user,
 html.dark .mac-glass-bot {
-  background: linear-gradient(135deg, rgba(0, 204, 255, 0.14) 0%, rgba(0, 204, 255, 0.09) 100%);
-  border: 1px solid rgba(0, 204, 255, 0.28);
-  box-shadow:
-    0 0 24px rgba(0, 204, 255, 0.18),
-    0 8px 28px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  background: rgba(0, 204, 255, 0.14) !important;
+  border: 1px solid rgba(0, 204, 255, 0.30) !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(0, 204, 255, 0.18) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
+  color: #ffffff !important;
+}
+/* ========================================
+   NOTIFICATION GLASS BUBBLES
+   ======================================== */
+
+/* Light theme - White background with colored borders */
+.notif-bubble-sent {
+  background: #ffffff;
+  border: 1.5px solid #22c55e;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+}
+
+.notif-bubble-received {
+  background: transparent !important;
+  border: 1.5px solid #0ea5e9 !important;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+/* Dark theme - Glassmorphic with colored glass effect */
+html.dark .notif-bubble-sent {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 
+    0 0 20px rgba(16, 185, 129, 0.12),
+    0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark .notif-bubble-received {
+  background: rgba(30, 58, 138, 0.85) !important;  /* Dark navy blue - similar to your image */
+  border: 1px solid rgba(59, 130, 246, 0.4) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 
+    0 0 20px rgba(30, 58, 138, 0.3),
+    0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+/* Hover effects */
+.notif-bubble-sent:hover,
+.notif-bubble-received:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+html.dark .notif-bubble-sent:hover {
+  box-shadow: 
+    0 0 24px rgba(16, 185, 129, 0.16),
+    0 12px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .notif-bubble-received:hover {
+  box-shadow: 
+    0 0 24px rgba(59, 130, 246, 0.16),
+    0 12px 40px rgba(0, 0, 0, 0.4) !important;
 }

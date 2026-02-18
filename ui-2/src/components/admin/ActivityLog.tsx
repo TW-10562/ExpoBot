@@ -20,22 +20,20 @@ export default function ActivityLogComponent({ activities }: ActivityLogProps) {
   const { t } = useLang();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-0 px-0">
       <div className="flex items-center gap-3 mb-6">
-        <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-lg transition-colors">
-          <Activity className="w-5 h-5 text-white dark:text-black" />
-        </div>
-        <h2 className="text-2xl font-bold text-[#232333] dark:text-white transition-colors">{t('activity.title')}</h2>
+        <h2 className="text-[1.125rem] font-semibold text-foreground dark:text-white transition-colors">
+{t('activity.title')}</h2>
       </div>
 
       <div className="space-y-3">
         {activities.map((activity) => (
           <div
             key={activity.id}
-            className="bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-4 hover:bg-[#F6F6F6] dark:hover:bg-dark-border transition-colors shadow-sm"
-          >
+            className="bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-2xl p-4 hover:border-[#E8E8E8] dark:hover:border-dark-border transition-colors shadow-sm">
+          
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-[#F0F4FF] dark:bg-dark-surface-alt rounded-xl flex items-center justify-center flex-shrink-0 transition-colors">
+              <div className="w-10 h-10 bg-[#F0F4FF] dark:bg-[#0f1724] rounded-xl flex items-center justify-center flex-shrink-0 transition-colors">
                 <Activity className="w-5 h-5 text-[#1e228a] dark:text-[#00CCFF] transition-colors" />
               </div>
               <div className="flex-1 min-w-0">

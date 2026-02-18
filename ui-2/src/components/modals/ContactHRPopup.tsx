@@ -18,7 +18,7 @@ export default function ContactHRPopup({
   if (!isOpen) return null;
 
   return (
-    <div className="bg-surface dark:bg-dark-surface rounded-2xl w-full max-w-md border border-default shadow-2xl transition-colors">
+    <div className="bg-surface dark:bg-dark-surface rounded-2xl w-full max-w-md border border-default shadow-2xl transition-colors overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-5 border-b border-default bg-surface-alt dark:bg-dark-bg-primary transition-colors">
         <div className="flex items-center gap-3">
