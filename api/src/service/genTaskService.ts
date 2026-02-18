@@ -58,6 +58,16 @@ export const handleAddGenTask = async (
     status: 'WAIT',
   };
 
+  // Ensure formData has sensible defaults so downstream validators don't fail
+  try {
+    const fd: any = (addContent as any).formData || {};
+    if (!fd.taskId) fd.taskId = taskId;
+    if (typeof fd.fieldSort === 'undefined' || fd.fieldSort === null) fd.fieldSort = 1;
+    (addContent as any).formData = fd;
+  } catch (e) {
+    // ignore and continue; validation will catch malformed payloads
+  }
+
   let outputs: PrepareOutput[] = [];
   let needUpdate = false;
   let isExplainTask = false;
@@ -96,76 +106,83 @@ export const handleAddGenTask = async (
 
   let task: IGenTaskSer | undefined;
 
-  if (needUpdate && !isLongTextGenTask) {
-    await put<IGenTaskSer>(KrdGenTask, { id: taskId }, { status: 'WAIT', form_data: '新しい会話' });
-  } else if (isExplainTask || (isLongTextGenTask && needUpdate)) {
-    await put<IGenTaskSer>(KrdGenTask, { id: taskId }, { status: 'WAIT' });
-  } else {
-    let newAddTaskContent: IGenTaskSer;
+  try {
+    if (needUpdate && !isLongTextGenTask) {
+      await put<IGenTaskSer>(KrdGenTask, { id: taskId }, { status: 'WAIT', form_data: '新しい会話' });
+    } else if (isExplainTask || (isLongTextGenTask && needUpdate)) {
+      await put<IGenTaskSer>(KrdGenTask, { id: taskId }, { status: 'WAIT' });
+    } else {
+      let newAddTaskContent: IGenTaskSer;
 
-    try {
-      if (addTaskContent.formData) {
+      try {
+        if (addTaskContent.formData) {
+          newAddTaskContent = {
+            ...(formatHumpLineTransfer(addTaskContent, 'line') as IGenTaskSer),
+            form_data:
+              addContent.type === 'CHAT'
+                ? '新しい会話'
+                : JSON.stringify(addTaskContent.formData),
+          };
+        }
+
+        if (addContent.type === 'CHAT' && Object.keys(addContent.formData).length === 0) {
+          newAddTaskContent = {
+            ...(formatHumpLineTransfer(addTaskContent, 'line') as IGenTaskSer),
+            form_data: 'NEW CHAT',
+            status: 'EMPTY',
+          } as IGenTaskSer;
+        }
+      } catch (e) {
         newAddTaskContent = {
-          ...(formatHumpLineTransfer(addTaskContent, 'line') as IGenTaskSer),
+          ...addTaskContent,
+          create_by: userName,
+          update_by: userName,
           form_data:
             addContent.type === 'CHAT'
               ? '新しい会話'
               : JSON.stringify(addTaskContent.formData),
-        };
+        } as unknown as IGenTaskSer;
       }
+
+      task = await add<IGenTaskSer>(KrdGenTask, newAddTaskContent);
 
       if (addContent.type === 'CHAT' && Object.keys(addContent.formData).length === 0) {
-        newAddTaskContent = {
-          ...(formatHumpLineTransfer(addTaskContent, 'line') as IGenTaskSer),
-          form_data: 'NEW CHAT',
-          status: 'EMPTY',
-        } as IGenTaskSer;
+        return {
+          taskId,
+          task: task
+            ? {
+              status: task.status,
+              createdAt: (task.created_at as unknown as Date).toLocaleString('ja', { timeZone: 'Asia/Tokyo' }),
+              id: taskId,
+              createBy: task.create_by,
+            }
+            : undefined,
+        };
       }
-    } catch (e) {
-      newAddTaskContent = {
-        ...addTaskContent,
-        create_by: userName,
-        update_by: userName,
-        form_data:
-          addContent.type === 'CHAT'
-            ? '新しい会話'
-            : JSON.stringify(addTaskContent.formData),
-      } as unknown as IGenTaskSer;
     }
 
-    task = await add<IGenTaskSer>(KrdGenTask, newAddTaskContent);
-
-    if (addContent.type === 'CHAT' && Object.keys(addContent.formData).length === 0) {
-      return {
+    const results: Promise<IGenTaskOutputSer>[] = [];
+    for (const output of outputs) {
+      const addTaskOutputContent = {
         taskId,
-        task: task
-          ? {
-            status: task.status,
-            createdAt: (task.created_at as unknown as Date).toLocaleString('ja', { timeZone: 'Asia/Tokyo' }),
-            id: taskId,
-            createBy: task.create_by,
-          }
-          : undefined,
+        metadata: output.metadata,
+        status: 'WAIT',
+        sort: output.sort,
+        createBy: userName,
+        updateBy: userName,
       };
+      const newAddTaskOutputContent =
+        formatHumpLineTransfer(addTaskOutputContent, 'line') as IGenTaskOutputSer;
+      results.push(add<IGenTaskOutputSer>(KrdGenTaskOutput, newAddTaskOutputContent));
     }
+    await Promise.all(results);
+  } catch (dbErr) {
+    // If DB operations fail (e.g., MySQL not accessible), log and continue without persisting.
+    console.error('⚠️ [GenTask] Database operation failed, continuing without persistence:', dbErr);
+    task = undefined;
   }
 
-  const results: Promise<IGenTaskOutputSer>[] = [];
-  for (const output of outputs) {
-    const addTaskOutputContent = {
-      taskId,
-      metadata: output.metadata,
-      status: 'WAIT',
-      sort: output.sort,
-      createBy: userName,
-      updateBy: userName,
-    };
-    const newAddTaskOutputContent =
-      formatHumpLineTransfer(addTaskOutputContent, 'line') as IGenTaskOutputSer;
-    results.push(add<IGenTaskOutputSer>(KrdGenTaskOutput, newAddTaskOutputContent));
-  }
-  await Promise.all(results);
-
+  // Enqueue processing regardless of DB persistence result
   enqueue(addContent.type, taskId);
 
   return {

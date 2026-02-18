@@ -4,6 +4,12 @@ import { Context } from 'koa';
 export const addEditSchema = (judge: Joi.ObjectSchema<any>) => async (ctx: Context, next: () => Promise<void>) => {
   try {
     const list = ctx.request.body;
+    try {
+      const preview = typeof list === 'object' ? JSON.stringify(list).slice(0, 1000) : String(list);
+      console.error('[addEditSchema] body type:', typeof list, 'isArray:', Array.isArray(list), 'preview:', preview);
+    } catch (e) {
+      console.error('[addEditSchema] body preview failed', e);
+    }
     await judge.validateAsync(list);
 
     await next();
