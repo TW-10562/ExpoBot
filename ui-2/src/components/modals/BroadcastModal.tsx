@@ -86,7 +86,7 @@ export default function BroadcastModal({ isOpen, onClose }: BroadcastModalProps)
           <>
             <div className="flex items-center justify-between p-5 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-[#0f1724] transition-colors">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-[#1e228a] dark:bg-[#00CCFF] rounded-xl transition-colors">
+                <div className="p-2.5 bg-[#1e228a] dark:bg-[#00ccff4d] rounded-xl transition-colors">
                   <Users className="w-5 h-5 text-white dark:text-black" />
                 </div>
                 <h2 className="text-lg font-semibold text-[#232333] dark:text-dark-text transition-colors">{t('broadcast.messageAllUsers')}</h2>
@@ -104,7 +104,7 @@ export default function BroadcastModal({ isOpen, onClose }: BroadcastModalProps)
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   placeholder={t('broadcast.enterSubject')}
-                  className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted transition-colors"
+                  className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00ccff4d] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted transition-colors"
                 />
               </div>
 
@@ -115,14 +115,14 @@ export default function BroadcastModal({ isOpen, onClose }: BroadcastModalProps)
                   onChange={(e) => setContent(e.target.value)}
                   placeholder={t('broadcast.typeMessage')}
                   rows={4}
-                  className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted resize-none transition-colors"
+                  className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border text-[#232333] dark:text-dark-text rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00ccff4d] placeholder-[#9CA3AF] dark:placeholder-dark-text-muted resize-none transition-colors"
                 />
               </div>
 
               <button
                 onClick={handleSend}
                 disabled={sending || !subject.trim() || !content.trim()}
-                className="w-full bg-[#1e228a] hover:bg-[#161a5a] disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] dark:bg-[#00CCFF] dark:hover:bg-[#0099cc] dark:disabled:bg-[#00CCFF]/50 dark:text-black text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all"
+                className="w-full bg-[#1e228a] hover:bg-[#161a5a] disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] dark:bg-[#00ccff4d] dark:hover:bg-[#0099cc] dark:disabled:bg-[#00ccff4d]/50 dark:text-black text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all"
               >
                 <Send className="w-4 h-4" />
                 {sending ? t('common.loading') : t('broadcast.broadcastToAllUsers')}

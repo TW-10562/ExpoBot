@@ -223,7 +223,7 @@ export default function DocumentTable({
               <th className="px-4 py-3 text-left">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 accent-[#1e228a] dark:accent-[#00CCFF]"
+                  className="w-4 h-4 accent-[#1e228a] dark:accent-[#00ccff4d]"
                   checked={filteredDocs.length > 0 && filteredDocs.every(doc => selectedDocIds.has(doc.id))}
                   onChange={(e) => {
                     const next = new Set(selectedDocIds);
@@ -260,7 +260,7 @@ export default function DocumentTable({
                   <td className="px-4 py-3">
                     <input
                       type="checkbox"
-                      className="w-4 h-4 accent-[#1e228a] dark:accent-[#00CCFF]"
+                      className="w-4 h-4 accent-[#1e228a] dark:accent-[#00ccff4d]"
                       checked={selectedDocIds.has(doc.id)}
                       onChange={(e) => {
                         setSelectedDocIds(prev => {

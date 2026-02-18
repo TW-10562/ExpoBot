@@ -51,7 +51,7 @@ export default function Header({
           >
             <Bell className="w-5 h-5 text-icon-muted dark:text-dark-text-muted icon-current" />
             {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-[#1e228a] dark:bg-[#00CCFF] text-white text-xs font-bold rounded-full flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-[#1e228a] dark:bg-[#00ccff4d] text-white text-xs font-bold rounded-full flex items-center justify-center">
                 {unreadCount > 9 ? '9+' : unreadCount}
               </span>
             )}
@@ -81,7 +81,7 @@ export default function Header({
             }
           >
             <Globe className="w-5 h-5 text-icon-muted dark:text-dark-text-muted icon-current" />
-            <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#1e228a] dark:bg-[#00CCFF] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+            <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#1e228a] dark:bg-[#00ccff4d] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {lang === 'ja' ? 'JP' : 'EN'}
             </span>
           </button> 

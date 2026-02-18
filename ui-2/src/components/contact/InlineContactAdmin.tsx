@@ -8,16 +8,11 @@ interface InlineContactAdminProps {
 }
 
 export default function InlineContactAdmin({ userId }: InlineContactAdminProps) {
-  const { t } = useLang(); // <-- Use translations
+  const { t } = useLang();
   const [subject, setSubject] = useState('');
   const [content, setContent] = useState('');
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [justSent, setJustSent] = useState<{
-    subject: string;
-    content: string;
-    timestamp: number;
-  } | null>(null);
 
   const handleSend = async () => {
     if (!content.trim()) return;
@@ -36,8 +31,6 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
       const data = await response.json();
       if (data.code === 200) {
         setSuccess(true);
-        setJustSent({ subject: finalSubject, content: content.trim(), timestamp: Date.now() });
-        // Store in localStorage to mirror previous popup behavior
         try {
           const stored = localStorage.getItem('notifications_messages');
           const all = stored ? JSON.parse(stored) : [];
@@ -70,9 +63,9 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="pt-0 px-0 pb-2 border-b border-[#E8E8E8] dark:border-dark-border bg-[#F6F6F6] dark:bg-[#0f1724] transition-colors">
-        <h2 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors pt-2 px-1.5 lg:pl-3 lg:pr-3">{t('inlineContactAdmin.title')}</h2>
-        <p className="text-sm text-[#6E7680] px-1.5 lg:pl-3 lg:pr-3">{t('inlineContactAdmin.description')}</p>
+      <div className="pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2">
+        <h2 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors pb-1">{t('inlineContactAdmin.title')}</h2>
+        <p className="text-sm text-[#6E7680]">{t('inlineContactAdmin.description')}</p>
       </div>
 
       <div className="pt-2 px-1.5 lg:pl-3 lg:pr-3 pb-2 space-y-4">
@@ -83,21 +76,6 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
           </div>
         )}
 
-        {justSent && (
-          <div className="p-4 bg-[#F6F6F6] dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl text-[#232333] dark:text-dark-text text-sm transition-colors">
-            <div className="flex items-center justify-between">
-              <span className="text-[#232333] font-semibold">{t('inlineContactAdmin.yourMessage')}</span>
-              <span className="text-xs text-[#9CA3AF]">{new Date(justSent.timestamp).toLocaleString()}</span>
-            </div>
-            {justSent.subject && (
-              <div className="mt-1 text-xs text-[#6E7680]">
-                {t('inlineContactAdmin.subject')}: {justSent.subject}
-              </div>
-            )}
-            <p className="mt-2 text-sm whitespace-pre-wrap">{justSent.content}</p>
-          </div>
-        )}
-
         <div>
           <label className="block text-sm font-medium text-[#232333] dark:text-dark-text mb-2 transition-colors">{t('inlineContactAdmin.subjectLabel')}</label>
           <input
@@ -105,8 +83,8 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder={t('inlineContactAdmin.subjectPlaceholder')}
-            className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all"
-          />  
+            className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00ccff4d] focus:border-transparent transition-all"
+          />
         </div>
 
         <div>
@@ -116,7 +94,7 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
             onChange={(e) => setContent(e.target.value)}
             placeholder={t('inlineContactAdmin.contentPlaceholder')}
             rows={8}
-            className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all resize-vertical"
+            className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00ccff4d] focus:border-transparent transition-all resize-vertical"
           ></textarea>
           <p className="mt-2 text-xs text-[#9CA3AF] dark:text-dark-text-muted transition-colors">
             {content.length > 0
@@ -129,7 +107,7 @@ export default function InlineContactAdmin({ userId }: InlineContactAdminProps) 
           <button
             onClick={handleSend}
             disabled={sending || !content.trim()}
-            className="px-5 py-2.5 bg-[#1e228a] dark:bg-[#00CCFF] hover:bg-[#151a6e] dark:hover:bg-[#00a3cc] disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] rounded-xl text-white text-sm font-medium inline-flex items-center gap-2 transition-colors"
+            className="px-5 py-2.5 bg-[#1e228a] dark:bg-[#00ccff4d] hover:bg-[#151a6e] dark:hover:bg-[#00a3cc] disabled:bg-[#E8E8E8] disabled:text-[#9CA3AF] rounded-xl text-white text-sm font-medium inline-flex items-center gap-2 transition-colors"
           >
             <Send className="w-4 h-4" />
             {sending ? t('inlineContactAdmin.sending') : t('inlineContactAdmin.sendButton')}

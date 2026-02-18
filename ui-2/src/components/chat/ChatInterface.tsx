@@ -781,7 +781,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
         <div className={`flex-1 min-h-0 mac-scroll pb-20 ${messages.length > 0 && messages.some(m => m.type === 'user') ? 'overflow-y-auto' : 'overflow-hidden'} overflow-x-hidden`}>
           {Array.isArray(messages) && messages.length === 0 && (
             <div className="text-center text-slate-500 dark:text-slate-400">
-              <Bot className="w-12 h-12 mx-auto mb-3 text-[#1e228a] dark:text-[#00CCFF] opacity-60" />
+              <Bot className="w-12 h-12 mx-auto mb-3 text-[#1e228a] dark:text-[#00ccff4d] opacity-60" />
               <p className="text-sm">{t('chat.askQuestion')}</p>
             </div>
           )}
@@ -802,7 +802,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
                 {message.type === 'user' ? (
                   <User className="w-5 h-5 text-white" />
                 ) : (
-                  <Bot className="w-5 h-5 text-[#1e228a] dark:text-[#00CCFF]" />
+                  <Bot className="w-5 h-5 text-[#1e228a] dark:text-[#00ccff4d]" />
                 )}
               </div>
 
@@ -1221,8 +1221,8 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
           .mac-sendbtn:disabled{ opacity: .45; cursor: not-allowed; transform: none; }
 
           .dark .mac-sendbtn{
-            border-color: #00CCFF;
-            background: #00CCFF;
+            border-color: #00ccff4d;
+            background: #00ccff4d;
             color: #ffffff;
           }
           .dark .mac-sendbtn:hover{ background: #0099cc; }
@@ -1359,7 +1359,7 @@ export default function ChatInterface({ onSaveToHistory, focusSignal, onUserTypi
           }
 
           .dark .mac-primary{
-            background: #00CCFF;
+            background: #00ccff4d;
             color: #0f1724;
             border-color: rgba(0,204,255,0.25);
           }

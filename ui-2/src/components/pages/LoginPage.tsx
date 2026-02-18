@@ -128,7 +128,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               <Globe className="w-5 h-5 text-icon-muted dark:text-dark-text-muted" />
               <span
                 className="absolute -bottom-1 -right-1 w-5 h-5 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
-                style={{ backgroundColor: theme === 'light' ? '#1e228a' : '#00CCFF' }}
+                style={{ backgroundColor: theme === 'light' ? '#1e228a' : '#00ccff4d' }}
               >
                 {lang === 'ja' ? 'JP' : 'EN'}
               </span>

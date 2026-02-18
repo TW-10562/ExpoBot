@@ -374,7 +374,7 @@ export default function UserManagement() {
                         <select
                           value={formData.userJobRole}
                           onChange={(e) => setFormData({ ...formData, userJobRole: e.target.value })}
-                          className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
+                          className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00ccff4d] transition-colors"
                         >
                           <option value="">{selectJobRoleLabel}</option>
                           {JOB_ROLE_OPTIONS.map((option) => (
@@ -388,7 +388,7 @@ export default function UserManagement() {
                         <select
                           value={formData.areaOfWork}
                           onChange={(e) => setFormData({ ...formData, areaOfWork: e.target.value })}
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
+                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00ccff4d] transition-colors"
                         >
                           <option value="">{selectAreaLabel}</option>
                           {AREA_OF_WORK_OPTIONS.map((option) => (
@@ -413,7 +413,7 @@ export default function UserManagement() {
                           type="text"
                           value={formData.password}
                           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] transition-colors"
+                          className="w-full bg-white dark:bg-dark-surface border border-[#E8E8E8] dark:border-dark-border rounded px-2 py-1 text-[#232333] dark:text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00ccff4d] transition-colors"
                         />
                       </td>
                       <td className="px-4 py-3 text-[#6E7680] dark:text-dark-text-muted text-sm transition-colors">

@@ -309,7 +309,7 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
 
         {activeTab === 'documents' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-2">
               <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">{t('documentTable.title')}</h3>
               <div className="flex items-center gap-3 flex-1 max-w-md">
                 {/* Simple Search Input */}
@@ -794,7 +794,9 @@ export default function AdminDashboard({ activeTab: controlledTab, onTabChange, 
 
         {activeTab === 'activity' && (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">{t('activity.title')}</h3>
+            <div className="mt-[5px]">
+  <h3 className="text-xl font-semibold text-[#232333] dark:text-white transition-colors">{t('activity.title')}</h3>
+</div>
 
             <div className="space-y-3">
               {mockActivity.map((activity) => (

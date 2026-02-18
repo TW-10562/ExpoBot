@@ -43,8 +43,8 @@ html.dark {
   --c-border: #2d3e52;
   /* Subtle shadow/border for section differentiation - dark theme */
   --c-section-divider: rgba(255, 255, 255, 0.03);
-  --c-accent: #00CCFF; /* cyan accent dark theme */
-  --c-accent-strong: #00CCFF;
+  --c-accent: #00ccff4d; /* cyan accent dark theme */
+  --c-accent-strong: #00ccff4d;
   --c-accent-rgb: 89,148,210;
   --c-on-accent: #ffffff;
   --c-success: #0f766e;
@@ -228,12 +228,12 @@ html.dark .sidebar-btn {
 
 html.dark .sidebar-btn:hover {
   background: #2d3e52;
-  color: #00CCFF;
+  color: #00ccff4d;
   transition: all 0.2s ease;
 }
 
 html.dark .sidebar-btn.active {
-  background: #00CCFF;
+  background: #00ccff4d;
   color: #ffffff;
 }
 
@@ -986,7 +986,7 @@ html.dark .mac-glass-bot {
 
 .notif-bubble-received {
   background: transparent !important;
-  border: 1.5px solid #0ea5e9 !important;
+  border: 1.5px solid #1e228a !important;  /* was #0ea5e9 */
   border-radius: 12px;
   transition: all 0.2s ease;
 }
@@ -1003,13 +1003,11 @@ html.dark .notif-bubble-sent {
 }
 
 html.dark .notif-bubble-received {
-  background: rgba(30, 58, 138, 0.85) !important;  /* Dark navy blue - similar to your image */
-  border: 1px solid rgba(59, 130, 246, 0.4) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  box-shadow: 
-    0 0 20px rgba(30, 58, 138, 0.3),
-    0 8px 32px rgba(0, 0, 0, 0.4) !important;
+  background: rgba(0, 204, 255, 0.14) !important;
+  border: 1px solid rgba(0, 204, 255, 0.30) !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(0, 204, 255, 0.18) !important;
+  backdrop-filter: blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(140%) !important;
 }
 /* Hover effects */
 .notif-bubble-sent:hover,
@@ -1026,6 +1024,6 @@ html.dark .notif-bubble-sent:hover {
 
 html.dark .notif-bubble-received:hover {
   box-shadow: 
-    0 0 24px rgba(59, 130, 246, 0.16),
+    0 0 24px rgba(0, 204, 255, 0.16),
     0 12px 40px rgba(0, 0, 0, 0.4) !important;
 }

@@ -17,7 +17,7 @@ export default function ProfilePopup({ user, onLogout }: ProfilePopupProps) {
     <div className="p-6 h-full overflow-y-auto bg-[#E8E8E8] dark:bg-[#0f1724] transition-colors">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-24 h-24 bg-[#1e228a] dark:bg-[#00CCFF] rounded-full flex items-center justify-center mb-4 shadow-lg transition-colors">
+          <div className="w-24 h-24 bg-[#1e228a] dark:bg-[#00ccff4d] rounded-full flex items-center justify-center mb-4 shadow-lg transition-colors">
             <User className="w-12 h-12 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-[#232333] dark:text-dark-text mb-1 transition-colors">{user.name}</h2>

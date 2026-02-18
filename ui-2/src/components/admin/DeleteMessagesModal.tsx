@@ -152,7 +152,7 @@ export default function DeleteMessagesModal({
             <div>
               <p className="text-sm font-medium text-black dark:text-[#e5e7eb] mb-2 transition-colors">
                 {t('messages.confirmLabel').replace('DELETE ALL MESSAGES', '')}
-                <span className="ml-2 font-mono bg-[#1e228a] dark:bg-[#00CCFF] text-white dark:text-black px-2 py-1 rounded-lg">
+                <span className="ml-2 font-mono bg-[#1e228a] dark:bg-[#00ccff4d] text-white dark:text-black px-2 py-1 rounded-lg">
                   {t('messages.confirmText')}
                 </span>
               </p>
@@ -161,7 +161,7 @@ export default function DeleteMessagesModal({
                 value={confirmationText}
                 onChange={(e) => setConfirmationText(e.target.value)}
                 placeholder={t('messages.confirmPlaceholder')}
-                className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-[#2d2d3d] rounded-xl px-4 py-3 text-black dark:text-[#e5e7eb] placeholder-[#9CA3AF] dark:placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent font-mono transition-colors"
+                className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-[#2d2d3d] rounded-xl px-4 py-3 text-black dark:text-[#e5e7eb] placeholder-[#9CA3AF] dark:placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00ccff4d] focus:border-transparent font-mono transition-colors"
                 autoFocus
               />
             </div>
@@ -250,7 +250,7 @@ export default function DeleteMessagesModal({
                 type="checkbox"
                 checked={deleteUserMessages}
                 onChange={(e) => setDeleteUserMessages(e.target.checked)}
-                className="w-5 h-5 accent-[#1e228a] dark:accent-[#00CCFF] rounded"
+                className="w-5 h-5 accent-[#1e228a] dark:accent-[#00ccff4d] rounded"
               />
               <div className="flex-1">
                 <span className="text-black dark:text-[#e5e7eb] font-medium transition-colors">
@@ -267,7 +267,7 @@ export default function DeleteMessagesModal({
                 type="checkbox"
                 checked={deleteAdminMessages}
                 onChange={(e) => setDeleteAdminMessages(e.target.checked)}
-                className="w-5 h-5 accent-[#1e228a] dark:accent-[#00CCFF] rounded"
+                className="w-5 h-5 accent-[#1e228a] dark:accent-[#00ccff4d] rounded"
               />
               <div className="flex-1">
                 <span className="text-black dark:text-[#e5e7eb] font-medium transition-colors">

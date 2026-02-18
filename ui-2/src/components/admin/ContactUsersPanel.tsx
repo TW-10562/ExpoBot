@@ -139,8 +139,8 @@ export default function ContactUsersPanel({
 
       <div className="space-y-6">
         {/* Broadcast composer */}
-        <div className="p-5 transition-colors">
-          <div className="flex items-center gap-3">
+        <div className="p-0 pt-[5px] transition-colors">
+          <div className="flex items-center gap-1">
             <div>
               <h3 className="text-lg font-semibold text-[#232333] dark:text-white transition-colors">
                 {t('broadcast.title')}
@@ -166,7 +166,7 @@ export default function ContactUsersPanel({
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder={t('broadcast.subjectPlaceholder')}
-              className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all"
+              className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00ccff4d] focus:border-transparent transition-all"
             />
           </div>
 
@@ -179,7 +179,7 @@ export default function ContactUsersPanel({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder={t('broadcast.messagePlaceholder')}
-              className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00CCFF] focus:border-transparent transition-all resize-none"
+              className="w-full bg-white dark:bg-[#0f1724] border border-[#E8E8E8] dark:border-dark-border rounded-xl px-4 py-3 text-[#232333] dark:text-dark-text placeholder-[#9CA3AF] dark:placeholder-dark-text-muted focus:outline-none focus:ring-2 focus:ring-[#1e228a] dark:focus:ring-[#00ccff4d] focus:border-transparent transition-all resize-none"
             />
           </div>
 
@@ -198,7 +198,7 @@ export default function ContactUsersPanel({
               type="button"
               onClick={sendBroadcast}
               disabled={sending || !content.trim()}
-              className="px-6 py-2.5 rounded-xl bg-[#1e228a] dark:bg-[#00CCFF] hover:bg-[#151a6e] dark:hover:bg-[#00a3cc] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm inline-flex items-center gap-2 transition-colors"
+              className="px-6 py-2.5 rounded-xl bg-[#1e228a] dark:bg-[#00ccff4d] hover:bg-[#151a6e] dark:hover:bg-[#00a3cc] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-sm inline-flex items-center gap-2 transition-colors"
             >
               <Send className="w-4 h-4" />
               {sending ? t('broadcast.sending') : t('broadcast.send')}
