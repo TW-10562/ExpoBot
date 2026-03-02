@@ -88,36 +88,36 @@ export async function request<T = any>(url: string, options: RequestOptions = {}
   try {
     const response = await fetch(fullUrl, fetchOptions);
 
-    // Try to parse JSON, but fallback to text for non-JSON responses
-    let result: any;
-    try {
-      result = await response.json();
-    } catch (e) {
-      const text = await response.text();
-      // Normalize Not Found to a JSON error shape
-      result = {
-        code: response.status,
-        message: text || response.statusText || 'Request failed',
-      };
-    }
+// ✅ Read body ONCE
+const rawText = await response.text();
 
-    // Handle HTTP errors
-    if (!response.ok) {
-      // Return normalized error
-      return {
-        code: result.code || response.status,
-        message: result.message || response.statusText || 'Request failed',
-      } as any;
-    }
+let result: any;
+try {
+  result = rawText ? JSON.parse(rawText) : {};
+} catch {
+  result = {
+    code: response.status,
+    message: rawText || response.statusText || 'Request failed',
+  };
+}
 
-    // Handle 401 unauthorized
-    if (result.code === '401' || result.code === 401) {
-      removeToken();
-      window.location.href = '/';
-      throw new Error('Session expired, please login again');
-    }
+// Handle HTTP errors
+if (!response.ok) {
+  return {
+    code: result.code || response.status,
+    message: result.message || response.statusText || 'Request failed',
+  } as any;
+}
 
-    return result;
+// Handle 401 unauthorized
+if (result.code === 401 || result.code === '401') {
+  removeToken();
+  window.location.href = '/';
+  throw new Error('Session expired, please login again');
+}
+
+return result;
+
   } catch (error) {
     console.error('Request error:', error);
     // Surface a consistent error shape

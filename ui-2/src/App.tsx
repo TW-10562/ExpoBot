@@ -17,6 +17,16 @@ import BroadcastModal from './components/modals/BroadcastModal';
 import { User, FeatureType, HistoryItem } from './types';
 import { getNotifications as apiGetNotifications, createSupportTicket } from './api/support';
 import { getToken } from './api/auth';
+
+// Helper: Fetch with timeout to prevent hanging
+const fetchWithTimeout = (url: string, options: any = {}, timeoutMs: number = 5000) => {
+  return Promise.race([
+    fetch(url, options),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+    ),
+  ]);
+};
  
  
 function AppContent() {
@@ -152,9 +162,9 @@ function AppContent() {
           // Fetch inbox messages - for users: admin replies, for admins: user queries
           let inboxMapped: any[] = [];
           try {
-            const inboxRes = await fetch('/dev-api/api/messages/inbox', {
+            const inboxRes = await fetchWithTimeout('/dev-api/api/messages/inbox', {
               headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
+            }, 5000);
             const inboxData = await inboxRes.json();
             if (inboxData?.code === 200 && Array.isArray(inboxData.result?.messages)) {
               const raw = inboxData.result.messages.map((m: any) => {
@@ -239,9 +249,9 @@ function AppContent() {
           // Fallback: try to at least show inbox messages
           try {
             const token = getToken();
-            const inboxRes = await fetch('/dev-api/api/messages/inbox', {
+            const inboxRes = await fetchWithTimeout('/dev-api/api/messages/inbox', {
               headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
+            }, 5000);
             const inboxData = await inboxRes.json();
             if (inboxData?.code === 200 && Array.isArray(inboxData.result?.messages)) {
               const raw = inboxData.result.messages.map((m: any) => {

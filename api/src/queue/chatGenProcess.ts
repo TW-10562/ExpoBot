@@ -32,6 +32,23 @@ const getChatModelName = () => {
   );
 };
 
+const generateWithLLM = async (messages: any[], outputId?: number): Promise<string> => {
+  // Use non-streaming LLM call to avoid streaming reader issues in this environment
+  return await callLLM(messages, 0.5);
+};
+
+const createChatTitle = async (prompt: string, answer: string): Promise<string> => {
+  try {
+    const system = { role: 'system', content: 'You are a helpful assistant that creates a concise chat title (max 10 words) summarizing the user query and answer.' };
+    const user = { role: 'user', content: `User query: ${prompt}\n\nAnswer: ${answer}` };
+    const titleRaw = await callLLM([system, user], 0.2);
+    // Keep title short and clean
+    return (titleRaw || '').split('\n')[0].trim().substring(0, 80);
+  } catch (e) {
+    return prompt.substring(0, 60);
+  }
+};
+
 const getChatTitleModelName = () => {
   return (
     process.env.OLLAMA_TITLE_MODEL ||
@@ -156,57 +173,11 @@ const callLLM = async (messages: any[], temperature = 0.5, outputId?: number): P
       const res = await response.json();
       return res.message?.content || '';
     }
-  } catch (error) {
-    console.error('[LLM] callLLM error:', error);
-    throw error;
-  }
-};
-
-const generateWithLLM = async (messages: any[], outputId: number) => {
-  try {
-    console.log(`[generateWithLLM] Starting LLM generation for outputId: ${outputId}`);
-    const result = await callLLM(messages, 0.1, outputId);
-    console.log(`[generateWithLLM] LLM generation completed, result length: ${result?.length || 0}`);
-    return result || 'error happen';
-  } catch (error) {
-    console.error('[generateWithLLM] LLM generation failed:', error);
-    console.error('[generateWithLLM] Error type:', error instanceof Error ? error.message : String(error));
-    return 'error happen';
-  }
-};
-
-export async function createChatTitle(prompt: string, content: string): Promise<string> {
-  try {
-    const message = `
-Please summarize the following conversation (question and answer) into a Japanese chat title of about 15 characters.
-Output only the title—no explanation or extra text.
-
-Conversation:
-Question: ${prompt}
-Answer: ${content}`;
-    const messages = [
-      { role: 'system', content: 'You are a helpful assistant. Answer in Japanese.' },
-      { role: 'user', content: message },
-    ];
-    const result = await callLLM(messages, 0.3);
-    return result?.substring(0, 30).trim() || '空のチャットタイトル';
-  } catch {
-    return '空のチャットタイトル';
-  }
-}
-
-export async function getDualLanguageOutput(japaneseAnswer: string): Promise<string> {
-  const { formatDualLanguageOutput } = await import('@/utils/translation');
-  let translated = '';
-  try {
-    translated = await translateText(japaneseAnswer, 'en', true);
   } catch (e) {
-    console.error('[Show Button] Failed to translate Japanese answer to English:', e);
-    translated = '[Translation failed]';
+    console.error(`[LLM] callLLM error:`, e);
+    return '';
   }
-  return formatDualLanguageOutput(japaneseAnswer, translated, 'en');
-}
-
+};
 export const chatGenProcess = async (job) => {
   const { taskId } = job.data;
   const type = 'CHAT';
@@ -424,8 +395,21 @@ export const chatGenProcess = async (job) => {
             prompt = `Document content for reference:\n${documentContent}\n\nUser query: ${data.prompt}`;
             console.log(`[STEP 2] RAG content prepared, total length: ${prompt.length}`);
           } else {
-            console.log(`[STEP 2] No documents found, continuing without RAG context`);
-            prompt = data.prompt;
+            console.log(`[STEP 2] No documents found from Solr, attempting RAG backend search fallback`);
+            // Try RAG processor fallback if available
+            try {
+              const ragResult = await ragProcessor.search(queryForRAG);
+              if (ragResult && ragResult.length > 0) {
+                prompt = ragResult;
+                console.log(`[STEP 2] RAG backend returned content, using RAG prompt, length=${prompt.length}`);
+              } else {
+                console.log(`[STEP 2] RAG backend returned no content, continuing without RAG`);
+                prompt = data.prompt;
+              }
+            } catch (ragErr) {
+              console.error(`[STEP 2] RAG backend fallback error:`, ragErr);
+              prompt = data.prompt;
+            }
           }
         } catch (solrError) {
           console.error(`[STEP 2] Solr search error:`, solrError);

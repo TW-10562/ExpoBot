@@ -6,6 +6,7 @@ import KoaBody from 'koa-body';
 import koaStatic from 'koa-static';
 import userAgent from 'koa-useragent';
 import path from 'path';
+import Router from 'koa-router';
 
 import { config } from '@/config';
 import { auth } from '@/controller/auth';
@@ -42,6 +43,11 @@ async function bootstrap() {
   // ✅ Ensure ALL routes are loaded before server starts
   const router = await initRoutes();
 
+  // WRAP existing routes with /api prefix
+  const apiRouter = new Router({ prefix: '/api' });
+  apiRouter.use(router.routes());
+  apiRouter.use(router.allowedMethods());
+
   // Existing preview route registration
   router.get('/api/file/preview/:id', previewFile);
 
@@ -74,6 +80,8 @@ async function bootstrap() {
     .use(koaStatic(config.RAG.Uploads.filesDir))
     .use(auth)
     .use(userAgent)
+    .use(apiRouter.routes())
+    .use(apiRouter.allowedMethods())
     .use(router.routes())
     .use(router.allowedMethods());
 
@@ -85,14 +93,32 @@ async function bootstrap() {
   const port = Number(process.env.PORT ?? config.Backend.port);
   const host = config.Backend.host ?? '0.0.0.0';
 
-  httpServer.listen(port, '0.0.0.0', () => {
-    console.info(
-      `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] 🚀 サーバーが正常に起動しました: ${host}:${port}`,
-    );
-    console.info(
-      `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] 🌐 サーバーはすべてのネットワークインターフェースでリッスンしています (0.0.0.0:${port})`,
-    );
-  });
+  // Try to listen on configured port; if port is in use, attempt a small range of fallback ports
+  let attemptPort = port;
+  const maxAttempts = 5;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise<void>((resolve, reject) => {
+        httpServer.once('error', (err: any) => reject(err));
+        httpServer.listen(attemptPort, '0.0.0.0', () => resolve());
+      });
+      console.info(
+        `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] 🚀 サーバーが正常に起動しました: ${host}:${attemptPort}`,
+      );
+      console.info(
+        `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] 🌐 サーバーはすべてのネットワークインターフェースでリッスンしています (0.0.0.0:${attemptPort})`,
+      );
+      break;
+    } catch (err: any) {
+      if (err?.code === 'EADDRINUSE') {
+        console.warn(`[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] ポート ${attemptPort} は既に使用されています、${attempt + 1} 回目の再試行...`);
+        attemptPort += 1; // try next port
+        continue;
+      }
+      throw err;
+    }
+  }
 
   process.on('uncaughtException', (err) => {
     console.error(`[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] ❌ 未捕获の例外: ${err.message}`);

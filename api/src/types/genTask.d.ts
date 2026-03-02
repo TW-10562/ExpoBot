@@ -23,7 +23,7 @@ export interface IGenTaskQuerySerType {
   pageSize: number;
   type?: { [OpTypes.eq]: string };
   status?: { [OpTypes.eq]: string };
-  create_By: string;
+  create_by?: string;
 }
 
 export interface IGenTask {

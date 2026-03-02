@@ -1,84 +1,12 @@
 from typing import Dict, List, Literal, Optional
-from typing_extensions import Self
-from core.logging import logger
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SearchRequest(BaseModel):
     collection_name: list[str]
     query: str
-    top_k: int = 3
+    top_k: int = 10
     mode: str = "default"
-
-
-class BM25Params(BaseModel):
-    k1: float = 1.8  # typical values are between 1.2 and 2.0
-    b: float = 0.75  # typical values are between 0 and 1
-
-
-class HybridSearchRequest(BaseModel):
-    model_config = ConfigDict(extra="allow")
-
-    collection_name: str = Field(..., description="List of collection names to search")
-    query: str = Field(..., description="The search query string")
-    top_k: int = Field(default=10, description="Number of top results to return")
-    vector_only: Optional[bool] = Field(
-        default=False, description="If true, use only vector similarity for search"
-    )
-    bm25_only: Optional[bool] = Field(
-        default=False, description="If true, use only BM25 relevance for search"
-    )
-    vector_weight: float = Field(
-        default=0.5,
-        description="Weight for vector similarity in hybrid search (0.0 to 1.0)",
-        ge=0.0,
-        le=1.0,
-    )
-    bm25_weight: float = Field(
-        default=0.5,
-        description="Weight for BM25 relevance in hybrid search (0.0 to 1.0)",
-        ge=0.0,
-        le=1.0,
-    )
-    bm25_params: Optional[BM25Params] = Field(
-        default=None,
-        description="Parameters for BM25 ranking algorithm",
-    )
-
-    @model_validator(mode="after")
-    def validate_search_params(self) -> Self:
-        if self.vector_only and self.bm25_only:
-            raise ValidationError("vector_only and bm25_only cannot both be true.")
-
-        if not self.vector_only and not self.bm25_only:
-            if (total_weight := (self.vector_weight + self.bm25_weight)) != 1.0:
-                raise ValidationError(
-                    f"The sum of vector_weight and bm25_weight must be 1.0, got {total_weight}."
-                )
-
-        if (
-            self.vector_only
-            and not self.bm25_only
-            and (self.vector_weight != 1.0 and self.bm25_weight != 0.0)
-        ):
-            self.vector_weight = 1.0
-            self.bm25_weight = 0.0
-
-        if (
-            self.bm25_only
-            and not self.vector_only
-            and (self.vector_weight != 0.0 and self.bm25_weight != 1.0)
-        ):
-            self.vector_weight = 0.0
-            self.bm25_weight = 1.0
-
-        if not self.vector_only:
-            if self.bm25_params is None:
-                self.bm25_params = BM25Params()
-                logger.info(
-                    f"BM25 parameters not provided, using default values {self.bm25_params.model_dump()}"
-                )
-        return self
 
 
 class DeleteRequest(BaseModel):
@@ -90,6 +18,7 @@ class DeleteResponseModel(BaseModel):
     status: Literal["deleted", "no match", "failed"]
     collection: str
     deleted_records: Optional[List[str]] = None
+
 
 class UpdateRequest(BaseModel):
     collection_name: str

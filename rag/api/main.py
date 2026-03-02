@@ -7,13 +7,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from models.schemas import (
     DeleteRequest,
     DeleteResponseModel,
-    HybridSearchRequest,
     SearchRequest,
     UpdateRequest,
 )
 from services.document_service import delete_collection
 from services.embedder import embed_text
-from services.HybridRAGEngineFactory import hybrid_RAG_engine_factory
+from services.vector_search_service import vector_search_factory
 from services.rag_service import search_rag
 from services.record_service import delete_document, update_document
 
@@ -62,14 +61,6 @@ def health_check():
 def search(req: SearchRequest):
     try:
         return search_rag(req)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/search/hybrid")
-def hybrid_search(req: HybridSearchRequest):
-    try:
-        return hybrid_RAG_engine_factory.get(req.collection_name).hybrid_search_rag(req)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

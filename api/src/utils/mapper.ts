@@ -91,11 +91,12 @@ export const queryById = async <T>(
     otherWhere?: FindOptions;
     include?: Includeable[] | Includeable;
   },
-): Promise<T> => {
+): Promise<T | null> => {
   const res = await model.findOne({
     where,
     ...conditions,
   });
+  if (!res) return null;
   return res.dataValues;
 };
 
@@ -130,11 +131,12 @@ export const getDetail = async <T>(
     otherWhere?: FindOptions;
     include?: Includeable[] | Includeable;
   },
-): Promise<T> => {
+): Promise<T | null> => {
   const res = await model.findOne({
     where,
     ...conditions,
   });
+  if (!res) return null;
   return res.dataValues;
 };
 

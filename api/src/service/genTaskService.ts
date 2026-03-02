@@ -60,10 +60,29 @@ export const handleAddGenTask = async (
 
   // Ensure formData has sensible defaults so downstream validators don't fail
   try {
-    const fd: any = (addContent as any).formData || {};
-    if (!fd.taskId) fd.taskId = taskId;
-    if (typeof fd.fieldSort === 'undefined' || fd.fieldSort === null) fd.fieldSort = 1;
-    (addContent as any).formData = fd;
+    const originalFd = (addContent as any).formData;
+    const originalWasEmpty = !originalFd || (typeof originalFd === 'object' && Object.keys(originalFd).length === 0);
+
+    // If the client intended to create an empty chat (no formData provided), preserve it as empty
+    if (originalWasEmpty) {
+      (addContent as any).formData = {};
+      console.log('[GenTaskService] Received empty formData — treating as new chat creation');
+    } else {
+      const fd: any = originalFd || {};
+      if (!fd.taskId) fd.taskId = taskId;
+      if (typeof fd.fieldSort === 'undefined' || fd.fieldSort === null) fd.fieldSort = 1;
+      // Ensure common chat fields have defaults to avoid Joi validation failures
+      if (typeof fd.prompt === 'undefined') fd.prompt = '';
+      if (typeof fd.fileId === 'undefined') fd.fileId = [];
+      if (typeof fd.allFileSearch === 'undefined') fd.allFileSearch = true;
+      if (typeof fd.useMcp === 'undefined') fd.useMcp = false;
+      // Normalize fileId elements to numbers
+      if (Array.isArray(fd.fileId)) {
+        fd.fileId = fd.fileId.map((v: any) => (typeof v === 'string' && v.match(/^\d+$/) ? Number(v) : v));
+      }
+      (addContent as any).formData = fd;
+      console.log('[GenTaskService] formData prepared for processing:', JSON.stringify(fd).slice(0, 1000));
+    }
   } catch (e) {
     // ignore and continue; validation will catch malformed payloads
   }
@@ -77,13 +96,12 @@ export const handleAddGenTask = async (
 
   switch (addContent.type) {
     case 'CHAT':
+      // Do not run chat LLM work synchronously during the HTTP request —
+      // enqueue and let the worker perform generation to avoid long request times.
+      // Preserve existing behavior for other task types.
       if (Object.keys(addContent.formData).length !== 0) {
-        outputs = await chatTask(addContent.formData as IChatTaskFormData);
-        refTaskId = (addContent.formData as IChatTaskFormData).taskId;
-        if (refTaskId) {
-          taskId = refTaskId;
-          needUpdate = true;
-        }
+        // mark that processing will happen in the worker; do not call chatTask here
+        needUpdate = false;
       }
       break;
     case 'SUMMARY':

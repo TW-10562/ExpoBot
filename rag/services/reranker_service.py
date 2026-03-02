@@ -1,13 +1,20 @@
-import os
-from typing import List, Optional, Sequence
+"""DEPRECATED - Advanced RAG Reranker Service
 
-import torch
-from config.index import config
-from langchain_core.documents import Document
-from core.logging import logger
-from torch import Tensor
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
-from utils.search import ChromaDBSearchResultItem
+This file is no longer used in RAG Lite. Reranking has been removed to simplify
+the system and improve performance.
+
+RAG Lite does not support:
+- LLM-based reranking
+- Cross-encoder models
+- Result ranking beyond vector similarity
+
+All RAG retrieval now uses simple vector similarity ranking from ChromaDB.
+"""
+
+raise NotImplementedError(
+    "Advanced RAG reranker_service is no longer supported. "
+    "RAG Lite uses vector similarity search only (no reranking)."
+)
 
 os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 

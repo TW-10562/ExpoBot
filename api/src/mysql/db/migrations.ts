@@ -47,7 +47,7 @@ async function ensureUserColumns(queryInterface: QueryInterface) {
     `UPDATE user SET emp_id = CONCAT('EMP', LPAD(user_id, 6, '0')) WHERE emp_id IS NULL OR emp_id = ''`,
   );
 
-  const indexes = await queryInterface.showIndex('user');
+  const indexes = (await queryInterface.showIndex('user')) as any[];
   const hasEmpIdUnique = indexes.some((idx: any) => {
     const fields = Array.isArray(idx.fields) ? idx.fields.map((f: any) => f.attribute) : [];
     return idx.unique && fields.length === 1 && fields[0] === 'emp_id';

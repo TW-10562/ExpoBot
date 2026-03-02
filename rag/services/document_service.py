@@ -5,54 +5,34 @@ from repositories.chroma_repository import chroma_db
 
 
 def delete_collection(req: DeleteRequest) -> DeleteResponseModel:
-
+    """RAG Lite: Delete document collection - Vector search only"""
+    
+    # Reject unsupported old mode configurations
     if config.RAG.mode[0] == "splitByArticleWithHybridSearch":
-        if not req.ids:
-            raise ValueError("No document IDs provided for deletion.")
-        try:
-            collection = chroma_db.get_collection(
-                name=config.RAG.PreProcess.PDF.splitByArticle.collectionName
-            )
+        logger.error(
+            f"[RAG-Lite] Unsupported mode: {config.RAG.mode[0]}. "
+            "Article-based splitting with hybrid search is not available in RAG Lite. "
+            "Please configure mode to 'splitByPage' only."
+        )
+        return DeleteResponseModel(
+            status="failed",
+            collection=req.collection_name,
+            error="Article-based splitting is not available in RAG Lite. Use 'splitByPage' mode."
+        )
 
-            if config.APP_MODE == "development":
-                res_1 = collection.get(where={"file_id": {"$in": req.ids}})  # type: ignore
-                logger.debug(f"Found {len(res_1['ids'])} records before deletion")
-
-            collection.delete(
-                where={"file_id": {"$in": req.ids}},  # type: ignore
-            )
-
-            if config.APP_MODE == "development":
-                res_2 = collection.get(where={"file_id": {"$in": req.ids}})  # type: ignore
-                logger.debug(f"Found {len(res_2['ids'])} records after deletion")
-
-            logger.info(
-                f"Deleted documents with IDs {req.ids} from collection: "
-                f"{config.RAG.PreProcess.PDF.splitByArticle.collectionName}"
-            )
-            return DeleteResponseModel(
-                status="deleted",
-                collection=config.RAG.PreProcess.PDF.splitByArticle.collectionName,
-                deleted_records=req.ids,
-            )
-        except Exception as e:
-            logger.error(
-                f"Error deleting documents with IDs {req.ids} from collection: "
-                f"{config.RAG.PreProcess.PDF.splitByArticle.collectionName} - {str(e)}"
-            )
-            return DeleteResponseModel(
-                status="failed",
-                collection=config.RAG.PreProcess.PDF.splitByArticle.collectionName,
-            )
-
+    # RAG Lite: Simple ChromaDB collection deletion
     target = []
     for col in chroma_db.list_collections():
         meta = getattr(col, "metadata", None) or {}
         if meta.get("name") == req.collection_name:
             target.append(col.name)
+    
     if not target:
+        logger.warning(f"[RAG-Lite] No collection matching {req.collection_name}")
         return DeleteResponseModel(status="no match", collection=req.collection_name)
 
     for name in target:
         chroma_db.delete_collection(name=name)
+        logger.info(f"[RAG-Lite] Deleted collection: {name}")
+    
     return DeleteResponseModel(status="deleted", collection=req.collection_name)

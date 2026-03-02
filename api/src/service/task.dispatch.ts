@@ -25,6 +25,7 @@ const execute = async (
   let task = await queryById<IGenTaskSer>(KrdGenTask, { id: taskId });
   if (!task) {
     console.log(`[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] error happen, task [${taskId}] not exist!`);
+    return;
   }
   if (task.status === 'CANCEL') {
     console.log(
@@ -70,6 +71,10 @@ const execute = async (
     }
 
     task = await queryById<IGenTaskSer>(KrdGenTask, { id: taskId });
+    if (!task) {
+      console.log(`[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] error happen, task [${taskId}] not exist after processing!`);
+      return;
+    }
 
     if (task.status === 'CANCEL') {
       console.log(
@@ -103,6 +108,10 @@ const execute = async (
       }
 
       task = await queryById<IGenTaskSer>(KrdGenTask, { id: taskId });
+      if (!task) {
+        console.log(`[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] error happen, task [${taskId}] not exist after processing!`);
+        return;
+      }
       if (task.status === 'CANCEL') {
         console.log(
           `[${dayjs().format('YYYY-MM-DD HH:mm:ss')}] job end, type: ${type}, taskId: ${taskId}, task status is CANCEL2`,

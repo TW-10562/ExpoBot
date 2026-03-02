@@ -62,6 +62,18 @@ export async function pgHasTables(tableNames: string[] = REQUIRED_PG_TABLES): Pr
 export async function detectDbMode(force: boolean = false): Promise<DbMode> {
   const now = Date.now();
   if (!force && cachedMode && now - cachedAt < MODE_TTL_MS) return cachedMode;
+  // Respect explicit environment override first
+  const envMode = (process.env.DB_MODE || '').toLowerCase();
+  if (envMode === 'postgres') {
+    cachedMode = 'postgres';
+    cachedAt = now;
+    return cachedMode;
+  }
+  if (envMode === 'mysql') {
+    cachedMode = 'mysql';
+    cachedAt = now;
+    return cachedMode;
+  }
 
   try {
     const ok = await pgHasTables();

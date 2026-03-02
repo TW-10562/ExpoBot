@@ -25,7 +25,8 @@ router.post(
   addEditSchema(
     Joi.object({
       type: Joi.string().valid('CHAT', 'SUMMARY', 'TRANSLATE', 'FILEUPLOAD').required(),
-      formData: Joi.object().required(),
+      // Allow formData to be optional or empty to avoid 400 errors for clients
+      formData: Joi.any().optional().default({}),
     }),
   ),
   getAddMid,

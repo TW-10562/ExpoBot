@@ -77,8 +77,8 @@ class FileUploadService {
     const fileId = record.getDataValue('id');
     console.log(`[FileUpload] DB record: ${fileId}`);
 
-    // 4. Index to Solr with retries. If indexing is still failing,
-    // rollback DB + file to avoid metadata drift.
+    // 4. Try indexing to Solr. Don't fail the entire upload if Solr is unavailable;
+    //    mark the file as not indexed and keep DB/file so RAG or other backends can use it.
     let indexed = false;
     try {
       indexed = await this.retry(
@@ -86,24 +86,15 @@ class FileUploadService {
         3,
         1200,
       );
+      if (indexed) {
+        console.log(`[FileUpload] Solr indexing SUCCESS: ${file.originalFilename}`);
+      } else {
+        console.warn(`[FileUpload] Solr indexing returned false for: ${file.originalFilename}`);
+      }
     } catch (error: any) {
-      console.error(`[FileUpload] Solr indexing failed after retries: ${error?.message || error}`);
-      await File.destroy({ where: { id: fileId } }).catch(() => undefined);
-      if (fs.existsSync(permanentPath)) {
-        await fs.promises.unlink(permanentPath).catch(() => undefined);
-      }
-      throw new Error(`Indexing failed for ${file.originalFilename}`);
-    }
-
-    if (indexed) {
-      console.log(`[FileUpload] SUCCESS: ${file.originalFilename}`);
-    } else {
-      console.warn(`[FileUpload] Indexing returned false for: ${file.originalFilename}`);
-      await File.destroy({ where: { id: fileId } }).catch(() => undefined);
-      if (fs.existsSync(permanentPath)) {
-        await fs.promises.unlink(permanentPath).catch(() => undefined);
-      }
-      throw new Error(`Indexing failed for ${file.originalFilename}`);
+      console.warn(`[FileUpload] Solr indexing failed after retries, continuing without Solr: ${error?.message || error}`);
+      // keep DB record and physical file so RAG ingestion can proceed independently
+      indexed = false;
     }
 
     return {

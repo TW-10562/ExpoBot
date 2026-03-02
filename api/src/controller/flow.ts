@@ -73,12 +73,10 @@ export const getListMid = async (ctx: Context, next: () => Promise<void>) => {
 
 export const getMid = async (ctx: Context, next: () => Promise<void>) => {
     const { id } = ctx.params;
-    const flows = await queryById(FlowDefinitions, {
-        id
-    });
+    const flow = await queryById(FlowDefinitions, { id });
 
     ctx.state.formatData = {
-        flow: flows[0]
+        flow
     };
 
     await next();

@@ -5,7 +5,7 @@
  */
 
 import axios from 'axios';
-const OLLAMA_API = process.env.OLLAMA_API || 'localhost:11435';
+const OLLAMA_API = process.env.OLLAMA_API || 'localhost:11434';
 const MODEL = process.env.OLLAMA_MODEL || 'gpt-oss:120b';
 
 interface TranslationRequest {

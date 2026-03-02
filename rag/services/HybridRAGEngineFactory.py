@@ -1,19 +1,21 @@
-from __future__ import annotations
+"""DEPRECATED - Advanced RAG HybridRAGEngineFactory
 
-import threading
-from pathlib import Path
-from typing import Dict, List, Optional
+This file is no longer used in RAG Lite. It has been replaced by vector_search_service.py
+which provides simple vector-only search functionality.
 
-import jaconv
-from config.index import config
-from core.logging import logger
-from langchain.retrievers.ensemble import EnsembleRetriever
-from langchain_chroma import Chroma
-from langchain_community.retrievers import BM25Retriever
-from models.schemas import HybridSearchRequest
-from services.embedder import embeddings
-from services.reranker_service import get_ranked_results
-from sudachipy import dictionary, tokenizer
+DO NOT USE. RAG Lite does not support:
+- Hybrid search (vector + BM25 ensemble)
+- Reranking pipeline  
+- Sudachi tokenization
+- Apache Solr integration
+
+All RAG operations now use ChromaDB vector similarity search only.
+"""
+
+raise NotImplementedError(
+    "Advanced RAG HybridRAGEngineFactory is no longer supported. "
+    "RAG Lite uses simple vector search via vector_search_service.py instead."
+)
 
 tok = None
 mode = tokenizer.Tokenizer.SplitMode.C

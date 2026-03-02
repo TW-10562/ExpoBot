@@ -107,48 +107,47 @@ export default class splitByArticleWithHybridSearch implements RAGProcessor {
 
     async search(prompt: string): Promise<string> {
         try {
-            console.log(`[RAG] splitByArticleWithHybridSearch.search called with query: "${prompt}"`);
-            console.log(`[RAG] RAG Backend URL: ${config.RAG.Backend.url}`);
+            console.log(`[RAG-Lite] Vector search called with query: "${prompt}"`);
+            console.log(`[RAG-Lite] RAG Backend URL: ${config.RAG.Backend.url}`);
             
-            const hybridSearchRequestData = {
-                collection_name: config.RAG.PreProcess.PDF.splitByArticle.collectionName ?? this.name,
+            const searchRequestData = {
+                collection_name: [config.RAG.PreProcess.PDF.splitByArticle.collectionName ?? this.name],
                 query: prompt,
                 top_k: config.RAG.Retrieval.topK,
-                vector_only: config.RAG.Retrieval.HybridSearch.vector_only,
-                bm25_only: config.RAG.Retrieval.HybridSearch.bm25_only,
-                vector_weight: config.RAG.Retrieval.HybridSearch.vector_weight,
-                bm25_weight: config.RAG.Retrieval.HybridSearch.bm25_weight,
-                bm25_params: config.RAG.Retrieval.HybridSearch.bm25_params || { k1: 1.8, b: 0.75 },
+                mode: 'splitByPage',
             }
 
-            console.log(`[RAG] Sending request to ${config.RAG.Backend.url}/search/hybrid`);
+            console.log(`[RAG-Lite] Sending request to ${config.RAG.Backend.url}/search`);
             let RAGBackendResponse;
             try {
                 RAGBackendResponse = await axios.post(
-                    `${config.RAG.Backend.url}/search/hybrid`,
-                    hybridSearchRequestData,
+                    `${config.RAG.Backend.url}/search`,
+                    searchRequestData,
                     { timeout: 30000 } // 30 second timeout
                 );
             } catch (error: any) {
                 if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
-                    console.error(`[RAG] Connection failed to ${config.RAG.Backend.url}. Is the RAG service running?`);
+                    console.error(`[RAG-Lite] Connection failed to ${config.RAG.Backend.url}. Is the RAG service running?`);
                     throw new Error(`RAG service is not available at ${config.RAG.Backend.url}. Please start the RAG service on port 8000.`);
                 }
                 throw error;
             }
             
-            console.log(`[RAG] Response status: ${RAGBackendResponse.status}`);
-            console.log(`[RAG] Response data type: ${typeof RAGBackendResponse.data}, keys: ${RAGBackendResponse.data ? Object.keys(RAGBackendResponse.data).join(', ') : 'null'}`);
+            console.log(`[RAG-Lite] Response status: ${RAGBackendResponse.status}`);
 
             if (RAGBackendResponse.status !== 200) {
                 throw new Error(`RAG backend search failed with status ${RAGBackendResponse.status}`);
             }
 
-            const responseData = RAGBackendResponse.data as IHybridRAGResultItem[];
-            console.log(`[RAG] Received ${responseData.length} results from RAG backend`);
+            const responseData = RAGBackendResponse.data?.results || [];
+            console.log(`[RAG-Lite] Received ${responseData.length} results from RAG backend`);
 
-            const hybridSearchResultString = responseData.map(item => item.page_content).join('\n\n---\n\n');
-            console.log(`[RAG] Combined search result length: ${hybridSearchResultString.length} characters`);
+            // Extract page_content from results (LangChain Document format)
+            const searchResultString = responseData
+                .map((item: any) => item.page_content || JSON.stringify(item))
+                .join('\n\n---\n\n');
+            
+            console.log(`[RAG-Lite] Combined search result length: ${searchResultString.length} characters`);
 
             const RAGPrompt = `あなたは株式会社IJTT（英文名称 IJTT Co., Ltd.）の社内人事Q&Aボットです。
 
@@ -179,14 +178,14 @@ export default class splitByArticleWithHybridSearch implements RAGProcessor {
 以下の参考情報を基に、質問に回答してください。
 
 【参考情報】
-${hybridSearchResultString}
+${searchResultString}
 
 【質問】
 ${prompt}`;
 
             return RAGPrompt;
         } catch (error) {
-            console.error("Error during hybrid search:", error);
+            console.error("Error during vector search:", error);
             return `ただ今は参考資料の取得に失敗しました。時間をおいて再度お試しください。`;
         }
     }

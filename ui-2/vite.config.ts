@@ -11,7 +11,8 @@ export default defineConfig({
     port: 7001, // UI2 runs on different port than UI1
     proxy: {
       '/dev-api': {
-        target: 'http://localhost:9090',
+        // Proxy to backend API port used by the server
+        target: 'http://localhost:8081',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/dev-api/, ''),
       },

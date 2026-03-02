@@ -68,7 +68,7 @@ const User = seq.define(
       comment: 'アカウント有効化フラグ(0=無効, 1=有効。アカウント作成時の承認前の状態に使用)',
     },
     sso_bound: {
-      type: DataTypes.TINYINT,
+      type: DataTypes.SMALLINT,
       allowNull: false,
       defaultValue: 0,
       comment: 'SSO連携済みフラグ',

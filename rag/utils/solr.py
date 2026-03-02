@@ -1,11 +1,21 @@
-from logging import getLogger
-from typing import Optional
+"""DEPRECATED - Apache Solr Integration
 
-import requests
-from pydantic import BaseModel
-from config.index import config
+This file is no longer used in RAG Lite. Apache Solr indexing has been replaced
+with ChromaDB vector storage.
 
-logger = getLogger(__name__)
+RAG Lite does not support:
+- Apache Solr integration
+- BM25 full-text search
+- Solr-based document indexing
+
+All vector storage and retrieval now uses ChromaDB exclusively.
+"""
+
+raise NotImplementedError(
+    "Apache Solr integration is no longer supported. "
+    "RAG Lite uses ChromaDB for all storage and retrieval."
+)
+
 
 
 class SolrNotFoundError(Exception):
